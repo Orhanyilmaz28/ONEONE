@@ -24,7 +24,7 @@ export function CopyButton({ text, label = "Kopieren", className = "" }: { text:
 
   return (
     <button
-      className={`inline-flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 font-medium text-[13px] text-ink/80 transition hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${className}`}
+      className={`inline-flex items-center gap-1.5 rounded-full border border-line bg-card px-3 py-1.5 font-medium text-[13px] text-ink/80 transition hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${className}`}
       onClick={copy}
       type="button"
     >

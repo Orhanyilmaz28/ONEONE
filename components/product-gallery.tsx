@@ -87,7 +87,7 @@ export function ProductGallery({ product }: { product: Product }) {
               <button
                 aria-label={`${label(m)} anzeigen`}
                 aria-pressed={i === active}
-                className={`relative size-20 shrink-0 overflow-hidden rounded-2xl bg-white ring-2 transition ${
+                className={`relative size-20 shrink-0 overflow-hidden rounded-2xl bg-card ring-2 transition ${
                   i === active ? "ring-ink" : "ring-transparent opacity-70 hover:opacity-100 focus-visible:opacity-100"
                 }`}
                 key={mediaKey(m)}
@@ -98,7 +98,7 @@ export function ProductGallery({ product }: { product: Product }) {
                   <>
                     <Image alt="" className="object-cover" fill sizes="80px" src={m.poster} />
                     <span className="absolute inset-0 flex items-center justify-center bg-black/25 text-white">
-                      <span className="flex size-7 items-center justify-center rounded-full bg-white text-ink">
+                      <span className="flex size-7 items-center justify-center rounded-full bg-card text-ink">
                         <PlayGlyph className="ml-0.5 size-2.5" />
                       </span>
                     </span>
@@ -113,7 +113,7 @@ export function ProductGallery({ product }: { product: Product }) {
         ) : null}
 
         <div
-          className={`group relative aspect-[4/5] min-w-0 flex-1 overflow-hidden rounded-[2rem] bg-white ${current?.kind === "image" ? "cursor-zoom-in" : ""}`}
+          className={`group relative aspect-[4/5] min-w-0 flex-1 overflow-hidden rounded-[2rem] bg-card ${current?.kind === "image" ? "cursor-zoom-in" : ""}`}
           onMouseLeave={() => setZoom(null)}
           onMouseMove={(e) => {
             if (current?.kind !== "image") return;
@@ -186,7 +186,7 @@ export function ProductGallery({ product }: { product: Product }) {
               }}
               type="button"
             >
-              <span className="flex size-6 items-center justify-center rounded-full bg-white text-ink">
+              <span className="flex size-6 items-center justify-center rounded-full bg-card text-ink">
                 {playing ? <PauseGlyph className="size-2.5" /> : <PlayGlyph className="ml-0.5 size-2.5" />}
               </span>
               {current.title ?? "Video"}
@@ -195,7 +195,7 @@ export function ProductGallery({ product }: { product: Product }) {
 
           {media.length > 1 ? (
             <>
-              <span className="pointer-events-none absolute top-4 right-4 rounded-full bg-white/95 px-3 py-1 text-xs tabular-nums shadow-sm">
+              <span className="pointer-events-none absolute top-4 right-4 rounded-full bg-card/95 px-3 py-1 text-xs tabular-nums shadow-sm">
                 <span aria-hidden>
                   {active + 1} / {media.length}
                 </span>
@@ -204,15 +204,15 @@ export function ProductGallery({ product }: { product: Product }) {
                 </span>
               </span>
               <div className="absolute inset-x-4 bottom-4 flex items-center justify-between opacity-100 transition-opacity lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
-                <button aria-label="Vorheriges Bild" className="flex size-11 items-center justify-center rounded-full bg-white/95 shadow-md transition hover:scale-105" onClick={() => go(-1)} type="button">
+                <button aria-label="Vorheriges Bild" className="flex size-11 items-center justify-center rounded-full bg-card/95 shadow-md transition hover:scale-105" onClick={() => go(-1)} type="button">
                   <ArrowIcon className="size-4 rotate-180" />
                 </button>
                 <div aria-hidden className="flex gap-1.5">
                   {media.map((m, i) => (
-                    <span className={`h-1.5 rounded-full bg-white shadow transition-all ${i === active ? "w-6" : "w-1.5 opacity-60"}`} key={mediaKey(m)} />
+                    <span className={`h-1.5 rounded-full bg-card shadow transition-all ${i === active ? "w-6" : "w-1.5 opacity-60"}`} key={mediaKey(m)} />
                   ))}
                 </div>
-                <button aria-label="Nächstes Bild" className="flex size-11 items-center justify-center rounded-full bg-white/95 shadow-md transition hover:scale-105" onClick={() => go(1)} type="button">
+                <button aria-label="Nächstes Bild" className="flex size-11 items-center justify-center rounded-full bg-card/95 shadow-md transition hover:scale-105" onClick={() => go(1)} type="button">
                   <ArrowIcon className="size-4" />
                 </button>
               </div>

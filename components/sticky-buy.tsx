@@ -27,7 +27,7 @@ export function StickyBuy({ product }: { product: Product }) {
   const price = Math.min(...product.variants.map((v) => v.price));
   return (
     <div
-      className={`fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-line bg-white p-2 pr-2 shadow-[0_20px_60px_-15px_rgba(20,20,20,0.35)] transition-all duration-500 sm:inset-x-6 ${
+      className={`fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-line bg-card p-2 pr-2 shadow-[0_20px_60px_-15px_rgba(20,20,20,0.35)] transition-all duration-500 sm:inset-x-6 ${
         show ? "translate-y-0 opacity-100" : "pointer-events-none translate-y-24 opacity-0"
       }`}
       data-print-hide
@@ -41,7 +41,7 @@ export function StickyBuy({ product }: { product: Product }) {
         <span className="block truncate font-medium">{product.title}</span>
         <span className="t-small block text-muted">{formatPrice(price)} · inkl. MwSt., zzgl. Versand</span>
       </span>
-      <a className="anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-ink px-5 font-medium text-white transition hover:bg-black" href="#kaufen">
+      <a className="anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-accent px-5 font-medium text-black transition hover:bg-accent-dark" href="#kaufen">
         <span className="hidden sm:inline">Größe wählen</span>
         <span className="sm:hidden">Kaufen</span>
         <ArrowIcon />

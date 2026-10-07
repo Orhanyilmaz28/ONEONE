@@ -66,7 +66,7 @@ export function MissingValue({ label }: { label: string }) {
 export type CompanyView = Record<CompanyKey, ReactNode> & {
   /** Domain des Shops (fest, z. B. exstase-energy.de) */
   domain: string;
-  /** Name der verantwortlichen Person, z. B. „Harun Dündar“ aus „Geschäftsführer: Harun Dündar“ */
+  /** Name der verantwortlichen Person, z. B. „Christopher Walich“ aus „Geschäftsführer: Christopher Walich“ */
   person: ReactNode;
 };
 
@@ -81,7 +81,7 @@ export function companyView(company: Settings["company"]): CompanyView {
     view[key] = isMissing(value) ? <MissingValue label={MISSING_LABEL[key]} /> : value;
   }
   const owner = String(company.owner ?? "").trim();
-  // „Geschäftsführer: Harun Dündar“ → „Harun Dündar“
+  // „Geschäftsführer: Christopher Walich“ → „Christopher Walich“
   const person = isMissing(owner) ? <MissingValue label="Verantwortliche Person" /> : owner.replace(/^[^:]*:\s*/, "");
   return { ...view, domain: staticCompany.domain, person };
 }

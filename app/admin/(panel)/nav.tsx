@@ -22,7 +22,7 @@ export function AdminNav() {
         const active = item.href === "/admin" ? path === "/admin" : path?.startsWith(item.href);
         return (
           <Link
-            className={`flex shrink-0 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[15px] transition ${active ? "bg-ink text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
+            className={`flex shrink-0 items-center gap-3 rounded-2xl px-3.5 py-2.5 text-[15px] transition ${active ? "bg-accent text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
             href={item.href}
             key={item.href}
           >

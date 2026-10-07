@@ -96,7 +96,7 @@ function ReviewItem({
   const badge = STATUS_BADGE[r.status];
   const headingId = `review-${r.id}`;
   return (
-    <article aria-labelledby={headingId} className="rounded-3xl border border-line bg-white p-5 shadow-[0_1px_2px_rgba(20,20,20,0.04)] sm:p-6">
+    <article aria-labelledby={headingId} className="rounded-3xl border border-line bg-card p-5 shadow-[0_1px_2px_rgba(20,20,20,0.04)] sm:p-6">
       <div className="flex gap-4">
         {r.productImage ? (
           <Image

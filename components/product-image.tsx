@@ -46,7 +46,7 @@ export function ProductImage({
   return (
     <div
       aria-label={product.title}
-      className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-ink via-ink to-lilac/40 ${className}`}
+      className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br from-card via-card to-lilac/30 ${className}`}
       role="img"
     >
       <LogoMark className="w-2/5 max-w-60 text-lilac" />

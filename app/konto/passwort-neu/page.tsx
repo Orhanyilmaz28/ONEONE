@@ -17,13 +17,13 @@ export default async function NewPasswordPage({ searchParams }: Props) {
     <div className="mx-auto max-w-md">
       <p className="t-eyebrow">Mein Konto</p>
       <h1 className="t-h1 mt-3">Neues Passwort</h1>
-      <div className="mt-8 rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+      <div className="mt-8 rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
         {valid ? (
           <NewPasswordForm id={id} token={token} />
         ) : (
           <div className="space-y-4 text-ink/80 leading-relaxed">
             <p>Dieser Link ist abgelaufen oder wurde schon benutzt.</p>
-            <Link className="inline-flex h-12 items-center rounded-full bg-ink px-6 font-medium text-white transition hover:bg-black" href="/konto/passwort-vergessen">
+            <Link className="inline-flex h-12 items-center rounded-full bg-accent px-6 font-medium text-black transition hover:bg-accent-dark" href="/konto/passwort-vergessen">
               Neuen Link anfordern
             </Link>
           </div>

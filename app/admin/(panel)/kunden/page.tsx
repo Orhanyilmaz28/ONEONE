@@ -144,7 +144,7 @@ export default async function CustomersPage() {
                         ) : null}
                         <details className="relative">
                           <summary className={`${btnDanger.replace("px-4 py-2", "px-3.5 py-1.5")} cursor-pointer list-none [&::-webkit-details-marker]:hidden`}>Löschen</summary>
-                          <form action={removeCustomer} className="absolute right-0 z-10 mt-2 w-64 rounded-2xl border border-line bg-white p-4 text-left shadow-lg">
+                          <form action={removeCustomer} className="absolute right-0 z-10 mt-2 w-64 rounded-2xl border border-line bg-card p-4 text-left shadow-lg">
                             <input name="id" type="hidden" value={c.id} />
                             <p className="text-[13px] text-ink/80">Konto von {c.name} endgültig löschen? Bestellungen bei Stripe bleiben erhalten.</p>
                             <button className="mt-3 w-full rounded-full bg-red-700 px-4 py-2 font-medium text-sm text-white hover:bg-red-800" type="submit">

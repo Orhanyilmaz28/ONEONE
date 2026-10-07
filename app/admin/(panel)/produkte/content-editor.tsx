@@ -257,7 +257,7 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
         {/* ── Speichern-Leiste ── */}
         <div className={`${barSticky ? "sticky bottom-3" : ""} z-20 mt-6`}>
           <div
-            className={`flex flex-col gap-3 rounded-2xl border bg-white/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
+            className={`flex flex-col gap-3 rounded-2xl border bg-card/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
           >
             <p aria-live="polite" className="flex min-w-0 items-center gap-2.5 px-2 text-[14px] sm:px-0" role="status">
               <StatusDot tone={status.tone} />
@@ -398,7 +398,7 @@ function ImageManager({
       <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
         {images.map((img, i) => (
           <li
-            className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-white transition ${dragIndex === i ? "border-ink/40 opacity-50" : "border-line"}`}
+            className={`group relative flex flex-col overflow-hidden rounded-2xl border bg-card transition ${dragIndex === i ? "border-ink/40 opacity-50" : "border-line"}`}
             draggable
             key={img.src}
             onDragEnd={() => setDragIndex(null)}
@@ -418,12 +418,12 @@ function ImageManager({
             <div className="relative aspect-[4/5] cursor-grab bg-cream active:cursor-grabbing">
               {/* biome-ignore lint/performance/noImgElement: Vorschau im Dashboard */}
               <img alt={img.alt || title || "Produktbild"} className="absolute inset-0 size-full object-cover" draggable={false} loading="lazy" src={img.src} />
-              <span className="absolute top-2 left-2 rounded-full bg-white/90 px-2 py-0.5 font-medium text-[11.5px] text-ink/80 tabular-nums shadow-sm">
+              <span className="absolute top-2 left-2 rounded-full bg-card/90 px-2 py-0.5 font-medium text-[11.5px] text-ink/80 tabular-nums shadow-sm">
                 {i === 0 ? "Hauptbild" : i + 1}
               </span>
               <button
                 aria-label={`Bild ${i + 1} entfernen`}
-                className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-white/95 text-red-700 shadow-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
+                className="absolute top-2 right-2 flex size-8 items-center justify-center rounded-full bg-card/95 text-red-700 shadow-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
                 onClick={() => onChange(images.filter((_, k) => k !== i))}
                 title="Entfernen"
                 type="button"
@@ -458,7 +458,7 @@ function ImageManager({
               Herkunft von Bild {i + 1}
             </label>
             <select
-              className={`border-line border-t bg-white px-2.5 py-2 text-[12.5px] outline-none focus:bg-cream/40 ${img.type && img.type !== "original" ? "text-ink" : "text-ink/60"}`}
+              className={`border-line border-t bg-card px-2.5 py-2 text-[12.5px] outline-none focus:bg-cream/40 ${img.type && img.type !== "original" ? "text-ink" : "text-ink/60"}`}
               id={`${id}-ki-${i}`}
               onChange={(e) => onChange(images.map((x, k) => (k === i ? { ...x, type: e.target.value as AiMediaType } : x)))}
               title="Mit KI erstellte oder bearbeitete Bilder werden im Shop gekennzeichnet"
@@ -483,7 +483,7 @@ function ImageManager({
         {free > 0 ? (
           <li>
             <button
-              className={`flex aspect-[4/5] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-4 text-center transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${dropActive ? "border-ink/50 bg-ink/5" : error ? "border-red-300 bg-red-50/40" : "border-line bg-paper hover:border-ink/30 hover:bg-white"}`}
+              className={`flex aspect-[4/5] w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-4 text-center transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${dropActive ? "border-ink/50 bg-ink/5" : error ? "border-red-300 bg-red-50/40" : "border-line bg-paper hover:border-ink/30 hover:bg-card"}`}
               onClick={() => fileRef.current?.click()}
               onDragLeave={() => setDropActive(false)}
               onDragOver={(e) => {
@@ -712,7 +712,7 @@ function DescriptionField({ value, onChange, error }: { value: string; onChange:
   return (
     <div>
       <FieldLabel counter={<Counter length={value.length} max={LIMITS.description} />} htmlFor={id} optional text="Beschreibung" />
-      <div className={`overflow-hidden rounded-2xl border bg-white transition focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 ${error ? "border-red-300" : "border-line"}`}>
+      <div className={`overflow-hidden rounded-2xl border bg-card transition focus-within:border-ink focus-within:ring-4 focus-within:ring-ink/10 ${error ? "border-red-300" : "border-line"}`}>
         <div className="flex flex-wrap items-center gap-1 border-line border-b bg-paper px-2 py-1.5">
           <ToolButton disabled={preview} onClick={() => format("bold")} title="Fett">
             <b>F</b>
@@ -762,7 +762,7 @@ function ToolButton({ children, onClick, title, disabled, pressed }: { children:
   return (
     <button
       aria-pressed={pressed}
-      className={`rounded-lg px-2.5 py-1 text-[13px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 disabled:opacity-35 ${pressed ? "bg-ink text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
+      className={`rounded-lg px-2.5 py-1 text-[13px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 disabled:opacity-35 ${pressed ? "bg-accent text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
       disabled={disabled}
       onClick={onClick}
       title={title}
@@ -984,7 +984,7 @@ function DeleteCard({ handle, title, fromCatalog }: { handle: string; title: str
           </form>
         ) : (
           <button
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100"
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-card px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100"
             onClick={() => setConfirm(true)}
             type="button"
           >

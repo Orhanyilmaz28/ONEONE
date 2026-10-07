@@ -109,7 +109,7 @@ export const COMPANY_FIELDS: CompanyField[] = [
     key: "email",
     label: "E-Mail-Adresse",
     help: "Für Fragen von Kund:innen. Pflicht im Impressum – steht auch auf der Kontaktseite.",
-    placeholder: "z. B. hallo@exstase-energy.de",
+    placeholder: "z. B. hello@exstase.com",
     type: "email",
     autoComplete: "email",
   },
@@ -131,7 +131,7 @@ export const COMPANY_FIELDS: CompanyField[] = [
     key: "register",
     label: "Handelsregister",
     help: "Registergericht und Nummer – steht auf deinem Handelsregisterauszug.",
-    placeholder: "z. B. Amtsgericht Kleve, HRB 19550",
+    placeholder: "z. B. Amtsgericht Düsseldorf, HRB 90042",
   },
 ];
 
@@ -169,7 +169,7 @@ function checkCompany(field: CompanyField, raw: string, country: string): { valu
 
   switch (field.key) {
     case "email":
-      if (!EMAIL.test(value)) return { value, error: "Das sieht nicht wie eine E-Mail-Adresse aus – Beispiel: hallo@exstase-energy.de." };
+      if (!EMAIL.test(value)) return { value, error: "Das sieht nicht wie eine E-Mail-Adresse aus – Beispiel: hello@exstase.com." };
       break;
     case "phone": {
       const digits = value.replace(/\D/g, "").length;

@@ -3,28 +3,29 @@
 /* ═════════════════════════ EXSTASE Energy Design-System ═════════════════════════ */
 
 @theme {
-  --color-paper: #fbfaf8;
-  --color-cream: #f3f1ed;
-  --color-ink: #141414;
-  --color-muted: #6b6966;
-  --color-line: #e8e4de;
-  --color-accent: #141414;
-  --color-accent-dark: #000000;
-  --color-lilac: #b5e86a;
-  --color-peach: #ffe566;
-  --color-sky: #7fd0f5;
-  --color-sage: #eceaf8;
-  --color-blush: #f8e9e1;
-  --color-water: #c9d9f5;
-  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
-  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --color-paper: #030303;
+  --color-cream: #0e0e0e;
+  --color-card: #0e0e0e;
+  --color-ink: #f5f7f2;
+  --color-muted: #8a8d86;
+  --color-line: #232623;
+  --color-accent: #a8e652;
+  --color-accent-dark: #b9ff59;
+  --color-lilac: #a8e652;
+  --color-peach: #ffd400;
+  --color-sky: #1fb6ff;
+  --color-sage: #151a12;
+  --color-blush: #1a1210;
+  --color-water: #0f1a26;
+  --font-sans: var(--font-exo), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-exo), ui-sans-serif, system-ui, sans-serif;
   --animate-marquee: marquee 50s linear infinite;
   --animate-marquee-reverse: marquee 50s linear infinite reverse;
   --animate-spin-slow: spin 24s linear infinite;
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: dark;
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
@@ -43,25 +44,25 @@ body {
 }
 
 ::selection {
-  background: var(--color-lilac);
-  color: var(--color-ink);
+  background: var(--color-accent);
+  color: #000;
 }
 
 /* ───────── Einheitliche Schrift-Skala (Utilities dürfen Farben überschreiben) ───────── */
 @layer components {
-  .font-display { font-weight: 500; letter-spacing: -0.03em; }
-  .t-display { font-size: clamp(2.6rem, 3.6vw + 1.1rem, 4.5rem); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; }
-  .t-h1 { font-size: clamp(2.2rem, 2.4vw + 1.2rem, 3.4rem); line-height: 1.05; letter-spacing: -0.035em; font-weight: 500; }
-  .t-h2 { font-size: clamp(1.9rem, 1.9vw + 1.05rem, 2.9rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 500; }
-  .t-h3 { font-size: clamp(1.2rem, 0.5vw + 1rem, 1.45rem); line-height: 1.25; letter-spacing: -0.015em; font-weight: 500; }
+  .font-display { font-weight: 800; letter-spacing: -0.03em; }
+  .t-display { font-size: clamp(2.6rem, 3.6vw + 1.1rem, 4.5rem); line-height: 1.02; letter-spacing: -0.04em; font-weight: 900; }
+  .t-h1 { font-size: clamp(2.2rem, 2.4vw + 1.2rem, 3.4rem); line-height: 1.05; letter-spacing: -0.035em; font-weight: 900; }
+  .t-h2 { font-size: clamp(1.9rem, 1.9vw + 1.05rem, 2.9rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 900; }
+  .t-h3 { font-size: clamp(1.2rem, 0.5vw + 1rem, 1.45rem); line-height: 1.25; letter-spacing: -0.015em; font-weight: 800; }
   .t-lead { font-size: 1.125rem; line-height: 1.65; color: var(--color-muted); }
   .t-small { font-size: 0.875rem; line-height: 1.55; }
-  .t-eyebrow { font-size: 0.8125rem; line-height: 1.4; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+  .t-eyebrow { font-size: 0.75rem; line-height: 1.4; font-weight: 700; letter-spacing: 0.3em; text-transform: uppercase; color: var(--color-accent); }
   /* Marken-Tropfen vor jeder Überschrift-Zeile */
   .t-eyebrow::before { content: ""; display: inline-block; width: 0.62em; height: 1em; margin-right: 0.6em; vertical-align: -0.12em; background: currentColor; -webkit-mask: var(--drop) center / contain no-repeat; mask: var(--drop) center / contain no-repeat; }
   .no-drop::before { content: none; }
   .grad-text {
-    background: linear-gradient(100deg, #8dc63f 0%, #f2c230 55%, #1ea7e1 100%);
+    background: linear-gradient(110deg, #a8e652 0%, #b9ff59 40%, #f4ffd9 55%, #a8e652 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -104,9 +105,9 @@ body {
   70%, 100% { transform: translate(-50%, -8px) scale(0); opacity: 0; }
 }
 @keyframes core-glow {
-  0%, 55% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 0 rgba(141, 198, 63, 0); }
-  70% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 14px rgba(141, 198, 63, 0.28); }
-  100% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 26px rgba(141, 198, 63, 0); }
+  0%, 55% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 0 rgba(168, 230, 82, 0); }
+  70% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 14px rgba(168, 230, 82, 0.28); }
+  100% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 26px rgba(168, 230, 82, 0); }
 }
 
 .anim-rise { animation: rise 0.9s var(--ease-out) both; }
@@ -172,7 +173,7 @@ body {
 /* Schichten im Ruhezustand */
 .layer-top { transform: translateY(-100px) rotateX(58deg) rotateZ(-38deg); }
 .layer-mid { position: relative; transform: rotateX(58deg) rotateZ(-38deg); box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35); }
-.layer-mid::after { content: ""; position: absolute; inset: -14px; border-radius: inherit; border: 14px solid rgba(141, 198, 63, 0.28); opacity: 0; animation: core-ring 3.2s ease-out infinite; will-change: transform, opacity; }
+.layer-mid::after { content: ""; position: absolute; inset: -14px; border-radius: inherit; border: 14px solid rgba(168, 230, 82, 0.28); opacity: 0; animation: core-ring 3.2s ease-out infinite; will-change: transform, opacity; }
 @keyframes core-ring { 0%, 55% { opacity: 0; transform: scale(0.96); } 70% { opacity: 1; } 100% { opacity: 0; transform: scale(1.08); } }
 .layer-bottom { transform: translateY(100px) rotateX(58deg) rotateZ(-38deg); }
 .drop-fall { animation: drop-fall 3.2s cubic-bezier(0.5, 0, 0.75, 0) infinite; }
@@ -185,7 +186,7 @@ body {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(203, 189, 255, 0.22), transparent 60%);
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(168, 230, 82, 0.18), transparent 60%);
   opacity: 0;
   transition: opacity 0.4s;
   pointer-events: none;
@@ -206,14 +207,14 @@ input[type="range"].range::-webkit-slider-thumb {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: white;
-  border: 2px solid var(--color-ink);
+  background: var(--color-accent);
+  border: 2px solid var(--color-paper);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
   cursor: grab;
   transition: transform 0.2s;
 }
 input[type="range"].range::-webkit-slider-thumb:active { transform: scale(1.15); cursor: grabbing; }
-input[type="range"].range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: white; border: 2px solid var(--color-ink); }
+input[type="range"].range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: var(--color-accent); border: 2px solid var(--color-paper); }
 input[type="range"].range:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--color-lilac); outline-offset: 2px; }
 
 .no-scrollbar { scrollbar-width: none; }
@@ -331,11 +332,11 @@ svg.logo { overflow: visible; }
    Im base-Layer, damit gezielte Fokus-Stile einzelner Elemente (Utilities) Vorrang behalten. */
 @layer base {
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--color-accent);
     outline-offset: 3px;
   }
   /* Auf dunklen Flächen: heller Rahmen */
-  :is(.bg-ink, .bg-black) :focus-visible {
+  .bg-black :focus-visible {
     outline-color: #fff;
   }
   /* Bei Windows-Kontrastmodus die Systemfarbe nutzen */
@@ -352,9 +353,9 @@ svg.logo { overflow: visible; }
   z-index: 100;
   padding: 0.75rem 1.25rem;
   border-radius: 999px;
-  background: var(--color-ink);
-  color: #fff;
-  font-weight: 500;
+  background: var(--color-accent);
+  color: #000;
+  font-weight: 700;
   box-shadow: 0 14px 40px -12px rgba(20, 20, 20, 0.45);
   transform: translateY(calc(-100% - 1.5rem));
   transition: transform 0.25s var(--ease-out);
@@ -370,7 +371,7 @@ svg.logo { overflow: visible; }
 /* Druckansicht (z. B. AGB, Widerruf, Bestellübersicht): ohne Navigation, Animationen und schwebende Elemente */
 @media print {
   .skip-link, .help-btn, [data-print-hide] { display: none !important; }
-  body { background: #fff; }
+  body { background: #fff; color: #000; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   .slide.is-active :is(.slide-line, .slide-photo, .slide-chip) {
     opacity: 1 !important;
@@ -380,3 +381,34 @@ svg.logo { overflow: visible; }
   }
   a[href^="http"]:not([href*="localhost"])::after { content: " (" attr(href) ")"; font-size: 0.85em; color: var(--color-muted); }
 }
+
+/* ═════════ EXSTASE-Website-Look: dunkel, Lime-Akzent, Körnung ═════════ */
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media print { body::after { display: none; } }
+
+/* Dashboard bleibt hell (nur der Shop nutzt das dunkle EXSTASE-Theme) */
+.admin-light {
+  color-scheme: light;
+  --color-paper: #fbfaf8;
+  --color-cream: #f3f1ed;
+  --color-card: #ffffff;
+  --color-ink: #141414;
+  --color-muted: #6b6966;
+  --color-line: #e8e4de;
+  --color-accent: #141414;
+  --color-accent-dark: #000000;
+  --color-sage: #eceaf8;
+  --color-blush: #f8e9e1;
+  --color-water: #c9d9f5;
+  background: #f4f2ee;
+  color: var(--color-ink);
+}
+.admin-light :focus-visible { outline-color: var(--color-ink); }

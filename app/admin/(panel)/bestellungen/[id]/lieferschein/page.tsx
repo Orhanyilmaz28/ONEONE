@@ -52,7 +52,7 @@ const PRINT_CSS = `
 
 /** Blatt (A4) – auf dem Bildschirm als Karte, beim Drucken eine Seite */
 const SHEET =
-  "ls-sheet mx-auto flex w-full max-w-[210mm] flex-col rounded-2xl bg-white p-6 text-ink leading-relaxed shadow-[0_1px_2px_rgba(20,20,20,0.05),0_12px_40px_-12px_rgba(20,20,20,0.18)] ring-1 ring-line sm:min-h-[297mm] sm:p-[16mm]";
+  "ls-sheet mx-auto flex w-full max-w-[210mm] flex-col rounded-2xl bg-card p-6 text-ink leading-relaxed shadow-[0_1px_2px_rgba(20,20,20,0.05),0_12px_40px_-12px_rgba(20,20,20,0.18)] ring-1 ring-line sm:min-h-[297mm] sm:p-[16mm]";
 
 /** Angaben, die in der Widerrufsbelehrung stehen müssen (Name, Anschrift, Telefon, E-Mail) */
 const WITHDRAWAL_FIELDS = [

@@ -23,12 +23,12 @@ export function ProductTabs({ handle, active }: { handle: string; active: "preis
   ] as const;
   return (
     <nav aria-label="Bereiche des Produkts" className="no-scrollbar -mt-2 mb-6 overflow-x-auto">
-      <ul className="flex w-max gap-1 rounded-full border border-line bg-white p-1">
+      <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
         {tabs.map((t) => (
           <li key={t.key}>
             <Link
               aria-current={t.key === active ? "page" : undefined}
-              className={`block whitespace-nowrap rounded-full px-4 py-2 text-[14px] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${t.key === active ? "bg-ink text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+              className={`block whitespace-nowrap rounded-full px-4 py-2 text-[14px] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${t.key === active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
               href={t.href}
             >
               {t.label}

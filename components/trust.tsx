@@ -71,7 +71,7 @@ export function TrustIcon({ icon, className = "size-5" }: { icon: TrustItem["ico
 export function AnnouncementText({ text }: { text: string }) {
   return (
     <>
-      <span className="mr-2.5 inline-block rounded-full bg-gradient-to-r from-lilac via-peach to-sky px-2 py-px align-[1px] font-semibold text-[10.5px] text-ink uppercase leading-[1.5] tracking-[0.12em]">
+      <span className="mr-2.5 inline-block rounded-full bg-gradient-to-r from-lilac via-peach to-sky px-2 py-px align-[1px] font-semibold text-[10.5px] text-black uppercase leading-[1.5] tracking-[0.12em]">
         Aktion
       </span>
       <span className="font-medium text-white">{text}</span>
@@ -158,7 +158,7 @@ export function TrustStrip() {
     <section aria-label="Darauf kannst du dich verlassen" className="mx-auto max-w-7xl px-3 pt-3 sm:px-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {TRUST.map((t) => (
-          <div className="group flex items-center gap-3 rounded-[1.5rem] border border-line bg-white p-4 sm:p-5" key={t.title}>
+          <div className="group flex items-center gap-3 rounded-[1.5rem] border border-line bg-card p-4 sm:p-5" key={t.title}>
             <span className="icon-hover flex size-11 shrink-0 items-center justify-center rounded-full bg-cream">
               <TrustIcon className="size-6" icon={t.icon} />
             </span>

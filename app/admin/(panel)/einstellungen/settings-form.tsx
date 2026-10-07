@@ -181,7 +181,7 @@ export function SettingsForm({ settings, defaults, canSave }: Props) {
           { href: "#hinweis", label: "Aktions-Hinweis" },
         ].map((l) => (
           <a
-            className="shrink-0 rounded-full border border-line bg-white px-4 py-2 text-[14px] text-ink/80 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+            className="shrink-0 rounded-full border border-line bg-card px-4 py-2 text-[14px] text-ink/80 transition hover:border-ink/30 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
             href={l.href}
             key={l.href}
           >
@@ -375,7 +375,7 @@ export function SettingsForm({ settings, defaults, canSave }: Props) {
       {/* ── Speichern-Leiste (bleibt beim Scrollen unten sichtbar) ── */}
       <div className={`${barSticky ? "sticky bottom-3" : ""} z-20 mt-6`}>
         <div
-          className={`flex flex-col gap-3 rounded-2xl border bg-white/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
+          className={`flex flex-col gap-3 rounded-2xl border bg-card/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
         >
           <p aria-live="polite" className="flex min-w-0 items-center gap-2.5 px-2 text-[14px] sm:px-0" role="status">
             <StatusDot tone={status.tone} />
@@ -613,7 +613,7 @@ function AmountField({ name, label: text, help, placeholder = "0,00", value, err
 function SwitchGroup({ name, label: text, description, checked, onChange, children }: { name: string; label: string; description: string; checked: boolean; onChange: (v: boolean) => void; children: ReactNode }) {
   const id = useId();
   return (
-    <div className={`rounded-2xl border transition ${checked ? "border-ink/20 bg-white" : "border-line bg-paper/60"}`}>
+    <div className={`rounded-2xl border transition ${checked ? "border-ink/20 bg-card" : "border-line bg-paper/60"}`}>
       <label className="flex cursor-pointer items-start justify-between gap-4 rounded-2xl p-4 has-focus-visible:ring-4 has-focus-visible:ring-ink/15" htmlFor={id}>
         <span className="min-w-0">
           <span className="block font-medium text-[15px]">{text}</span>
@@ -624,7 +624,7 @@ function SwitchGroup({ name, label: text, description, checked, onChange, childr
         <input checked={checked} className="peer sr-only" id={id} name={name} onChange={(e) => onChange(e.target.checked)} role="switch" type="checkbox" value="1" />
         <span
           aria-hidden
-          className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-ink/15 transition-colors after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.25)] after:transition-transform after:content-[''] peer-checked:bg-ink peer-checked:after:translate-x-5"
+          className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-ink/15 transition-colors after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-card after:shadow-[0_1px_3px_rgba(0,0,0,0.25)] after:transition-transform after:content-[''] peer-checked:bg-ink peer-checked:after:translate-x-5"
         />
       </label>
       {/* Feld bleibt im Formular (auch wenn ausgeblendet), damit der Wert beim Wieder-Einschalten noch da ist */}
@@ -661,7 +661,7 @@ function ReturnsField({ value, error, changed, onChange }: { value: ReturnCostPa
           const checked = value === o.value;
           // Erste Möglichkeit trägt die Feld-ID, damit „Fehler anklicken → Feld fokussieren“ funktioniert
           const inputId = i === 0 ? id : `${id}-${o.value}`;
-          const tone = error ? "border-red-300 bg-red-50/30" : checked ? "border-ink/40 bg-white shadow-[0_1px_2px_rgba(20,20,20,0.06)]" : "border-line bg-paper/60 hover:border-ink/25";
+          const tone = error ? "border-red-300 bg-red-50/30" : checked ? "border-ink/40 bg-card shadow-[0_1px_2px_rgba(20,20,20,0.06)]" : "border-line bg-paper/60 hover:border-ink/25";
           return (
             <label
               className={`flex cursor-pointer gap-3 rounded-2xl border p-4 transition has-focus-visible:ring-4 has-focus-visible:ring-ink/15 ${tone}`}
@@ -687,7 +687,7 @@ function ReturnsField({ value, error, changed, onChange }: { value: ReturnCostPa
                 <span className="mt-1 block text-[13px] text-muted leading-snug" id={`${id}-${o.value}-desc`}>
                   {o.description}
                 </span>
-                <span className={`mt-3 block rounded-xl px-3 py-2.5 text-[13px] leading-snug ring-1 ${checked ? "bg-paper text-ink ring-line" : "bg-white/70 text-ink/70 ring-line/70"}`} id={`${id}-${o.value}-sentence`}>
+                <span className={`mt-3 block rounded-xl px-3 py-2.5 text-[13px] leading-snug ring-1 ${checked ? "bg-paper text-ink ring-line" : "bg-card/70 text-ink/70 ring-line/70"}`} id={`${id}-${o.value}-sentence`}>
                   <span className="mb-0.5 block text-[11.5px] text-muted uppercase tracking-[0.08em]">Satz in der Widerrufsbelehrung</span>„{RETURN_COST_SENTENCE[o.value]}“
                 </span>
               </span>
@@ -772,7 +772,7 @@ function AnnouncementField({ value, error, shipping, onChange, onBlur }: { value
             <span className="h-2.5 w-20 rounded-full bg-ink/15" />
             <span className="ml-auto h-2.5 w-10 rounded-full bg-ink/10" />
             <span className="h-2.5 w-10 rounded-full bg-ink/10" />
-            <span className="h-6 w-16 rounded-full bg-ink" />
+            <span className="h-6 w-16 rounded-full bg-accent" />
           </div>
         </div>
         <p className="mt-2 text-[12.5px] text-muted">

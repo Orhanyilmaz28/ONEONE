@@ -50,7 +50,7 @@ export function Newsletter({ dark }: { dark?: boolean }) {
     <form className="w-full max-w-md" onSubmit={onSubmit}>
       <div
         className={`flex items-center rounded-full border p-1.5 pl-5 transition focus-within:border-ink focus-within:ring-4 ${
-          dark ? "border-white/20 bg-white/5 focus-within:border-white/70 focus-within:ring-white/10" : "border-line bg-white focus-within:ring-ink/10"
+          dark ? "border-white/20 bg-white/5 focus-within:border-white/70 focus-within:ring-white/10" : "border-line bg-card focus-within:ring-ink/10"
         }`}
       >
         <label className="sr-only" htmlFor={`${id}-email`}>
@@ -69,7 +69,7 @@ export function Newsletter({ dark }: { dark?: boolean }) {
           <input autoComplete="off" name="website" tabIndex={-1} type="text" />
         </div>
         <button
-          className="flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-medium text-sm text-white transition hover:bg-accent-dark disabled:opacity-60"
+          className="flex items-center gap-2 rounded-full bg-accent px-5 py-2.5 font-bold text-black text-sm transition hover:bg-accent-dark disabled:opacity-60"
           disabled={state === "loading"}
           type="submit"
         >

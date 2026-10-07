@@ -49,7 +49,7 @@ export function AiMediaLabel({
   }
   return (
     <span
-      className={`pointer-events-none absolute z-10 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 whitespace-nowrap rounded-full bg-white/90 font-medium text-ink/85 leading-none shadow-[0_1px_6px_rgba(20,20,20,0.12)] backdrop-blur-sm ${compact ? "px-1.5 py-1 text-[10px]" : "px-2.5 py-1.5 text-[11px] sm:text-[11.5px]"} ${POSITION[position]} ${className}`}
+      className={`pointer-events-none absolute z-10 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-1.5 whitespace-nowrap rounded-full bg-card/90 font-medium text-ink/85 leading-none shadow-[0_1px_6px_rgba(20,20,20,0.12)] backdrop-blur-sm ${compact ? "px-1.5 py-1 text-[10px]" : "px-2.5 py-1.5 text-[11px] sm:text-[11.5px]"} ${POSITION[position]} ${className}`}
       data-ai-media={type}
       title={compact ? text : undefined}
     >

@@ -95,7 +95,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Sear
       <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_300px]">
         <div className="min-w-0">
           <nav aria-label="Bewertungen nach Status" className="no-scrollbar -mx-4 mb-5 overflow-x-auto px-4 lg:mx-0 lg:px-0">
-            <ul className="flex w-max gap-1 rounded-full border border-line bg-white p-1">
+            <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
               {TABS.map((t) => {
                 const active = t.key === tab.key;
                 const n = counts[t.status];
@@ -103,7 +103,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Sear
                   <li key={t.key}>
                     <Link
                       aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-ink text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                      className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                       href={tabHref(t.key)}
                       scroll={false}
                     >
@@ -135,7 +135,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Sear
                 "Du klickst auf „Veröffentlichen“ – sie erscheint sofort im Shop.",
               ].map((step, i) => (
                 <li className="flex gap-3" key={step}>
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink font-medium text-[12px] text-white tabular-nums">{i + 1}</span>
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent font-medium text-[12px] text-white tabular-nums">{i + 1}</span>
                   <span>{step}</span>
                 </li>
               ))}
@@ -171,7 +171,7 @@ function tabHref(key: TabKey) {
 function FixedReviews({ titleOf }: { titleOf: (handle: string) => string }) {
   const fixed = getAllReviews();
   return (
-    <details className="group mt-6 rounded-3xl border border-line bg-white shadow-[0_1px_2px_rgba(20,20,20,0.04)]">
+    <details className="group mt-6 rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(20,20,20,0.04)]">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-6 py-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
         <span>
           <span className="block font-medium text-[15px]">Fest eingebaute Bewertungen ({fixed.length})</span>

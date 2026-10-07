@@ -45,7 +45,7 @@ export function LockCard({ enabled, hasPassword, message, siteUrl }: { enabled: 
             <input checked={on} className="peer sr-only" onChange={(e) => setOn(e.target.checked)} role="switch" type="checkbox" />
             <span
               aria-hidden
-              className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-ink/15 transition-colors peer-checked:bg-ink after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-white after:shadow after:transition-transform after:content-[''] peer-checked:after:translate-x-5"
+              className="relative mt-0.5 h-6 w-11 shrink-0 rounded-full bg-ink/15 transition-colors peer-checked:bg-ink after:absolute after:top-0.5 after:left-0.5 after:size-5 after:rounded-full after:bg-card after:shadow after:transition-transform after:content-[''] peer-checked:after:translate-x-5"
             />
           </label>
           <div className="grid gap-4 sm:grid-cols-2">

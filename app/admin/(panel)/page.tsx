@@ -81,7 +81,7 @@ function SetupPill({ done, total }: { done: number; total: number }) {
   const c = 2 * Math.PI * r;
   return (
     <a
-      className="inline-flex items-center gap-2.5 rounded-full border border-line bg-white py-2 pr-4 pl-2.5 font-medium text-[14px] text-ink outline-none transition hover:border-ink/40 focus-visible:ring-2 focus-visible:ring-ink/30"
+      className="inline-flex items-center gap-2.5 rounded-full border border-line bg-card py-2 pr-4 pl-2.5 font-medium text-[14px] text-ink outline-none transition hover:border-ink/40 focus-visible:ring-2 focus-visible:ring-ink/30"
       href="#startklar"
     >
       <svg aria-hidden className="-rotate-90 size-[18px]" viewBox="0 0 18 18">

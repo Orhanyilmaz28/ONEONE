@@ -128,7 +128,7 @@ export default async function OrderDetailPage({ params }: { params: Params }) {
             <p className="mt-1 text-right text-[12px] text-muted">inkl. MwSt.</p>
           </Card>
 
-          <section aria-labelledby="versand-title" className="@container scroll-mt-6 rounded-3xl border border-line bg-white shadow-[0_1px_2px_rgba(20,20,20,0.04)]" id="versand">
+          <section aria-labelledby="versand-title" className="@container scroll-mt-6 rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(20,20,20,0.04)]" id="versand">
             <div className="border-line border-b px-6 py-4">
               <h2 className="font-medium text-[15px]" id="versand-title">
                 Versand & Status
@@ -262,7 +262,7 @@ function Row({ label, children }: { label: string; children: ReactNode }) {
 function TimelineItem({ label, value, done }: { label: string; value: ReactNode; done: boolean }) {
   return (
     <li className="flex gap-3">
-      <span aria-hidden className={`mt-1.5 size-2.5 shrink-0 rounded-full ${done ? "bg-ink" : "border border-ink/30 bg-white"}`} />
+      <span aria-hidden className={`mt-1.5 size-2.5 shrink-0 rounded-full ${done ? "bg-accent" : "border border-ink/30 bg-card"}`} />
       <div>
         <p className={done ? "font-medium" : "text-muted"}>{label}</p>
         <p className="text-muted tabular-nums">{value}</p>
@@ -308,7 +308,7 @@ function ShipSteps({ lieferschein, hasEmail }: { lieferschein: string; hasEmail:
       <ol className="mt-4 grid gap-4 sm:grid-cols-3">
         {steps.map((s, i) => (
           <li className="flex gap-3" key={s.title}>
-            <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-white font-medium text-[13px] text-amber-900 ring-1 ring-amber-200">
+            <span aria-hidden className="flex size-7 shrink-0 items-center justify-center rounded-full bg-card font-medium text-[13px] text-amber-900 ring-1 ring-amber-200">
               {i + 1}
             </span>
             <div className="text-sm leading-relaxed">

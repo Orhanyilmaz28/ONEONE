@@ -8,11 +8,11 @@ export default function Loading() {
       </div>
       <div className="mb-6 flex gap-2">
         {[28, 20, 32].map((w) => (
-          <div className="h-9 rounded-full bg-white" key={w} style={{ width: `${w * 4}px` }} />
+          <div className="h-9 rounded-full bg-card" key={w} style={{ width: `${w * 4}px` }} />
         ))}
       </div>
       {[10, 4, 2].map((fields) => (
-        <div className="mb-6 rounded-3xl border border-line bg-white" key={fields}>
+        <div className="mb-6 rounded-3xl border border-line bg-card" key={fields}>
           <div className="border-line border-b px-6 py-4">
             <div className="h-4 w-44 rounded bg-ink/10" />
           </div>

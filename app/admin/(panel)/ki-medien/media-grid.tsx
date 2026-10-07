@@ -69,12 +69,12 @@ export function MediaGrid({ items }: { items: MediaItem[] }) {
   return (
     <div>
       <nav aria-label="Medien filtern" className="no-scrollbar mb-5 overflow-x-auto">
-        <ul className="flex w-max gap-1 rounded-full border border-line bg-white p-1">
+        <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
           {FILTERS.map((f) => (
             <li key={f.key}>
               <button
                 aria-pressed={filter === f.key}
-                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${filter === f.key ? "bg-ink text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${filter === f.key ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                 onClick={() => setFilter(f.key)}
                 type="button"
               >
@@ -100,7 +100,7 @@ export function MediaGrid({ items }: { items: MediaItem[] }) {
 
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4" role="status">
         {status ? (
-          <p className={`pointer-events-auto max-w-lg rounded-full px-5 py-3 text-[14px] shadow-lg ${status.tone === "ok" ? "bg-ink text-white" : "bg-red-700 text-white"}`}>
+          <p className={`pointer-events-auto max-w-lg rounded-full px-5 py-3 text-[14px] shadow-lg ${status.tone === "ok" ? "bg-accent text-white" : "bg-red-700 text-white"}`}>
             {status.tone === "ok" ? "✓ " : ""}
             {status.text}
           </p>
@@ -114,7 +114,7 @@ function MediaCard({ item, type, onChoose, saving }: { item: MediaItem; type: Ai
   const videoRef = useRef<HTMLVideoElement>(null);
   const ai = type !== "original";
   return (
-    <li className={`flex flex-col overflow-hidden rounded-2xl border bg-white transition ${ai ? "border-ink/40 shadow-[0_0_0_1px_rgba(20,20,20,0.15)]" : "border-line"}`}>
+    <li className={`flex flex-col overflow-hidden rounded-2xl border bg-card transition ${ai ? "border-ink/40 shadow-[0_0_0_1px_rgba(20,20,20,0.15)]" : "border-line"}`}>
       <div
         className="relative aspect-[4/5] bg-cream"
         onMouseEnter={() => videoRef.current?.play().catch(() => {})}
@@ -132,9 +132,9 @@ function MediaCard({ item, type, onChoose, saving }: { item: MediaItem; type: Ai
             <source src={item.video} type="video/mp4" />
           </video>
         ) : null}
-        <span className="pointer-events-none absolute top-2 left-2 rounded-full bg-white/90 px-2 py-0.5 font-medium text-[11px] text-ink/80">{item.kind === "video" ? "▶ Video" : "Foto"}</span>
+        <span className="pointer-events-none absolute top-2 left-2 rounded-full bg-card/90 px-2 py-0.5 font-medium text-[11px] text-ink/80">{item.kind === "video" ? "▶ Video" : "Foto"}</span>
         {ai ? (
-          <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-white/90 px-2 py-1 font-medium text-[10.5px] text-ink/85 shadow-sm">
+          <span className="pointer-events-none absolute bottom-2 left-2 rounded-full bg-card/90 px-2 py-1 font-medium text-[10.5px] text-ink/85 shadow-sm">
             ✦ {AI_MEDIA_LABEL[type]}
           </span>
         ) : null}
@@ -158,7 +158,7 @@ function MediaCard({ item, type, onChoose, saving }: { item: MediaItem; type: Ai
             return (
               <button
                 aria-pressed={active}
-                className={`rounded-lg px-1 py-1.5 font-medium text-[12px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 ${active ? (c.type === "original" ? "bg-white text-ink shadow-sm" : "bg-ink text-white shadow-sm") : "text-ink/60 hover:bg-white/70 hover:text-ink"}`}
+                className={`rounded-lg px-1 py-1.5 font-medium text-[12px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 ${active ? (c.type === "original" ? "bg-card text-ink shadow-sm" : "bg-accent text-white shadow-sm") : "text-ink/60 hover:bg-card/70 hover:text-ink"}`}
                 disabled={saving}
                 key={c.type}
                 onClick={() => onChoose(c.type)}

@@ -45,17 +45,17 @@ export default async function AccountPage({ searchParams }: Props) {
           {orders.length ? (
             <OrdersList orders={orders} />
           ) : (
-            <div className="rounded-[1.75rem] border border-line border-dashed bg-white p-8 text-center">
+            <div className="rounded-[1.75rem] border border-line border-dashed bg-card p-8 text-center">
               <p className="font-medium">Noch keine Bestellungen</p>
               <p className="mt-1 text-[15px] text-muted">Bestellungen mit deiner E-Mail-Adresse erscheinen hier automatisch.</p>
-              <Link className="mt-5 inline-flex h-11 items-center rounded-full bg-ink px-5 font-medium text-white transition hover:bg-black" href="/products">
+              <Link className="mt-5 inline-flex h-11 items-center rounded-full bg-accent px-5 font-medium text-black transition hover:bg-accent-dark" href="/products">
                 Zum Shop
               </Link>
             </div>
           )}
         </section>
         <aside className="space-y-4">
-          <div className="rounded-[1.75rem] border border-line bg-white p-6">
+          <div className="rounded-[1.75rem] border border-line bg-card p-6">
             <h2 className="font-medium">Meine Daten</h2>
             <p className="mt-2 text-[15px] text-ink/80 leading-relaxed">
               {customer.name}

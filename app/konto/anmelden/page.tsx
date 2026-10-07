@@ -26,7 +26,7 @@ export default async function LoginPage({ searchParams }: Props) {
           Dein Konto wurde gelöscht.
         </p>
       ) : null}
-      <div className="mt-8 rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+      <div className="mt-8 rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
         <LoginForm next={next} />
       </div>
       <p className="mt-6 text-center text-[15px] text-ink/80">

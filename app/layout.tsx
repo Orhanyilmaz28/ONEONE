@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
+import { Exo_2 } from "next/font/google";
 import Script from "next/script";
 import { CartDrawer } from "@/components/cart-drawer";
 import { Enhance } from "@/components/enhance";
@@ -17,7 +17,7 @@ import { getSettings } from "@/lib/settings";
 import { ShopDataProvider } from "@/lib/shop-data";
 import "./globals.css";
 
-const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const exo = Exo_2({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800", "900"], variable: "--font-exo" });
 
 const { brand, collections } = catalog;
 
@@ -28,11 +28,11 @@ export const metadata: Metadata = {
   applicationName: "EXSTASE",
   keywords: ["EXSTASE Energy", "Energy Drink", "Energy Drink online kaufen", "Energy Drink Zero", "Energy Drink Dose 250 ml"],
   alternates: { canonical: "/" },
-  appleWebApp: { capable: true, title: "EXSTASE", statusBarStyle: "default" },
+  appleWebApp: { capable: true, title: "EXSTASE", statusBarStyle: "black-translucent" },
   openGraph: { type: "website", locale: "de_DE", siteName: brand.name },
 };
 
-export const viewport: Viewport = { themeColor: "#fbfaf8" };
+export const viewport: Viewport = { themeColor: "#030303" };
 
 function organizationJsonLd(c: Awaited<ReturnType<typeof getSettings>>["company"]) {
   return {
@@ -63,7 +63,7 @@ function organizationJsonLd(c: Awaited<ReturnType<typeof getSettings>>["company"
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [products, settings, ratings, accounts, aiMedia] = await Promise.all([getProducts(), getSettings(), getPublicRatings(), getAccountsConfig(), getAiOverrides()]);
   return (
-    <html className={geist.variable} data-scroll-behavior="smooth" lang="de" suppressHydrationWarning>
+    <html className={exo.variable} data-scroll-behavior="smooth" lang="de" suppressHydrationWarning>
       <body className="font-sans">
         {/* markiert JS-Unterstützung vor dem ersten Zeichnen (für Icon-Animationen) */}
         <Script id="tt-js" strategy="beforeInteractive">

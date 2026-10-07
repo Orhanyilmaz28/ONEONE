@@ -37,13 +37,13 @@ export default function ErrorPage({ error, unstable_retry }: { error: Error & { 
 
       <div className="mt-9 flex flex-wrap justify-center gap-3">
         <button
-          className="inline-flex h-12 items-center rounded-full bg-ink px-7 font-medium text-white transition hover:bg-black"
+          className="inline-flex h-12 items-center rounded-full bg-accent px-7 font-medium text-black transition hover:bg-accent-dark"
           onClick={() => unstable_retry()}
           type="button"
         >
           Nochmal versuchen
         </button>
-        <Link className="inline-flex h-12 items-center rounded-full border border-ink/15 bg-white px-7 font-medium transition hover:border-ink" href={admin ? "/admin" : "/"}>
+        <Link className="inline-flex h-12 items-center rounded-full border border-ink/15 bg-card px-7 font-medium transition hover:border-ink" href={admin ? "/admin" : "/"}>
           {admin ? "Zum Dashboard" : "Zur Startseite"}
         </Link>
       </div>

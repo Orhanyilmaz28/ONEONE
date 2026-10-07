@@ -182,7 +182,7 @@ export default async function NewsletterPage({ searchParams }: { searchParams: S
               ].map((step, i) => (
                 // biome-ignore lint/suspicious/noArrayIndexKey: feste Reihenfolge
                 <li className="flex gap-3" key={i}>
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-ink font-medium text-[12px] text-white tabular-nums">{i + 1}</span>
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent font-medium text-[12px] text-white tabular-nums">{i + 1}</span>
                   <span>{step}</span>
                 </li>
               ))}

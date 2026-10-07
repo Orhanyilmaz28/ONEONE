@@ -132,7 +132,7 @@ export function CartDrawer() {
                   <p className="t-h3">Dein Warenkorb ist leer</p>
                   <p className="text-muted text-sm">Such dir deine Lieblingssorten aus.</p>
                   <Link
-                    className="mt-2 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 text-paper text-sm transition hover:bg-accent"
+                    className="mt-2 inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-paper text-sm transition hover:bg-accent"
                     href="/products"
                     onClick={close}
                   >
@@ -231,7 +231,7 @@ export function CartDrawer() {
                   <p className="rounded-xl bg-accent/10 px-3 py-2 text-accent-dark text-sm">{error}</p>
                 ) : null}
                 <button
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-ink py-4 font-medium text-paper transition hover:bg-accent disabled:opacity-60"
+                  className="flex w-full items-center justify-center gap-2 rounded-full bg-accent py-4 font-medium text-paper transition hover:bg-accent disabled:opacity-60"
                   disabled={loading}
                   onClick={checkout}
                   type="button"

@@ -15,12 +15,12 @@ export function AccountHeader({ active, name, title }: { active: (typeof ITEMS)[
       <h1 className="t-h1 mt-3">{title}</h1>
       <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
         <nav aria-label="Mein Konto" className="no-scrollbar -mx-1 overflow-x-auto px-1">
-          <ul className="flex w-max gap-1 rounded-full border border-line bg-white p-1">
+          <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
             {ITEMS.map((item) => (
               <li key={item.href}>
                 <Link
                   aria-current={item.href === active ? "page" : undefined}
-                  className={`block whitespace-nowrap rounded-full px-4 py-2 text-[15px] transition ${item.href === active ? "bg-ink text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                  className={`block whitespace-nowrap rounded-full px-4 py-2 text-[15px] transition ${item.href === active ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                   href={item.href}
                 >
                   {item.label}

@@ -41,7 +41,7 @@ function ExternalLink({ href, children, className = linkClass }: { href: string;
 
 function Item({ item }: { item: SetupItem }) {
   return (
-    <li className="flex gap-3 rounded-2xl border border-line bg-white p-4 sm:gap-4 sm:p-5">
+    <li className="flex gap-3 rounded-2xl border border-line bg-card p-4 sm:gap-4 sm:p-5">
       <span
         className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-full ${item.done ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200/70" : "bg-amber-50 text-amber-700 ring-1 ring-amber-200/70"}`}
       >
@@ -127,7 +127,7 @@ export function SetupCheck({ items }: { items: SetupItem[] }) {
           className="mt-4 h-1.5 overflow-hidden rounded-full bg-cream"
           role="progressbar"
         >
-          <div className={`h-full rounded-full ${all ? "bg-emerald-500" : "bg-ink"}`} style={{ width: `${percent}%` }} />
+          <div className={`h-full rounded-full ${all ? "bg-emerald-500" : "bg-accent"}`} style={{ width: `${percent}%` }} />
         </div>
       </div>
 

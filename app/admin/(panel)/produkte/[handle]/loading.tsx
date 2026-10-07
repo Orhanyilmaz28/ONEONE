@@ -9,10 +9,10 @@ export default function Loading() {
       </div>
       <div className="grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_20rem]">
         <div className="flex flex-col gap-6 xl:col-start-2 xl:row-start-1">
-          <div className="h-48 rounded-3xl border border-line bg-white" />
-          <div className="h-56 rounded-3xl border border-line bg-white" />
+          <div className="h-48 rounded-3xl border border-line bg-card" />
+          <div className="h-56 rounded-3xl border border-line bg-card" />
         </div>
-        <div className="rounded-3xl border border-line bg-white p-6 xl:col-start-1 xl:row-start-1">
+        <div className="rounded-3xl border border-line bg-card p-6 xl:col-start-1 xl:row-start-1">
           <div className="h-36 rounded-2xl bg-paper" />
           {Array.from({ length: 5 }, (_, i) => (
             // biome-ignore lint/suspicious/noArrayIndexKey: feste Platzhalter

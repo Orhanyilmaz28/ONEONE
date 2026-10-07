@@ -88,7 +88,7 @@ export function OrderForm({ id, number, customer, initial, brand, companyName, m
         <div className="grid grid-cols-2 gap-2 @[40rem]:grid-cols-4">
           {STATUS_ORDER.map((s) => (
             <label
-              className="relative flex cursor-pointer flex-col gap-0.5 rounded-2xl border border-line bg-white px-3.5 py-3 transition hover:border-ink/30 has-checked:border-ink has-checked:bg-ink/[0.03] has-checked:shadow-[inset_0_0_0_1px_var(--color-ink)] has-focus-visible:ring-4 has-focus-visible:ring-ink/25"
+              className="relative flex cursor-pointer flex-col gap-0.5 rounded-2xl border border-line bg-card px-3.5 py-3 transition hover:border-ink/30 has-checked:border-ink has-checked:bg-ink/[0.03] has-checked:shadow-[inset_0_0_0_1px_var(--color-ink)] has-focus-visible:ring-4 has-focus-visible:ring-ink/25"
               key={s}
             >
               <input checked={status === s} className="sr-only" name="status" onChange={() => setStatus(s)} type="radio" value={s} />
@@ -178,7 +178,7 @@ export function OrderForm({ id, number, customer, initial, brand, companyName, m
       </div>
 
       {mailReady && status === "versendet" && customer.email ? (
-        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-white px-4 py-3 text-sm has-focus-visible:ring-4 has-focus-visible:ring-ink/15">
+        <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-card px-4 py-3 text-sm has-focus-visible:ring-4 has-focus-visible:ring-ink/15">
           <input checked={notify} className="mt-0.5 size-[18px] shrink-0 accent-ink" name="notify" onChange={(e) => setNotify(e.target.checked)} type="checkbox" value="1" />
           <span>
             <span className="block font-medium">{alreadyMailed ? "Versand-E-Mail erneut schicken" : "Versand-E-Mail an die Kund:in schicken"}</span>

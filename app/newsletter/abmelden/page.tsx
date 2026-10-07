@@ -35,7 +35,7 @@ export default async function UnsubscribePage({ searchParams }: Props) {
           <p className="t-lead mt-4 text-ink/75">Mit einem Klick bist du abgemeldet und deine Adresse wird gelöscht.</p>
           <form action={unsubscribeAction} className="mt-8">
             <input name="t" type="hidden" value={token} />
-            <button className="inline-flex h-12 items-center rounded-full border border-ink px-7 font-medium transition hover:bg-ink hover:text-white" type="submit">
+            <button className="inline-flex h-12 items-center rounded-full border border-ink px-7 font-medium transition hover:bg-accent hover:text-black" type="submit">
               Jetzt abmelden
             </button>
           </form>

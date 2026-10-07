@@ -7,8 +7,8 @@ export default function Loading() {
         <div className="mt-3 h-4 w-full max-w-xl rounded bg-ink/5" />
       </div>
       <div className="mb-6 h-20 rounded-2xl bg-sky-50" />
-      <div className="mb-5 h-11 w-full max-w-lg rounded-full bg-white" />
-      <div className="rounded-3xl border border-line bg-white p-6">
+      <div className="mb-5 h-11 w-full max-w-lg rounded-full bg-card" />
+      <div className="rounded-3xl border border-line bg-card p-6">
         {Array.from({ length: 6 }, (_, i) => (
           // biome-ignore lint/suspicious/noArrayIndexKey: feste Platzhalter
           <div className="flex items-center gap-4 border-line border-b py-3 last:border-0" key={i}>
