@@ -16,13 +16,15 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
     setInvalid([]);
     setState("sending");
     const f = new FormData(e.currentTarget);
-    const body = Object.fromEntries(f.entries());
+    const proof = f.get("proof");
+    if (proof instanceof File && proof.size > 5 * 1024 * 1024) {
+      setError("Die Datei ist zu groß (höchstens 5 MB).");
+      setInvalid(["proof"]);
+      setState("idle");
+      return;
+    }
     try {
-      const res = await fetch("/api/haendler", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...body, consent: f.get("consent") === "on" }),
-      });
+      const res = await fetch("/api/haendler", { method: "POST", body: f });
       const json = (await res.json().catch(() => ({}))) as { error?: string; fields?: string[] };
       if (!res.ok) {
         setError(json.error ?? "Das hat leider nicht geklappt. Bitte versuche es gleich noch einmal.");
@@ -115,6 +117,10 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
         Nachricht (optional)
         <textarea className={`${field} h-28 py-3`} maxLength={1500} name="message" placeholder="z. B. Wunschsorten, Lieferzeiten, Fragen" />
       </label>
+      <label className="grid gap-1.5 text-sm sm:col-span-2">
+        Gewerbenachweis * <span className="text-muted">(Gewerbeanmeldung, Handelsregisterauszug oder Ähnliches – PDF, JPG oder PNG, bis 5 MB)</span>
+        <input accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" aria-invalid={bad("proof")} className={`${field} h-auto cursor-pointer py-3 file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:font-bold file:text-black`} name="proof" required type="file" />
+      </label>
       {/* Spam-Falle: für Menschen unsichtbar */}
       <input aria-hidden autoComplete="off" className="absolute -left-[9999px] h-0 w-0 opacity-0" name="website" tabIndex={-1} />
       <label className="flex items-start gap-3 text-sm sm:col-span-2">
@@ -124,7 +130,7 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
           <Link className="underline" href="/datenschutz" target="_blank">
             Datenschutzerklärung
           </Link>{" "}
-          gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage gespeichert werden. *
+          gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage gespeichert werden. Der Gewerbenachweis wird nur zur Prüfung verwendet. *
         </span>
       </label>
       {error ? (

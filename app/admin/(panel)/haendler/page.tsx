@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { DealerTabs } from "@/components/admin/dealer-tabs";
 import { Badge, Card, EmptyState, PageHeader, Stat, btnDanger, btnSecondary, formatDateTime } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { type DealerStatus, getDealers } from "@/lib/dealer-store";
-import { deleteDealerAction, setDealerStatusAction } from "./actions";
+import { SITE_URL } from "@/lib/format";
+import { deleteDealerAction, renewActivationAction, setDealerStatusAction } from "./actions";
 
 export const metadata: Metadata = { title: "Händler" };
 
@@ -15,6 +17,7 @@ export default async function HaendlerAdminPage() {
   return (
     <>
       <PageHeader description="Anfragen von /haendler. Prüfe die Angaben, melde dich bei den Interessierten und setze den Status." title="Händler" />
+      <DealerTabs active="/admin/haendler" />
       <div className="mb-6 grid gap-4 sm:grid-cols-3">
         <Stat label="Neu" value={count("neu")} />
         <Stat label="Freigegeben" value={count("freigegeben")} />
@@ -52,6 +55,37 @@ export default async function HaendlerAdminPage() {
                   </div>
                 ))}
               </dl>
+              <div className="mt-4 flex flex-wrap items-center gap-3 text-[14px]">
+                {d.proof ? (
+                  <a className={btnSecondary} href={`/admin/haendler/nachweis/${d.id}`} rel="noreferrer" target="_blank">
+                    Gewerbenachweis ansehen ({d.proof.name})
+                  </a>
+                ) : (
+                  <span className="text-muted">Kein Gewerbenachweis hinterlegt</span>
+                )}
+              </div>
+              {d.status === "freigegeben" ? (
+                <div className="mt-4 rounded-2xl border border-line p-4 text-[14px]">
+                  {d.passwordHash ? (
+                    <p>
+                      <b>Zugang aktiv</b>
+                      {d.lastLoginAt ? <span className="text-muted"> · letzter Login {formatDateTime(d.lastLoginAt)}</span> : <span className="text-muted"> · noch nicht angemeldet</span>}
+                    </p>
+                  ) : d.activationToken && d.activationExpires && Date.parse(d.activationExpires) > Date.now() ? (
+                    <>
+                      <p className="font-medium">Zugangs-Link – schick ihn dem Händler (läuft {formatDateTime(d.activationExpires)} ab):</p>
+                      <input className="mt-2 w-full rounded-xl border border-line bg-card px-3 py-2 font-mono text-[12px]" readOnly value={`${SITE_URL}/haendler/aktivieren?id=${d.id}&t=${d.activationToken}`} />
+                    </>
+                  ) : (
+                    <p className="text-muted">Der Zugangs-Link ist abgelaufen oder fehlt – unten einen neuen erzeugen.</p>
+                  )}
+                  <form action={renewActivationAction.bind(null, d.id)} className="mt-3">
+                    <button className={btnSecondary} type="submit">
+                      {d.passwordHash ? "Neuen Link erzeugen (Passwort zurücksetzen)" : "Neuen Link erzeugen"}
+                    </button>
+                  </form>
+                </div>
+              ) : null}
               {d.message ? <p className="mt-4 whitespace-pre-line rounded-2xl bg-ink/5 p-4 text-[14px]">{d.message}</p> : null}
               <div className="mt-5 flex flex-wrap gap-2">
                 {(["freigegeben", "abgelehnt", "neu"] as const)

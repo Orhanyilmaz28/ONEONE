@@ -39,6 +39,10 @@ export const KEYS = {
   siteLock: "tt:site-lock",
   /** Händler-Anfragen (Registrierung auf /haendler) */
   dealers: "tt:dealers",
+  /** Händlerpreise (netto) je Produkt */
+  dealerPrices: "tt:dealer-prices",
+  /** Artikelpässe (PDF) je Produkt – nur für freigegebene Händler */
+  dealerPasses: "tt:dealer-passes",
 } as const;
 
 export function storeKind(): StoreKind {

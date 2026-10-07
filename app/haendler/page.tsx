@@ -10,9 +10,9 @@ export const metadata: Metadata = {
 };
 
 const STEPS = [
-  ["1", "Anfrage senden", "Firmendaten und Wunschmenge in zwei Minuten."],
+  ["1", "Anfrage senden", "Firmendaten, Wunschmenge und Gewerbenachweis in wenigen Minuten."],
   ["2", "Wir prüfen", "Wir schauen uns deine Angaben an und melden uns."],
-  ["3", "Freischaltung", "Du bekommst Händlerpreise und Konditionen für deine Paletten."],
+  ["3", "Freischaltung", "Du legst dein Passwort fest und landest in deinem Händlerbereich mit Preisliste und Artikelpässen."],
 ];
 const PERKS = [
   ["Händlerpreise", "Staffelpreise ab dem ersten Tray, nochmal besser bei Paletten."],
@@ -57,7 +57,10 @@ export default function HaendlerPage() {
               </li>
             ))}
           </ul>
-          <p className="mt-8 text-muted text-sm">
+          <Link className="mt-8 inline-flex h-12 items-center rounded-full border border-accent px-7 font-bold text-accent transition hover:bg-accent hover:text-black" href="/haendler/login">
+            Schon Händler? Zum Login
+          </Link>
+          <p className="mt-6 text-muted text-sm">
             Nur eine einzelne Palette anfragen?{" "}
             <Link className="text-accent underline" href="/palette">
               Zur Palettenanfrage
