@@ -63,4 +63,49 @@ for (const [handle, [file, color]] of Object.entries(items)) {
     .webp({ quality: 86 })
     .toFile(path.join(OUT, `${handle}-trio.webp`));
 }
+// ── Mixpakete: mehrere Sorten nebeneinander, Glow in den Sortenfarben ──
+const mixes = {
+  "mix-fruchtig": ["classic", "tropical", "kiwi-lemon", "watermelon"],
+  "mix-sweet-cool": ["white-peach", "ice-bonbon", "blueberry-coconut", "watermelon"],
+  "mix-sauer-frisch": ["lime", "kiwi-lemon", "classic", "zero"],
+  "mix-alle-sorten": ["classic", "tropical", "kiwi-lemon", "watermelon", "white-peach", "ice-bonbon", "lime", "blueberry-coconut", "zero"],
+  "mix-xtea": ["xtea-peach", "xtea-lemon", "xtea-watermelon"],
+  "mix-ice-coffee": ["ice-coffee-latte", "ice-coffee-cappuccino"],
+  "mix-kick-chill": ["classic", "tropical", "ice-coffee-latte", "ice-coffee-cappuccino"],
+};
+
+function mixBackground(colors) {
+  const stops = colors
+    .map((c, i) => `<radialGradient id="g${i}" cx="${((i + 0.5) / colors.length) * 100}%" cy="50%" r="38%"><stop offset="0" stop-color="${c}" stop-opacity="0.5"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`)
+    .join("");
+  const rects = colors.map((_, i) => `<rect width="100%" height="100%" fill="url(#g${i})"/>`).join("");
+  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}"><defs>${stops}</defs><rect width="100%" height="100%" fill="#0a0a0a"/>${rects}</svg>`);
+}
+
+for (const [handle, keys] of Object.entries(mixes)) {
+  // bis 5 Sorten eine Reihe, sonst zwei Reihen; Dosen nebeneinander mit kleinem Abstand
+  const rows = keys.length > 5 ? [keys.slice(0, Math.ceil(keys.length / 2)), keys.slice(Math.ceil(keys.length / 2))] : [keys];
+  const rowH = rows.length === 2 ? SIZE * 0.4 : SIZE * 0.7;
+  const layers = [];
+  for (const [r, row] of rows.entries()) {
+    let cans = await Promise.all(row.map((k) => can(items[k][0], Math.round(rowH))));
+    const gap = 18;
+    let total = cans.reduce((a, c) => a + c.info.width, 0) + gap * (cans.length - 1);
+    if (total > SIZE * 0.92) {
+      const f = (SIZE * 0.92) / total;
+      cans = await Promise.all(row.map((k) => can(items[k][0], Math.round(rowH * f))));
+      total = cans.reduce((a, c) => a + c.info.width, 0) + gap * (cans.length - 1);
+    }
+    let x = (SIZE - total) / 2;
+    const y = rows.length === 2 ? SIZE * (r === 0 ? 0.08 : 0.52) : (SIZE - cans[0].info.height) / 2;
+    for (const c of cans) {
+      layers.push({ input: c.data, left: Math.round(x), top: Math.round(y) });
+      x += c.info.width + gap;
+    }
+  }
+  await sharp(mixBackground(keys.map((k) => items[k][1])))
+    .composite(layers)
+    .webp({ quality: 86 })
+    .toFile(path.join(OUT, `${handle}.webp`));
+}
 console.log("fertig:", fs.readdirSync(OUT).length, "Dateien");
