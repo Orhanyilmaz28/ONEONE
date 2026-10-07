@@ -33,8 +33,8 @@
     {
       "handle": "mixpakete",
       "title": "Mixpakete",
-      "description": "Alles ausprobieren – gemischte 24er Trays und der Probier-Mix.",
-      "image": "/dosen-foto/mix-alle-sorten.webp"
+      "description": "Mehrere Sorten, mehrere Trays – jeweils komplette 24er Trays.",
+      "image": "/dosen-foto/mix-alle-trays.webp"
     },
     {
       "handle": "zero",
@@ -71,18 +71,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "classic-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -122,18 +122,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "tropical-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -173,18 +173,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "kiwi-lemon-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -224,18 +224,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "watermelon-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -275,18 +275,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "white-peach-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -326,18 +326,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "ice-bonbon-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -377,18 +377,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "lime-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -428,18 +428,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "blueberry-coconut-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -481,18 +481,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "zero-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -532,18 +532,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "xtea-watermelon-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": false,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -582,18 +582,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "xtea-peach-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": false,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -632,18 +632,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "xtea-lemon-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": false,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -654,45 +654,6 @@
         "Gekühlt am besten"
       ],
       "createdAt": "2026-09-26T12:00:00.000Z"
-    },
-    {
-      "handle": "mixpaket",
-      "title": "Probier-Mix 12er",
-      "subtitle": "12 Dosen aus dem Energy-Sortiment",
-      "descriptionHtml": "<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus den Energy-Sorten – Classic, Tropical, Kiwi &amp; Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero.</p>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
-      "vendor": "EXSTASE Energy",
-      "productType": "Mixpaket",
-      "tags": [
-        "mixpakete"
-      ],
-      "collections": [
-        "mixpakete"
-      ],
-      "images": [
-        {
-          "src": "/dosen/mixpaket.svg",
-          "alt": "Probier-Mix – Energy-Sorten gemischt"
-        }
-      ],
-      "options": [],
-      "variants": [
-        {
-          "id": "mixpaket-12er",
-          "title": "12 Dosen gemischt",
-          "price": 900,
-          "available": true,
-          "options": {},
-          "cans": 12
-        }
-      ],
-      "featured": false,
-      "highlights": [
-        "Alle Energy-Sorten",
-        "12 Dosen",
-        "Der Einstieg"
-      ],
-      "packSize": 12,
-      "createdAt": "2026-09-25T12:00:00.000Z"
     },
     {
       "handle": "ice-coffee-latte",
@@ -721,18 +682,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "ice-coffee-latte-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -772,18 +733,18 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "24er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "ice-coffee-cappuccino-24er",
-          "title": "24er Pack",
+          "title": "24er Tray",
           "price": 1800,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "24er Tray"
           },
           "cans": 24
         }
@@ -823,18 +784,18 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "12er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "wasser-still-12er",
-          "title": "12er Pack",
+          "title": "12er Tray",
           "price": 660,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "12er Tray"
           },
           "cans": 12
         }
@@ -873,18 +834,18 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "12er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "wasser-medium-12er",
-          "title": "12er Pack",
+          "title": "12er Tray",
           "price": 660,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "12er Tray"
           },
           "cans": 12
         }
@@ -923,18 +884,18 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "12er Tray"
           ]
         }
       ],
       "variants": [
         {
           "id": "wasser-classic-12er",
-          "title": "12er Pack",
+          "title": "12er Tray",
           "price": 660,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "12er Tray"
           },
           "cans": 12
         }
@@ -948,9 +909,9 @@
     },
     {
       "handle": "mix-fruchtig",
-      "title": "Fruchtig-Mix 24er Tray",
-      "subtitle": "Classic, Tropical, Kiwi & Lemon, Watermelon",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Classic, Tropical, Kiwi & Lemon, Watermelon.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>6× Classic</li>\n<li>6× Tropical</li>\n<li>6× Kiwi & Lemon</li>\n<li>6× Watermelon</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Fruchtig-Mix",
+      "subtitle": "4 Trays · Classic, Tropical, Kiwi & Lemon, Watermelon",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Classic, Tropical, Kiwi & Lemon, Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -962,42 +923,42 @@
       "images": [
         {
           "src": "/dosen-foto/mix-fruchtig.webp",
-          "alt": "Fruchtig-Mix 24er Tray – gemischte Dosen"
+          "alt": "Fruchtig-Mix – 4 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "4 Trays · 96 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-fruchtig-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-fruchtig-4trays",
+          "title": "4 Trays · 96 Dosen",
+          "price": 7200,
           "available": true,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 24
+          "cans": 96
         }
       ],
       "featured": true,
       "highlights": [
-        "24 Dosen · 4 Sorten",
-        "Energy Drink"
+        "4 Trays · 96 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 96,
       "createdAt": "2026-10-07T14:00:00.000Z"
     },
     {
       "handle": "mix-sweet-cool",
-      "title": "Sweet & Cool Mix 24er Tray",
-      "subtitle": "White Peach, Ice Bonbon, Blueberry Coconut, Watermelon",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – White Peach, Ice Bonbon, Blueberry Coconut, Watermelon.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>6× White Peach</li>\n<li>6× Ice Bonbon</li>\n<li>6× Blueberry Coconut</li>\n<li>6× Watermelon</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Sweet & Cool Mix",
+      "subtitle": "4 Trays · White Peach, Ice Bonbon, Blueberry Coconut, Watermelon",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: White Peach, Ice Bonbon, Blueberry Coconut, Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1009,42 +970,42 @@
       "images": [
         {
           "src": "/dosen-foto/mix-sweet-cool.webp",
-          "alt": "Sweet & Cool Mix 24er Tray – gemischte Dosen"
+          "alt": "Sweet & Cool Mix – 4 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "4 Trays · 96 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-sweet-cool-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-sweet-cool-4trays",
+          "title": "4 Trays · 96 Dosen",
+          "price": 7200,
           "available": true,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 24
+          "cans": 96
         }
       ],
       "featured": true,
       "highlights": [
-        "24 Dosen · 4 Sorten",
-        "Energy Drink"
+        "4 Trays · 96 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 96,
       "createdAt": "2026-10-07T13:50:00.000Z"
     },
     {
       "handle": "mix-sauer-frisch",
-      "title": "Sauer & Frisch Mix 24er Tray",
-      "subtitle": "Lime, Kiwi & Lemon, Classic, Zero",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Lime, Kiwi & Lemon, Classic, Zero.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>6× Lime</li>\n<li>6× Kiwi & Lemon</li>\n<li>6× Classic</li>\n<li>6× Zero</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Sauer & Frisch Mix",
+      "subtitle": "4 Trays · Lime, Kiwi & Lemon, Classic, Zero",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Lime, Kiwi & Lemon, Classic, Zero – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1056,89 +1017,42 @@
       "images": [
         {
           "src": "/dosen-foto/mix-sauer-frisch.webp",
-          "alt": "Sauer & Frisch Mix 24er Tray – gemischte Dosen"
+          "alt": "Sauer & Frisch Mix – 4 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "4 Trays · 96 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-sauer-frisch-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-sauer-frisch-4trays",
+          "title": "4 Trays · 96 Dosen",
+          "price": 7200,
           "available": true,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 24
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
-        "24 Dosen · 4 Sorten",
-        "Energy Drink"
+        "4 Trays · 96 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 96,
       "createdAt": "2026-10-07T13:40:00.000Z"
     },
     {
-      "handle": "mix-alle-sorten",
-      "title": "Alle-Sorten-Mix 24er Tray",
-      "subtitle": "Alle 9 Energy-Sorten gemischt",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Alle 9 Energy-Sorten gemischt.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
-      "vendor": "EXSTASE Energy",
-      "productType": "Energy Drink",
-      "tags": [
-        "mixpakete"
-      ],
-      "collections": [
-        "mixpakete"
-      ],
-      "images": [
-        {
-          "src": "/dosen-foto/mix-alle-sorten.webp",
-          "alt": "Alle-Sorten-Mix 24er Tray – gemischte Dosen"
-        }
-      ],
-      "options": [
-        {
-          "name": "Packung",
-          "values": [
-            "24er Tray"
-          ]
-        }
-      ],
-      "variants": [
-        {
-          "id": "mix-alle-sorten-24er",
-          "title": "24er Tray",
-          "price": 1800,
-          "available": true,
-          "options": {
-            "Packung": "24er Tray"
-          },
-          "cans": 24
-        }
-      ],
-      "featured": true,
-      "highlights": [
-        "24 Dosen · 9 Sorten",
-        "Energy Drink"
-      ],
-      "packSize": 24,
-      "createdAt": "2026-10-08T12:00:00.000Z"
-    },
-    {
       "handle": "mix-kick-chill",
-      "title": "Kick & Chill Mix 24er Tray",
-      "subtitle": "Energy und Ice Coffee im Mix",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Energy und Ice Coffee im Mix.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>6× Classic</li>\n<li>6× Tropical</li>\n<li>6× Ice Coffee Latte</li>\n<li>6× Ice Coffee Cappuccino</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Kick & Chill Mix",
+      "subtitle": "4 Trays · Energy und Ice Coffee im Mix",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Energy und Ice Coffee im Mix – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1150,42 +1064,42 @@
       "images": [
         {
           "src": "/dosen-foto/mix-kick-chill.webp",
-          "alt": "Kick & Chill Mix 24er Tray – gemischte Dosen"
+          "alt": "Kick & Chill Mix – 4 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "4 Trays · 96 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-kick-chill-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-kick-chill-4trays",
+          "title": "4 Trays · 96 Dosen",
+          "price": 7200,
           "available": true,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 24
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
-        "24 Dosen · 4 Sorten",
-        "Energy + Ice Coffee"
+        "4 Trays · 96 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 96,
       "createdAt": "2026-10-07T13:20:00.000Z"
     },
     {
       "handle": "mix-ice-coffee",
-      "title": "Ice Coffee Mix 24er Tray",
-      "subtitle": "Latte und Cappuccino je 12 Dosen",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Latte und Cappuccino je 12 Dosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>12× Ice Coffee Latte</li>\n<li>12× Ice Coffee Cappuccino</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Ice Coffee Mix",
+      "subtitle": "2 Trays · Latte und Cappuccino",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Latte und Cappuccino – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Ice Coffee",
       "tags": [
@@ -1197,42 +1111,42 @@
       "images": [
         {
           "src": "/dosen-foto/mix-ice-coffee.webp",
-          "alt": "Ice Coffee Mix 24er Tray – gemischte Dosen"
+          "alt": "Ice Coffee Mix – 2 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "2 Trays · 48 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-ice-coffee-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-ice-coffee-2trays",
+          "title": "2 Trays · 48 Dosen",
+          "price": 3600,
           "available": true,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "2 Trays · 48 Dosen"
           },
-          "cans": 24
+          "cans": 48
         }
       ],
       "featured": false,
       "highlights": [
-        "24 Dosen · 2 Sorten",
-        "Ice Coffee"
+        "2 Trays · 48 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 48,
       "createdAt": "2026-10-07T13:10:00.000Z"
     },
     {
       "handle": "mix-xtea",
-      "title": "X-Tea Mix 24er Tray",
-      "subtitle": "Peach, Lemon und Watermelon",
-      "descriptionHtml": "<p>Probier dich durch: ein 24er Tray mit gemischten Sorten – Peach, Lemon und Watermelon.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>8× X-Tea Peach</li>\n<li>8× X-Tea Lemon</li>\n<li>8× X-Tea Watermelon</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "X-Tea Mix",
+      "subtitle": "3 Trays · Peach, Lemon und Watermelon",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Peach, Lemon und Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray X-Tea Peach (24 Dosen)</li>\n<li>1 Tray X-Tea Lemon (24 Dosen)</li>\n<li>1 Tray X-Tea Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Ice Tea",
       "tags": [
@@ -1244,36 +1158,83 @@
       "images": [
         {
           "src": "/dosen-foto/mix-xtea.webp",
-          "alt": "X-Tea Mix 24er Tray – gemischte Dosen"
+          "alt": "X-Tea Mix – 3 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "24er Tray"
+            "3 Trays · 72 Dosen"
           ]
         }
       ],
       "variants": [
         {
-          "id": "mix-xtea-24er",
-          "title": "24er Tray",
-          "price": 1800,
+          "id": "mix-xtea-3trays",
+          "title": "3 Trays · 72 Dosen",
+          "price": 5400,
           "available": false,
           "options": {
-            "Packung": "24er Tray"
+            "Packung": "3 Trays · 72 Dosen"
           },
-          "cans": 24
+          "cans": 72
         }
       ],
       "featured": false,
       "highlights": [
-        "24 Dosen · 3 Sorten",
-        "Ice Tea"
+        "3 Trays · 72 Dosen",
+        "Nur ganze Trays"
       ],
-      "packSize": 24,
+      "packSize": 72,
       "createdAt": "2026-10-07T13:00:00.000Z"
+    },
+    {
+      "handle": "mix-alle-trays",
+      "title": "Alle-Trays-Mix",
+      "subtitle": "9 Trays · Alle 9 Energy-Sorten, je 1 Tray",
+      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Alle 9 Energy-Sorten, je 1 Tray – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-alle-trays.webp",
+          "alt": "Alle-Trays-Mix – 9 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "9 Trays · 216 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-alle-trays-9trays",
+          "title": "9 Trays · 216 Dosen",
+          "price": 16200,
+          "available": true,
+          "options": {
+            "Packung": "9 Trays · 216 Dosen"
+          },
+          "cans": 216
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "9 Trays · 216 Dosen",
+        "Nur ganze Trays"
+      ],
+      "packSize": 216,
+      "createdAt": "2026-10-08T12:00:00.000Z"
     }
   ]
 }

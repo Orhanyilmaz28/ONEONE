@@ -69,7 +69,7 @@ const mixes = {
   "mix-fruchtig": ["classic", "tropical", "kiwi-lemon", "watermelon"],
   "mix-sweet-cool": ["white-peach", "ice-bonbon", "blueberry-coconut", "watermelon"],
   "mix-sauer-frisch": ["lime", "kiwi-lemon", "classic", "zero"],
-  "mix-alle-sorten": ["classic", "tropical", "kiwi-lemon", "watermelon", "white-peach", "ice-bonbon", "lime", "blueberry-coconut", "zero"],
+  "mix-alle-trays": ["classic", "tropical", "kiwi-lemon", "watermelon", "white-peach", "ice-bonbon", "lime", "blueberry-coconut", "zero"],
   "mix-xtea": ["xtea-peach", "xtea-lemon", "xtea-watermelon"],
   "mix-ice-coffee": ["ice-coffee-latte", "ice-coffee-cappuccino"],
   "mix-kick-chill": ["classic", "tropical", "ice-coffee-latte", "ice-coffee-cappuccino"],
