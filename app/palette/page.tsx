@@ -16,8 +16,8 @@ export default async function PalettePage({ searchParams }: Props) {
   const paletten = products.filter((p) => p.onRequest).map((p) => ({ handle: p.handle, title: p.title }));
   const facts = [
     ["120", "Trays je Palette", "Energy-Palette: 2.880 Dosen"],
-    ["1", "Anruf, ein Angebot", "Händlerpreis nach Menge und Region"],
-    ["24 h", "Antwort", "meist innerhalb eines Werktags"],
+    ["1", "Anfrage, ein Angebot", "Händlerpreis nach Menge und Region"],
+    ["Spedition", "Lieferung", "direkt an deine Rampe oder dein Lager"],
   ];
   return (
     <div className="mx-auto max-w-7xl px-4 sm:px-6">
