@@ -30,3 +30,6 @@ export function cansOf(variant: { cans?: number; title: string }) {
 export function depositFor(variant: { cans?: number; title: string }, quantity: number) {
   return cansOf(variant) * quantity * DEPOSIT_PER_CAN;
 }
+
+/** Mixpaket (mehrere Trays) – steht in Listen immer hinter den einzelnen Produkten */
+export const isMixProduct = (p: { collections: string[] }) => p.collections.includes("mixpakete");

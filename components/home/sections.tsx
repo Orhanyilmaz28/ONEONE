@@ -74,6 +74,33 @@ export function Bestsellers({ products }: { products: Product[] }) {
   );
 }
 
+/* ───────── Mixpakete (hinter den einzelnen Produkten) ───────── */
+export function MixPakete({ products }: { products: Product[] }) {
+  if (!products.length) return null;
+  return (
+    <Section id="mixpakete">
+      <SectionTitle
+        action={
+          <Link className="group inline-flex items-center gap-2 font-medium" href="/collections/mixpakete">
+            Alle Mixpakete
+            <span className="transition-transform group-hover:translate-x-1">
+              <ArrowIcon />
+            </span>
+          </Link>
+        }
+        eyebrow="Mixpakete"
+        intro="Mehrere Sorten, mehrere Trays – je größer das Paket, desto mehr sparst du."
+        title="Alles probieren, Geld sparen"
+      />
+      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
+        {products.map((p) => (
+          <ProductCard key={p.handle} product={p} />
+        ))}
+      </div>
+    </Section>
+  );
+}
+
 /* ───────── Versprechen ───────── */
 export function Promises() {
   const items = [
