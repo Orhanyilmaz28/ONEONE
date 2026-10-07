@@ -8,6 +8,7 @@ import sharp from "sharp";
 const SRC = path.resolve(import.meta.dirname, "dosen-quellen");
 const OUT = path.resolve(import.meta.dirname, "../public/dosen-foto");
 const SIZE = 1200;
+const MW = 960; // Mixbilder im Hochformat 4:5, damit sie in Karten und Galerie nicht beschnitten werden
 
 // handle → [Quelldatei, Glow-Farbe]
 const items = {
@@ -79,7 +80,7 @@ function mixBackground(colors) {
     .map((c, i) => `<radialGradient id="g${i}" cx="${((i + 0.5) / colors.length) * 100}%" cy="50%" r="38%"><stop offset="0" stop-color="${c}" stop-opacity="0.5"/><stop offset="1" stop-color="${c}" stop-opacity="0"/></radialGradient>`)
     .join("");
   const rects = colors.map((_, i) => `<rect width="100%" height="100%" fill="url(#g${i})"/>`).join("");
-  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}"><defs>${stops}</defs><rect width="100%" height="100%" fill="#0a0a0a"/>${rects}</svg>`);
+  return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${MW}" height="${SIZE}"><defs>${stops}</defs><rect width="100%" height="100%" fill="#0a0a0a"/>${rects}</svg>`);
 }
 
 for (const [handle, keys] of Object.entries(mixes)) {
@@ -91,12 +92,12 @@ for (const [handle, keys] of Object.entries(mixes)) {
     let cans = await Promise.all(row.map((k) => can(items[k][0], Math.round(rowH))));
     const gap = 18;
     let total = cans.reduce((a, c) => a + c.info.width, 0) + gap * (cans.length - 1);
-    if (total > SIZE * 0.92) {
-      const f = (SIZE * 0.92) / total;
+    if (total > MW * 0.92) {
+      const f = (MW * 0.92) / total;
       cans = await Promise.all(row.map((k) => can(items[k][0], Math.round(rowH * f))));
       total = cans.reduce((a, c) => a + c.info.width, 0) + gap * (cans.length - 1);
     }
-    let x = (SIZE - total) / 2;
+    let x = (MW - total) / 2;
     const y = rows.length === 2 ? SIZE * (r === 0 ? 0.08 : 0.52) : (SIZE - cans[0].info.height) / 2;
     for (const c of cans) {
       layers.push({ input: c.data, left: Math.round(x), top: Math.round(y) });

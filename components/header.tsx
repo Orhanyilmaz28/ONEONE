@@ -50,7 +50,7 @@ export function Header({
 
   const nav = [
     { href: "/products", label: "Shop" },
-    ...collections.slice(0, 3).map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
+    ...collections.slice(0, 5).map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
     { href: "/#faq", label: "FAQ" },
   ];
 
