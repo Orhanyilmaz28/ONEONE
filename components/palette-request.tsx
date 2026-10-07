@@ -32,7 +32,12 @@ export function PaletteRequest({ product }: { product: Product }) {
       >
         Palette anfragen <ArrowIcon />
       </Link>
-      <p className="relative mt-3 text-center text-muted text-xs">Unverbindlich · die Händler-Registrierung folgt in Kürze</p>
+      <p className="relative mt-3 text-center text-muted text-xs">
+        Unverbindlich ·{" "}
+        <Link className="underline" href="/haendler">
+          als Händler registrieren
+        </Link>
+      </p>
     </div>
   );
 }

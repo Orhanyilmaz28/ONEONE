@@ -41,6 +41,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
               { href: "/products", label: "Alle Produkte" },
               ...collections.map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
               { href: "/palette", label: "Paletten für Händler" },
+              { href: "/haendler", label: "Händler werden" },
             ]}
             title="Shop"
           />

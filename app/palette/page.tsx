@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { PaletteForm } from "./palette-form";
 import { getProducts } from "@/lib/catalog";
 import { getSettings } from "@/lib/settings";
@@ -30,7 +31,7 @@ export default async function PalettePage({ searchParams }: Props) {
           Ein Angebot.
         </h1>
         <p className="t-lead relative mt-6 max-w-xl">
-          Du brauchst richtig viel EXSTASE? Sag uns deine Menge – wir machen dir ein Angebot mit Händlerpreis und liefern per Spedition direkt zu dir. Die Händler-Registrierung folgt in Kürze.
+          Du brauchst richtig viel EXSTASE? Sag uns deine Menge – wir machen dir ein Angebot mit Händlerpreis und liefern per Spedition direkt zu dir. Noch kein Händlerkonto? Dann registrier dich zuerst als Händler.
         </p>
         <ul className="relative mt-10 grid gap-3 sm:grid-cols-3">
           {facts.map(([big, t, d]) => (
@@ -41,6 +42,9 @@ export default async function PalettePage({ searchParams }: Props) {
             </li>
           ))}
         </ul>
+        <Link className="relative mt-6 inline-flex h-12 items-center rounded-full border border-accent px-7 font-bold text-accent transition hover:bg-accent hover:text-black" href="/haendler">
+          Als Händler registrieren
+        </Link>
       </header>
       <PaletteForm email={settings.company.email} paletten={paletten} preselect={produkt} />
     </div>

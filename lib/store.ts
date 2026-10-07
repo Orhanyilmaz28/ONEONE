@@ -37,6 +37,8 @@ export const KEYS = {
   mail: "tt:mail",
   /** Passwortschutz für den ganzen Shop (Dashboard → Einstellungen) */
   siteLock: "tt:site-lock",
+  /** Händler-Anfragen (Registrierung auf /haendler) */
+  dealers: "tt:dealers",
 } as const;
 
 export function storeKind(): StoreKind {

@@ -172,9 +172,9 @@ export function NewsletterCta() {
     <section className="px-3 sm:px-4">
       <div className="sd-up relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] border border-line bg-card px-6 py-14 text-center sm:py-16">
         <div aria-hidden className="-z-10 pointer-events-none absolute inset-0">
-          <div className="anim-blob absolute -top-32 left-1/4 size-[28rem] rounded-full bg-lilac/60 blur-3xl" />
-          <div className="anim-blob absolute -bottom-40 right-1/4 size-[26rem] rounded-full bg-peach/60 blur-3xl [animation-delay:-6s]" />
-          <div className="anim-blob absolute top-1/4 -right-20 size-80 rounded-full bg-sky/60 blur-3xl [animation-delay:-10s]" />
+          <div className="anim-blob absolute -top-32 left-1/4 size-[28rem] rounded-full bg-accent/30 blur-3xl" />
+          <div className="anim-blob absolute -bottom-40 right-1/4 size-[26rem] rounded-full bg-accent/15 blur-3xl [animation-delay:-6s]" />
+          <div className="anim-blob absolute top-1/4 -right-20 size-80 rounded-full bg-emerald-500/20 blur-3xl [animation-delay:-10s]" />
         </div>
         <Drop className="anim-float mx-auto size-8 text-ink" />
         <h2 className="t-h1 mx-auto mt-6 max-w-2xl">
