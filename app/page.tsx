@@ -12,7 +12,7 @@ export default async function Home() {
 
   return (
     <>
-      <Hero products={shown} />
+      <Hero products={products} />
       <TrustStrip />
       <Bestsellers products={shown} />
       <DropDivider className="pt-4" />
