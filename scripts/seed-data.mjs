@@ -3,7 +3,7 @@
 // Wenn echte Produktfotos vorliegen: in public/produkte/ ablegen und in data/products.json (images[].src) eintragen
 // oder im Dashboard unter Produkte → Inhalt ändern. Dieses Skript überschreibt data/products.json!
 // Ausführen mit: node scripts/seed-data.mjs
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 
 const BRAND = "EXSTASE Energy";
 
@@ -13,7 +13,19 @@ const ENERGY = [
   { handle: "classic", name: "Classic", sub: "Der Klassiker", label: "classic", body: DARK, text: "#fff", accent: "#8dc63f", ml: 250, featured: true, intro: "Der Klassiker unter den EXSTASE-Sorten: kräftig, erfrischend und mit ordentlich Energie." },
   { handle: "tropical", name: "Tropical", sub: "Tropical Taste", label: "tropical taste", body: DARK, text: "#fff", accent: "#1ea7e1", ml: 250, featured: true, intro: "Exotisch-fruchtig und eiskalt: Tropical Taste bringt Urlaubsgefühl in die Dose." },
   { handle: "kiwi-lemon", name: "Kiwi & Lemon", sub: "Kiwi & Lemon Taste", label: "kiwi&lemon taste", body: DARK, text: "#fff", accent: "#ffd400", ml: 250, featured: true, intro: "Saftige Kiwi trifft auf frische Zitrone: spritzig, leicht säuerlich und richtig wach." },
+  { handle: "watermelon", name: "Watermelon", sub: "Watermelon Taste", label: "watermelon taste", body: DARK, text: "#fff", accent: "#e6007e", ml: 250, featured: true, intro: "Saftige Wassermelone, kalt serviert: fruchtig, erfrischend und mit ordentlich Energie." },
+  { handle: "white-peach", name: "White Peach", sub: "White Peach Taste", label: "white peach taste", body: "#f2a3b6", text: "#fff", accent: "#e4465d", ml: 250, featured: false, intro: "Weißer Pfirsich, sanft und fruchtig – ein weicher Geschmack mit kräftigem Kick." },
+  { handle: "ice-bonbon", name: "Ice Bonbon", sub: "Ice Bonbon", label: "ice bonbon", body: "#39a6e8", text: "#fff", accent: "#1d3fa6", ml: 250, featured: false, intro: "Eisig-süß wie ein Bonbon: Ice Bonbon ist die frische Überraschung unter den Sorten." },
+  { handle: "lime", name: "Lime", sub: "Lime Taste", label: "lime taste", body: "#a9d12f", text: DARK, accent: "#ffffff", ml: 250, featured: false, intro: "Knackig-frische Limette: spritzig, klar und richtig belebend." },
+  { handle: "blueberry-coconut", name: "Blueberry Coconut", sub: "Blueberry Coconut Taste", label: "blueberry coconut", body: "#f4f4f4", text: DARK, accent: "#2b5cb5", ml: 350, featured: false, intro: "Blaubeere trifft Kokos: fruchtig, cremig-exotisch und in der großen 350-ml-Dose." },
   { handle: "zero", name: "Zero", sub: "Ohne Zucker", label: "zero", body: "#f4f4f4", text: DARK, accent: "#8dc63f", ml: 250, zero: true, featured: true, intro: "Voller EXSTASE-Geschmack ohne Zucker: Zero ist die leichte Wahl." },
+];
+
+// ── X-Tea Ice Tea (echte Dosenfotos aus public/produkte, erzeugt mit scripts/make-dosen-scenes.mjs) ──
+const TEA = [
+  { handle: "xtea-watermelon", name: "X-Tea Watermelon", sub: "Watermelon Ice Tea", intro: "Eistee mit Wassermelonen-Geschmack – fruchtig, kühl und erfrischend." },
+  { handle: "xtea-peach", name: "X-Tea Peach", sub: "Peach Ice Tea", intro: "Eistee mit Pfirsich-Geschmack – der Klassiker unter den Eistees, eiskalt serviert." },
+  { handle: "xtea-lemon", name: "X-Tea Lemon", sub: "Lemon Ice Tea", intro: "Eistee mit Zitronen-Geschmack – spritzig, frisch und leicht." },
 ];
 
 // Packungsgrößen: Dosen, Preis in Cent (inkl. MwSt.; Pfand kommt an der Kasse separat dazu)
@@ -26,6 +38,12 @@ const PACKS = [
 // ── Beschreibungen ──────────────────────────────────────────────────────────
 const PFAND = `<h3>Pfand</h3>
 <p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>`;
+
+const teaDescription = (f) => `<p>${f.intro}</p>
+<ul>
+<li>Ice Tea in der Dose – gekühlt am besten</li>
+</ul>
+${PFAND}`;
 
 const energyDescription = (f) => `<p>${f.intro}</p>
 <ul>
@@ -117,7 +135,7 @@ for (const f of ENERGY) {
   write(`${f.handle}.svg`, scene([energyCan({ x: 280, y: 110, f })], glow(f)));
   write(`${f.handle}-trio.svg`, trio(energyCan, { ...f }));
 }
-const mix = ["classic", "tropical", "kiwi-lemon", "zero"].map((h) => ENERGY.find((f) => f.handle === h));
+const mix = ["classic", "tropical", "kiwi-lemon", "watermelon"].map((h) => ENERGY.find((f) => f.handle === h));
 write("mixpaket.svg", scene(mix.map((f, i) => energyCan({ x: 20 + i * 190, y: i % 2 ? 150 : 230, scale: 0.7, f })), "#8dc63f"));
 
 // ── Produkte ────────────────────────────────────────────────────────────────
@@ -125,6 +143,10 @@ let n = 0;
 const createdAt = () => new Date(Date.UTC(2026, 9, 7, 12) - n++ * 86_400_000).toISOString();
 const variantsFor = (handle) =>
   PACKS.map((p) => ({ id: `${handle}-${p.cans}er`, title: p.label, price: p.price, available: true, options: { Packung: p.label }, cans: p.cans }));
+
+/** Echtes Foto (public/produkte/<handle>.webp, erzeugt mit scripts/make-dosen-scenes.mjs), sonst die gezeichnete Dose */
+const img = (handle, suffix = "") =>
+  existsSync(new URL(`../public/produkte/${handle}${suffix}.webp`, import.meta.url)) ? `/produkte/${handle}${suffix}.webp` : `/dosen/${handle}${suffix}.svg`;
 
 const make = (f, { collections, type, description, subtitle, highlights, featured }) => ({
   handle: f.handle,
@@ -136,8 +158,8 @@ const make = (f, { collections, type, description, subtitle, highlights, feature
   tags: collections,
   collections,
   images: [
-    { src: `/dosen/${f.handle}.svg`, alt: `${f.name} – Dose` },
-    { src: `/dosen/${f.handle}-trio.svg`, alt: `${f.name} – drei Dosen` },
+    { src: img(f.handle), alt: `${f.name} – Dose` },
+    { src: img(f.handle, "-trio"), alt: `${f.name} – drei Dosen` },
   ],
   options: [{ name: "Packung", values: PACKS.map((p) => p.label) }],
   variants: variantsFor(f.handle),
@@ -157,24 +179,43 @@ const products = [
       featured: Boolean(f.featured),
     }),
   ),
+  ...TEA.map((f) => ({
+    handle: f.handle,
+    title: f.name,
+    subtitle: f.sub,
+    descriptionHtml: teaDescription(f),
+    vendor: "X-Tea",
+    productType: "Ice Tea",
+    tags: ["ice-tea"],
+    collections: ["ice-tea"],
+    images: [
+      { src: img(f.handle), alt: `${f.name} – Dose` },
+      { src: img(f.handle, "-trio"), alt: `${f.name} – drei Dosen` },
+    ],
+    options: [{ name: "Packung", values: PACKS.map((p) => p.label) }],
+    variants: variantsFor(f.handle),
+    featured: true,
+    highlights: ["Ice Tea", "Gekühlt am besten"],
+    createdAt: createdAt(),
+  })),
 ];
 
 products.push({
   handle: "mixpaket",
   title: "Probier-Mix 12er",
   subtitle: "12 Dosen aus dem Energy-Sortiment",
-  descriptionHtml: `<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus Classic, Tropical, Kiwi &amp; Lemon und Zero (je 3 Dosen).</p>
+  descriptionHtml: `<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus den Energy-Sorten – Classic, Tropical, Kiwi &amp; Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero.</p>
 <p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>
 ${PFAND}`,
   vendor: BRAND,
   productType: "Mixpaket",
   tags: ["mixpakete"],
   collections: ["mixpakete"],
-  images: [{ src: "/dosen/mixpaket.svg", alt: "Probier-Mix – Classic, Tropical, Kiwi & Lemon, Zero" }],
+  images: [{ src: "/dosen/mixpaket.svg", alt: "Probier-Mix – Energy-Sorten gemischt" }],
   options: [],
-  variants: [{ id: "mixpaket-12er", title: "12 Dosen (4 Sorten à 3)", price: 1699, available: true, options: {}, cans: 12 }],
-  featured: true,
-  highlights: ["4 Sorten", "12 Dosen", "Der Einstieg"],
+  variants: [{ id: "mixpaket-12er", title: "12 Dosen gemischt", price: 1699, available: true, options: {}, cans: 12 }],
+  featured: false,
+  highlights: ["Alle Energy-Sorten", "12 Dosen", "Der Einstieg"],
   packSize: 12,
   createdAt: createdAt(),
 });
@@ -184,12 +225,13 @@ const catalog = {
     name: BRAND,
     tagline: "Pure Ekstase in jeder Dose.",
     announcement: "",
-    description: "EXSTASE Energy – Energy Drinks in vielen Sorten. Jetzt online bestellen und direkt nach Hause liefern lassen.",
+    description: "EXSTASE Energy – Energy Drinks und X-Tea Ice Tea in der Dose. Jetzt online bestellen und direkt nach Hause liefern lassen.",
   },
   collections: [
-    { handle: "energy", title: "Energy Drinks", description: "Classic, Tropical, Kiwi & Lemon und Zero.", image: "/dosen/classic.svg" },
-    { handle: "zero", title: "Zero", description: "Energie ohne Zucker.", image: "/dosen/zero.svg" },
+    { handle: "energy", title: "Energy Drinks", description: "Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero.", image: img("classic") },
+    { handle: "ice-tea", title: "X-Tea Ice Tea", description: "Watermelon, Peach und Lemon – Eistee in der Dose.", image: img("xtea-peach") },
     { handle: "mixpakete", title: "Mixpakete", description: "Alles ausprobieren – im Probier-Mix.", image: "/dosen/mixpaket.svg" },
+    { handle: "zero", title: "Zero", description: "Energie ohne Zucker.", image: img("zero") },
   ],
   products,
 };

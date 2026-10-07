@@ -3,26 +3,32 @@
     "name": "EXSTASE Energy",
     "tagline": "Pure Ekstase in jeder Dose.",
     "announcement": "",
-    "description": "EXSTASE Energy – Energy Drinks in vielen Sorten. Jetzt online bestellen und direkt nach Hause liefern lassen."
+    "description": "EXSTASE Energy – Energy Drinks und X-Tea Ice Tea in der Dose. Jetzt online bestellen und direkt nach Hause liefern lassen."
   },
   "collections": [
     {
       "handle": "energy",
       "title": "Energy Drinks",
-      "description": "Classic, Tropical, Kiwi & Lemon und Zero.",
+      "description": "Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero.",
       "image": "/dosen/classic.svg"
     },
     {
-      "handle": "zero",
-      "title": "Zero",
-      "description": "Energie ohne Zucker.",
-      "image": "/dosen/zero.svg"
+      "handle": "ice-tea",
+      "title": "X-Tea Ice Tea",
+      "description": "Watermelon, Peach und Lemon – Eistee in der Dose.",
+      "image": "/produkte/xtea-peach.webp"
     },
     {
       "handle": "mixpakete",
       "title": "Mixpakete",
       "description": "Alles ausprobieren – im Probier-Mix.",
       "image": "/dosen/mixpaket.svg"
+    },
+    {
+      "handle": "zero",
+      "title": "Zero",
+      "description": "Energie ohne Zucker.",
+      "image": "/dosen/zero.svg"
     }
   ],
   "products": [
@@ -246,6 +252,371 @@
       "createdAt": "2026-10-05T12:00:00.000Z"
     },
     {
+      "handle": "watermelon",
+      "title": "Watermelon",
+      "subtitle": "Watermelon Taste · 250 ml",
+      "descriptionHtml": "<p>Saftige Wassermelone, kalt serviert: fruchtig, erfrischend und mit ordentlich Energie.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/watermelon.svg",
+          "alt": "Watermelon – Dose"
+        },
+        {
+          "src": "/dosen/watermelon-trio.svg",
+          "alt": "Watermelon – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "watermelon-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "watermelon-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "watermelon-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "handle": "white-peach",
+      "title": "White Peach",
+      "subtitle": "White Peach Taste · 250 ml",
+      "descriptionHtml": "<p>Weißer Pfirsich, sanft und fruchtig – ein weicher Geschmack mit kräftigem Kick.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/white-peach.svg",
+          "alt": "White Peach – Dose"
+        },
+        {
+          "src": "/dosen/white-peach-trio.svg",
+          "alt": "White Peach – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "white-peach-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "white-peach-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "white-peach-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-03T12:00:00.000Z"
+    },
+    {
+      "handle": "ice-bonbon",
+      "title": "Ice Bonbon",
+      "subtitle": "Ice Bonbon · 250 ml",
+      "descriptionHtml": "<p>Eisig-süß wie ein Bonbon: Ice Bonbon ist die frische Überraschung unter den Sorten.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/ice-bonbon.svg",
+          "alt": "Ice Bonbon – Dose"
+        },
+        {
+          "src": "/dosen/ice-bonbon-trio.svg",
+          "alt": "Ice Bonbon – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "ice-bonbon-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "ice-bonbon-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "ice-bonbon-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-02T12:00:00.000Z"
+    },
+    {
+      "handle": "lime",
+      "title": "Lime",
+      "subtitle": "Lime Taste · 250 ml",
+      "descriptionHtml": "<p>Knackig-frische Limette: spritzig, klar und richtig belebend.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/lime.svg",
+          "alt": "Lime – Dose"
+        },
+        {
+          "src": "/dosen/lime-trio.svg",
+          "alt": "Lime – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "lime-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "lime-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "lime-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-01T12:00:00.000Z"
+    },
+    {
+      "handle": "blueberry-coconut",
+      "title": "Blueberry Coconut",
+      "subtitle": "Blueberry Coconut Taste · 350 ml",
+      "descriptionHtml": "<p>Blaubeere trifft Kokos: fruchtig, cremig-exotisch und in der großen 350-ml-Dose.</p>\n<ul>\n<li>Je Dose <strong>350 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/blueberry-coconut.svg",
+          "alt": "Blueberry Coconut – Dose"
+        },
+        {
+          "src": "/dosen/blueberry-coconut-trio.svg",
+          "alt": "Blueberry Coconut – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "blueberry-coconut-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "blueberry-coconut-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "blueberry-coconut-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "350-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-09-30T12:00:00.000Z"
+    },
+    {
       "handle": "zero",
       "title": "Zero",
       "subtitle": "Ohne Zucker · 250 ml",
@@ -318,13 +689,229 @@
         "Ohne Zucker",
         "Gekühlt am besten"
       ],
-      "createdAt": "2026-10-04T12:00:00.000Z"
+      "createdAt": "2026-09-29T12:00:00.000Z"
+    },
+    {
+      "handle": "xtea-watermelon",
+      "title": "X-Tea Watermelon",
+      "subtitle": "Watermelon Ice Tea",
+      "descriptionHtml": "<p>Eistee mit Wassermelonen-Geschmack – fruchtig, kühl und erfrischend.</p>\n<ul>\n<li>Ice Tea in der Dose – gekühlt am besten</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "X-Tea",
+      "productType": "Ice Tea",
+      "tags": [
+        "ice-tea"
+      ],
+      "collections": [
+        "ice-tea"
+      ],
+      "images": [
+        {
+          "src": "/produkte/xtea-watermelon.webp",
+          "alt": "X-Tea Watermelon – Dose"
+        },
+        {
+          "src": "/produkte/xtea-watermelon-trio.webp",
+          "alt": "X-Tea Watermelon – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "xtea-watermelon-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "xtea-watermelon-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "xtea-watermelon-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "Ice Tea",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-09-28T12:00:00.000Z"
+    },
+    {
+      "handle": "xtea-peach",
+      "title": "X-Tea Peach",
+      "subtitle": "Peach Ice Tea",
+      "descriptionHtml": "<p>Eistee mit Pfirsich-Geschmack – der Klassiker unter den Eistees, eiskalt serviert.</p>\n<ul>\n<li>Ice Tea in der Dose – gekühlt am besten</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "X-Tea",
+      "productType": "Ice Tea",
+      "tags": [
+        "ice-tea"
+      ],
+      "collections": [
+        "ice-tea"
+      ],
+      "images": [
+        {
+          "src": "/produkte/xtea-peach.webp",
+          "alt": "X-Tea Peach – Dose"
+        },
+        {
+          "src": "/produkte/xtea-peach-trio.webp",
+          "alt": "X-Tea Peach – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "xtea-peach-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "xtea-peach-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "xtea-peach-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "Ice Tea",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-09-27T12:00:00.000Z"
+    },
+    {
+      "handle": "xtea-lemon",
+      "title": "X-Tea Lemon",
+      "subtitle": "Lemon Ice Tea",
+      "descriptionHtml": "<p>Eistee mit Zitronen-Geschmack – spritzig, frisch und leicht.</p>\n<ul>\n<li>Ice Tea in der Dose – gekühlt am besten</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "X-Tea",
+      "productType": "Ice Tea",
+      "tags": [
+        "ice-tea"
+      ],
+      "collections": [
+        "ice-tea"
+      ],
+      "images": [
+        {
+          "src": "/produkte/xtea-lemon.webp",
+          "alt": "X-Tea Lemon – Dose"
+        },
+        {
+          "src": "/produkte/xtea-lemon-trio.webp",
+          "alt": "X-Tea Lemon – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "xtea-lemon-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "xtea-lemon-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "xtea-lemon-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "Ice Tea",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-09-26T12:00:00.000Z"
     },
     {
       "handle": "mixpaket",
       "title": "Probier-Mix 12er",
       "subtitle": "12 Dosen aus dem Energy-Sortiment",
-      "descriptionHtml": "<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus Classic, Tropical, Kiwi &amp; Lemon und Zero (je 3 Dosen).</p>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "descriptionHtml": "<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus den Energy-Sorten – Classic, Tropical, Kiwi &amp; Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero.</p>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Mixpaket",
       "tags": [
@@ -336,28 +923,28 @@
       "images": [
         {
           "src": "/dosen/mixpaket.svg",
-          "alt": "Probier-Mix – Classic, Tropical, Kiwi & Lemon, Zero"
+          "alt": "Probier-Mix – Energy-Sorten gemischt"
         }
       ],
       "options": [],
       "variants": [
         {
           "id": "mixpaket-12er",
-          "title": "12 Dosen (4 Sorten à 3)",
+          "title": "12 Dosen gemischt",
           "price": 1699,
           "available": true,
           "options": {},
           "cans": 12
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
-        "4 Sorten",
+        "Alle Energy-Sorten",
         "12 Dosen",
         "Der Einstieg"
       ],
       "packSize": 12,
-      "createdAt": "2026-10-03T12:00:00.000Z"
+      "createdAt": "2026-09-25T12:00:00.000Z"
     }
   ]
 }

@@ -152,7 +152,7 @@ Holt Produkte, Varianten/Größen, Preise, Beschreibungen, Kollektionen, alle Pr
 
 ## Katalog, Dosen-Bilder & Pfand
 
-- **Katalog:** `data/products.json` wird von `scripts/seed-data.mjs` erzeugt (`node scripts/seed-data.mjs`). Aktuell: Classic, Tropical, Kiwi & Lemon, Zero (je 6er/12er/24er Pack) und der Probier-Mix. Das Skript überschreibt die Datei – Änderungen am Katalog entweder im Skript oder (besser) im Dashboard machen.
-- **Dosen-Bilder:** Als Platzhalter erzeugt das Skript gezeichnete Dosen als SVG in `public/dosen/`. Echte Produktfotos in `public/produkte/` ablegen und im Dashboard unter *Produkte → Bilder, Texte & Varianten* austauschen.
+- **Katalog:** `data/products.json` wird von `scripts/seed-data.mjs` erzeugt (`node scripts/seed-data.mjs`). Aktuell: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut, Zero und X-Tea Ice Tea (Watermelon, Peach, Lemon), je 6er/12er/24er Pack, dazu der Probier-Mix. Das Skript überschreibt die Datei – Änderungen am Katalog entweder im Skript oder (besser) im Dashboard machen.
+- **Dosen-Bilder:** Echte Fotos (freigestellte PNGs) in `public/produkte/original/<produkt-handle>.png` ablegen (z. B. `classic.png`, `watermelon.png`, `xtea-peach.png`), dann `node scripts/make-dosen-scenes.mjs` und `node scripts/seed-data.mjs` ausführen. Ohne Foto zeigt der Shop eine gezeichnete Platzhalter-Dose aus `public/dosen/`. Die drei X-Tea-Dosen sind bereits echte Fotos.
 - **Pfand:** 0,25 € je Dose, an der Kasse separat berechnet (`lib/format.ts` → `DEPOSIT_PER_CAN`, `components/cart-drawer.tsx`, `app/api/checkout/route.ts`). Die Dosenzahl steht je Variante im Feld `cans`; fehlt sie, liest der Shop sie aus dem Namen („12er Pack“).
 - **Pflichtangaben:** Zutaten, Allergene, Nährwerte und Koffeingehalt je Produkt im Dashboard unter *Produkte → Zutaten & Nährwerte* eintragen – sie erscheinen auf der Produktseite.

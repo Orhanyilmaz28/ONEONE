@@ -102,7 +102,7 @@ export function Promises() {
 
 /* ───────── FAQ ───────── */
 const FAQ = [
-  ["Welche Sorten gibt es?", "Aktuell Classic, Tropical, Kiwi & Lemon und Zero (ohne Zucker) – alle in der 250-ml-Dose. Im Probier-Mix bekommst du jede Sorte."],
+  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut (350 ml) und Zero (ohne Zucker). Dazu X-Tea Ice Tea in Watermelon, Peach und Lemon. Im Probier-Mix bekommst du die Energy-Sorten zusammen."],
   ["Wie viel Koffein ist enthalten?", "Die genauen Angaben stehen auf der Dose und auf der jeweiligen Produktseite. EXSTASE hat einen erhöhten Koffeingehalt – für Kinder, schwangere und stillende Frauen nicht empfohlen."],
   ["Was bedeutet „Zero“?", "Zero ist die Variante ohne Zucker. Der volle EXSTASE-Geschmack, aber ohne Zucker."],
   ["Gibt es Pfand?", "Ja. Auf jede Dose kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],
