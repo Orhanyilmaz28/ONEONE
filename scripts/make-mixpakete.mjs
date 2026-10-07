@@ -45,6 +45,7 @@ const TYPES = [
   { key: "komplett", name: "Komplett-Mix", flavors: KOMPLETT, sizes: [6, 12, 24], type: "Energy Drink", tag: "Energy, Ice Coffee und Wasser in einem Paket" },
 ];
 
+// Paletten: laut Artikelpass 108 Trays (24 × 250 ml) = 2.592 Dosen je Euro-Palette; Aqua-Palette geschätzt
 // Feste Themen-Mixe (je 4 Trays)
 const THEMED = [
   { handle: "mix-fruchtig", name: "Fruchtig-Mix", flavors: ["classic", "tropical", "kiwi-lemon", "watermelon"], type: "Energy Drink", feat: false },
@@ -54,8 +55,8 @@ const THEMED = [
 ];
 
 const PALLETS = [
-  { handle: "palette-energy", name: "Energy-Palette", contents: distribute(ENERGY, 120), type: "Energy Drink", tag: "Alle 9 Energy-Sorten auf einer Palette" },
-  { handle: "palette-mix", name: "Mix-Palette", contents: distribute(KOMPLETT, 120), type: "Energy Drink", tag: "Energy, Ice Coffee und Wasser gemischt" },
+  { handle: "palette-energy", name: "Energy-Palette", contents: distribute(ENERGY, 108), type: "Energy Drink", tag: "Alle 9 Energy-Sorten auf einer Palette" },
+  { handle: "palette-mix", name: "Mix-Palette", contents: distribute(KOMPLETT, 108), type: "Energy Drink", tag: "Energy, Ice Coffee und Wasser gemischt" },
   { handle: "palette-aqua", name: "Aqua-Palette", contents: distribute(AQUA, 80), type: "Mineralwasser", tag: "Still, Medium und Classic" },
 ];
 

@@ -16,7 +16,7 @@ export default async function PortalHome() {
   const tiles = [
     { href: "/haendler/portal/preise", title: "Preisliste", text: "Alle Artikel mit deinen Händlerpreisen – netto, je Tray und je Dose.", big: priced ? `${priced}` : "–", unit: "Preise" },
     { href: "/haendler/portal/artikelpaesse", title: "Artikelpässe", text: "Datenblätter als PDF zum Download – für Listung und Kasse.", big: passCount ? `${passCount}` : "–", unit: passCount === 1 ? "Pass" : "Pässe" },
-    { href: "/palette", title: "Palette anfragen", text: "Menge nennen, Mischpalette wünschen – wir machen dir ein Angebot.", big: "120", unit: "Trays je Palette" },
+    { href: "/palette", title: "Palette anfragen", text: "Menge nennen, Mischpalette wünschen – wir machen dir ein Angebot.", big: "108", unit: "Trays je Palette" },
   ];
 
   return (

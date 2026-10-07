@@ -50,7 +50,7 @@ export default async function PassesAdminPage({ searchParams }: { searchParams: 
                   <span className="block font-medium text-[14px]">{i.title}</span>
                   <span className="block text-[12px] text-muted">{i.group} · {i.key}.pdf</span>
                 </span>
-                {p ? <Badge tone="green">{kb(p.size)} · {formatDateTime(p.updatedAt)}</Badge> : <Badge tone="amber">fehlt</Badge>}
+                {p ? <Badge tone="green">{kb(p.size)} · {p.updatedAt ? formatDateTime(p.updatedAt) : "mitgeliefert"}</Badge> : <Badge tone="amber">fehlt</Badge>}
                 <form action="/admin/haendler/artikelpaesse/upload" className="flex items-center gap-2" encType="multipart/form-data" method="post">
                   <input name="key" type="hidden" value={i.key} />
                   <input accept="application/pdf,.pdf" aria-label={`PDF für ${i.title}`} className="w-48 text-[12px]" name="file" required type="file" />
@@ -58,7 +58,7 @@ export default async function PassesAdminPage({ searchParams }: { searchParams: 
                     {p ? "Ersetzen" : "Hochladen"}
                   </button>
                 </form>
-                {p ? (
+                {p?.updatedAt ? (
                   <form action={removePassAction.bind(null, i.key)}>
                     <button className={btnDanger} type="submit">
                       Löschen

@@ -5,7 +5,7 @@ const STEPS = [
   { id: "starter", name: "Starter", trays: "2–4 Trays", cans: "bis 96 Dosen", pct: "3–7 %", blocks: 4, hue: "#a8e652" },
   { id: "power", name: "Power", trays: "6–9 Trays", cans: "bis 216 Dosen", pct: "9–10 %", blocks: 9, hue: "#c6f03c" },
   { id: "mega", name: "Mega", trays: "12–24 Trays", cans: "bis 576 Dosen", pct: "12–15 %", blocks: 18, hue: "#ffd400" },
-  { id: "palette", name: "Palette", trays: "bis 120 Trays", cans: "2.880 Dosen", pct: "Händlerpreis", blocks: 30, hue: "#ff2d95", pallet: true },
+  { id: "palette", name: "Palette", trays: "bis 108 Trays", cans: "2.592 Dosen", pct: "Händlerpreis", blocks: 30, hue: "#ff2d95", pallet: true },
 ];
 
 /** „Von Tray bis Palette“: vier Stufen als wachsende Tray-Stapel – jede Stufe führt zu ihrem Abschnitt */

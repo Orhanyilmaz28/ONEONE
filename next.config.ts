@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
 
   poweredByHeader: false,
 
+  // Mitgelieferte Artikelpässe (PDF) müssen mit in die Serverfunktion der Download-Route
+  outputFileTracingIncludes: { "/haendler/portal/pass/[key]": ["./data/artikelpaesse/**/*"] },
+
   // Grundschutz: kein Einbetten in fremde Seiten (Klick-Fallen), keine Typ-Raterei, sparsame Weitergabe der Herkunft
   async headers() {
     return [

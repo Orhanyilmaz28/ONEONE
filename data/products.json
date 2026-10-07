@@ -2857,9 +2857,9 @@
     },
     {
       "handle": "palette-energy",
-      "title": "Energy-Palette · 120 Trays",
-      "subtitle": "Alle 9 Energy-Sorten auf einer Palette · 2.880 Dosen",
-      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Alle 9 Energy-Sorten auf einer Palette: 120 Trays, zusammen 2.880 Dosen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>14 Trays Classic (336 Dosen)</li>\n<li>14 Trays Tropical (336 Dosen)</li>\n<li>14 Trays Kiwi & Lemon (336 Dosen)</li>\n<li>13 Trays Watermelon (312 Dosen)</li>\n<li>13 Trays White Peach (312 Dosen)</li>\n<li>13 Trays Ice Bonbon (312 Dosen)</li>\n<li>13 Trays Lime (312 Dosen)</li>\n<li>13 Trays Blueberry Coconut (312 Dosen)</li>\n<li>13 Trays Zero (312 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Energy-Palette · 108 Trays",
+      "subtitle": "Alle 9 Energy-Sorten auf einer Palette · 2.592 Dosen",
+      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Alle 9 Energy-Sorten auf einer Palette: 108 Trays, zusammen 2.592 Dosen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>12 Trays Classic (288 Dosen)</li>\n<li>12 Trays Tropical (288 Dosen)</li>\n<li>12 Trays Kiwi & Lemon (288 Dosen)</li>\n<li>12 Trays Watermelon (288 Dosen)</li>\n<li>12 Trays White Peach (288 Dosen)</li>\n<li>12 Trays Ice Bonbon (288 Dosen)</li>\n<li>12 Trays Lime (288 Dosen)</li>\n<li>12 Trays Blueberry Coconut (288 Dosen)</li>\n<li>12 Trays Zero (288 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -2872,72 +2872,72 @@
       "images": [
         {
           "src": "/dosen-foto/palette-energy.webp",
-          "alt": "Energy-Palette – 120 Trays"
+          "alt": "Energy-Palette – 108 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "Palette · 120 Trays"
+            "Palette · 108 Trays"
           ]
         }
       ],
       "variants": [
         {
           "id": "palette-energy-v",
-          "title": "Palette · 120 Trays",
-          "price": 216000,
+          "title": "Palette · 108 Trays",
+          "price": 194400,
           "available": true,
           "options": {
-            "Packung": "Palette · 120 Trays"
+            "Packung": "Palette · 108 Trays"
           },
-          "cans": 2880
+          "cans": 2592
         }
       ],
       "featured": false,
       "highlights": [
-        "120 Trays",
-        "2.880 Dosen",
+        "108 Trays",
+        "2.592 Dosen",
         "Preis auf Anfrage"
       ],
-      "packSize": 2880,
+      "packSize": 2592,
       "contents": [
         [
           "classic",
-          14
+          12
         ],
         [
           "tropical",
-          14
+          12
         ],
         [
           "kiwi-lemon",
-          14
+          12
         ],
         [
           "watermelon",
-          13
+          12
         ],
         [
           "white-peach",
-          13
+          12
         ],
         [
           "ice-bonbon",
-          13
+          12
         ],
         [
           "lime",
-          13
+          12
         ],
         [
           "blueberry-coconut",
-          13
+          12
         ],
         [
           "zero",
-          13
+          12
         ]
       ],
       "onRequest": true,
@@ -2945,9 +2945,9 @@
     },
     {
       "handle": "palette-mix",
-      "title": "Mix-Palette · 120 Trays",
-      "subtitle": "Energy, Ice Coffee und Wasser gemischt · 2.400 Dosen/Flaschen",
-      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Energy, Ice Coffee und Wasser gemischt: 120 Trays, zusammen 2.400 Dosen und Flaschen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>14 Trays Classic (336 Dosen)</li>\n<li>14 Trays Ice Coffee Latte (336 Dosen)</li>\n<li>14 Trays Aqua x Classic (168 Flaschen)</li>\n<li>13 Trays Tropical (312 Dosen)</li>\n<li>13 Trays Ice Coffee Cappuccino (312 Dosen)</li>\n<li>13 Trays Aqua x Still (156 Flaschen)</li>\n<li>13 Trays Kiwi & Lemon (312 Dosen)</li>\n<li>13 Trays Watermelon (312 Dosen)</li>\n<li>13 Trays Aqua x Medium (156 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Mix-Palette · 108 Trays",
+      "subtitle": "Energy, Ice Coffee und Wasser gemischt · 2.160 Dosen/Flaschen",
+      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Energy, Ice Coffee und Wasser gemischt: 108 Trays, zusammen 2.160 Dosen und Flaschen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>12 Trays Classic (288 Dosen)</li>\n<li>12 Trays Ice Coffee Latte (288 Dosen)</li>\n<li>12 Trays Aqua x Classic (144 Flaschen)</li>\n<li>12 Trays Tropical (288 Dosen)</li>\n<li>12 Trays Ice Coffee Cappuccino (288 Dosen)</li>\n<li>12 Trays Aqua x Still (144 Flaschen)</li>\n<li>12 Trays Kiwi & Lemon (288 Dosen)</li>\n<li>12 Trays Watermelon (288 Dosen)</li>\n<li>12 Trays Aqua x Medium (144 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -2960,72 +2960,72 @@
       "images": [
         {
           "src": "/dosen-foto/palette-mix.webp",
-          "alt": "Mix-Palette – 120 Trays"
+          "alt": "Mix-Palette – 108 Trays"
         }
       ],
       "options": [
         {
           "name": "Packung",
           "values": [
-            "Palette · 120 Trays"
+            "Palette · 108 Trays"
           ]
         }
       ],
       "variants": [
         {
           "id": "palette-mix-v",
-          "title": "Palette · 120 Trays",
-          "price": 170400,
+          "title": "Palette · 108 Trays",
+          "price": 153360,
           "available": true,
           "options": {
-            "Packung": "Palette · 120 Trays"
+            "Packung": "Palette · 108 Trays"
           },
-          "cans": 2400
+          "cans": 2160
         }
       ],
       "featured": false,
       "highlights": [
-        "120 Trays",
-        "2.400 Stück",
+        "108 Trays",
+        "2.160 Stück",
         "Preis auf Anfrage"
       ],
-      "packSize": 2400,
+      "packSize": 2160,
       "contents": [
         [
           "classic",
-          14
+          12
         ],
         [
           "ice-coffee-latte",
-          14
+          12
         ],
         [
           "wasser-classic",
-          14
+          12
         ],
         [
           "tropical",
-          13
+          12
         ],
         [
           "ice-coffee-cappuccino",
-          13
+          12
         ],
         [
           "wasser-still",
-          13
+          12
         ],
         [
           "kiwi-lemon",
-          13
+          12
         ],
         [
           "watermelon",
-          13
+          12
         ],
         [
           "wasser-medium",
-          13
+          12
         ]
       ],
       "onRequest": true,

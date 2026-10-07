@@ -16,7 +16,7 @@ export default async function PalettePage({ searchParams }: Props) {
   const [products, settings] = await Promise.all([getProducts(), getSettings()]);
   const paletten = products.filter((p) => p.onRequest).map((p) => ({ handle: p.handle, title: p.title }));
   const facts = [
-    ["120", "Trays je Palette", "Energy-Palette: 2.880 Dosen"],
+    ["108", "Trays je Palette", "Energy-Palette: 2.592 Dosen"],
     ["1", "Anfrage, ein Angebot", "Händlerpreis nach Menge und Region"],
     ["Spedition", "Lieferung", "direkt an deine Rampe oder dein Lager"],
   ];
