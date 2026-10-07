@@ -13,7 +13,7 @@ export default async function AccountDataPage() {
     <>
       <AccountHeader active="/konto/daten" name={c.name} title="Meine Daten" />
       <div className="grid gap-6 lg:grid-cols-2">
-        <section aria-labelledby="profil" className="rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+        <section aria-labelledby="profil" className="rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
           <h2 className="t-h3 mb-5" id="profil">
             Name & Adresse
           </h2>
@@ -30,13 +30,13 @@ export default async function AccountDataPage() {
           />
         </section>
         <div className="space-y-6">
-          <section aria-labelledby="pw" className="rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+          <section aria-labelledby="pw" className="rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
             <h2 className="t-h3 mb-5" id="pw">
               Passwort ändern
             </h2>
             <PasswordForm />
           </section>
-          <section aria-labelledby="loeschen" className="rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+          <section aria-labelledby="loeschen" className="rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
             <h2 className="t-h3" id="loeschen">
               Konto löschen
             </h2>

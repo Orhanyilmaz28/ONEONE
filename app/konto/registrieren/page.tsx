@@ -20,7 +20,7 @@ export default async function RegisterPage() {
         <ul className="mt-8 space-y-3">
           {BENEFITS.map((b) => (
             <li className="flex items-start gap-3" key={b}>
-              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-ink text-white">
+              <span className="mt-0.5 flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-black">
                 <CheckIcon className="size-3.5" />
               </span>
               {b}
@@ -29,7 +29,7 @@ export default async function RegisterPage() {
         </ul>
       </div>
       <div>
-        <div className="rounded-[1.75rem] border border-line bg-white p-6 sm:p-8">
+        <div className="rounded-[1.75rem] border border-line bg-card p-6 sm:p-8">
           <RegisterForm />
         </div>
         <p className="mt-6 text-center text-[15px] text-ink/80">

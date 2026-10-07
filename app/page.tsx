@@ -8,7 +8,7 @@ export default async function Home() {
   const products = await getProducts();
   const featured = products.filter((p) => p.featured);
   // Die vier Sorten zuerst, Mixpaket danach (Reihenfolge wie im Katalog)
-  const shown = (featured.length ? featured : products).slice(0, 8);
+  const shown = (featured.length ? featured : products).slice(0, 12);
 
   return (
     <>

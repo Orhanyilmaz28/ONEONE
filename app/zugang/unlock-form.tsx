@@ -19,7 +19,7 @@ export function UnlockForm({ target }: { target: string }) {
           autoComplete="current-password"
           // biome-ignore lint/a11y/noAutofocus: einziges Feld der Seite
           autoFocus
-          className="h-13 w-full rounded-full border border-line bg-white px-5 pr-24 text-[16px] outline-none transition placeholder:text-ink/35 focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/10 aria-[invalid=true]:border-red-300"
+          className="h-13 w-full rounded-full border border-line bg-card px-5 pr-24 text-[16px] outline-none transition placeholder:text-ink/35 focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/10 aria-[invalid=true]:border-red-300"
           id="site-password"
           name="password"
           placeholder="Passwort"
@@ -34,7 +34,7 @@ export function UnlockForm({ target }: { target: string }) {
           {state.error}
         </p>
       ) : null}
-      <button className="h-13 w-full rounded-full bg-ink font-medium text-white transition hover:bg-black disabled:opacity-60" disabled={pending} type="submit">
+      <button className="h-13 w-full rounded-full bg-accent font-medium text-black transition hover:bg-accent-dark disabled:opacity-60" disabled={pending} type="submit">
         {pending ? "Moment …" : "Shop öffnen"}
       </button>
     </form>

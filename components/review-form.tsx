@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { REVIEW_LIMITS } from "@/lib/reviews";
 import { CheckIcon } from "./icons";
 
-const field = "w-full rounded-xl border border-line bg-white px-4 py-3 outline-none transition focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/5";
+const field = "w-full rounded-xl border border-line bg-card px-4 py-3 outline-none transition focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/5";
 const STAR_LABEL = ["", "Gefällt mir gar nicht", "Gefällt mir eher nicht", "Ganz okay", "Gefällt mir gut", "Gefällt mir sehr gut"];
 
 export function ReviewForm({ product, productTitle }: { product: string; productTitle: string }) {
@@ -80,7 +80,7 @@ export function ReviewForm({ product, productTitle }: { product: string; product
   if (!open) {
     return (
       <button
-        className="inline-flex h-11 items-center rounded-full border border-ink/15 bg-white px-5 font-medium transition hover:border-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+        className="inline-flex h-11 items-center rounded-full border border-ink/15 bg-card px-5 font-medium transition hover:border-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
         data-review-open
         onClick={() => setOpen(true)}
         type="button"
@@ -93,7 +93,7 @@ export function ReviewForm({ product, productTitle }: { product: string; product
   const shown = hover || rating;
 
   return (
-    <form aria-labelledby={`${id}-title`} className="space-y-4 rounded-[1.75rem] border border-line bg-white p-6" onSubmit={submit}>
+    <form aria-labelledby={`${id}-title`} className="space-y-4 rounded-[1.75rem] border border-line bg-card p-6" onSubmit={submit}>
       <p className="font-medium" id={`${id}-title`}>
         Wie gefällt dir {productTitle}?
       </p>
@@ -188,7 +188,7 @@ export function ReviewForm({ product, productTitle }: { product: string; product
           {error}
         </p>
       ) : null}
-      <button className="h-12 rounded-full bg-ink px-6 font-medium text-white transition hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/20 disabled:opacity-60" disabled={state === "sending"} type="submit">
+      <button className="h-12 rounded-full bg-accent px-6 font-medium text-black transition hover:bg-accent-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/20 disabled:opacity-60" disabled={state === "sending"} type="submit">
         {state === "sending" ? "Wird gesendet …" : "Bewertung absenden"}
       </button>
     </form>

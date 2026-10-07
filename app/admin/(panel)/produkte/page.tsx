@@ -184,7 +184,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         {/* Handy: Knöpfe brechen um (aktiver Filter bleibt sichtbar); ab Tablet als Leiste */}
         {/* Zu schmal für alle Knöpfe? Dann lässt sich die Leiste seitlich schieben, statt abgeschnitten zu werden */}
         <nav aria-label="Produkte filtern" className="no-scrollbar min-w-0 overflow-x-auto xl:shrink-0">
-          <ul className="flex flex-wrap gap-1.5 sm:w-max sm:flex-nowrap sm:gap-1 sm:rounded-full sm:border sm:border-line sm:bg-white sm:p-1">
+          <ul className="flex flex-wrap gap-1.5 sm:w-max sm:flex-nowrap sm:gap-1 sm:rounded-full sm:border sm:border-line sm:bg-card sm:p-1">
             {FILTERS.map((f) => {
               const active = f.key === filter;
               const warn = (f.key === "ausverkauft" || f.key === "ausgeblendet") && counts[f.key] > 0;
@@ -192,7 +192,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
                 <li key={f.key || "alle"}>
                   <Link
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-ink text-white ring-1 ring-ink sm:ring-0" : "bg-white text-ink/70 ring-1 ring-line hover:bg-ink/5 hover:text-ink sm:bg-transparent sm:ring-0"}`}
+                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-black ring-1 ring-ink sm:ring-0" : "bg-card text-ink/70 ring-1 ring-line hover:bg-ink/5 hover:text-ink sm:bg-transparent sm:ring-0"}`}
                     href={hrefWith(f.key, q)}
                     scroll={false}
                   >
@@ -296,7 +296,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
       </p>
 
       {deleted.length ? (
-        <details className="group mt-6 rounded-3xl border border-line bg-white">
+        <details className="group mt-6 rounded-3xl border border-line bg-card">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-6 py-4 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
             <span>
               <span className="block font-medium text-[15px]">Gelöschte Produkte ({deleted.length})</span>
@@ -423,7 +423,7 @@ function ProductCard({ row }: { row: Row }) {
   const p = row.product;
   return (
     <Link
-      className="flex gap-4 rounded-3xl border border-line bg-white p-3.5 shadow-[0_1px_2px_rgba(20,20,20,0.04)] transition hover:border-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+      className="flex gap-4 rounded-3xl border border-line bg-card p-3.5 shadow-[0_1px_2px_rgba(20,20,20,0.04)] transition hover:border-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
       href={`${BASE}/${p.handle}`}
     >
       <Thumb className={`h-[100px] w-20 ${row.hidden ? "opacity-50 grayscale" : ""}`} product={p} />

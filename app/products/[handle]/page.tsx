@@ -123,7 +123,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
         <div>
           <p className="anim-rise flex flex-wrap items-center gap-2" style={{ animationDelay: "0.05s" }}>
-            <span className="rounded-full bg-ink px-3 py-1 font-medium text-white text-xs">{product.productType}</span>
+            <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{product.productType}</span>
             <span className="rounded-full bg-cream px-3 py-1 text-xs">Versand aus Deutschland</span>
           </p>
           <h1 className="anim-rise t-h1 mt-4" style={{ animationDelay: "0.12s" }}>{product.title}</h1>

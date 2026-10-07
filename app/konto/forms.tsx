@@ -6,9 +6,9 @@ import { PASSWORD_MIN } from "@/lib/customer-rules";
 import { type FormState, changePassword, deleteAccount, login, register, requestPasswordReset, saveProfile, setNewPassword } from "./actions";
 
 const field =
-  "w-full rounded-xl border border-line bg-white px-4 py-3 outline-none transition placeholder:text-ink/35 focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/5 aria-[invalid=true]:border-red-300 aria-[invalid=true]:bg-red-50/40";
+  "w-full rounded-xl border border-line bg-card px-4 py-3 outline-none transition placeholder:text-ink/35 focus:border-ink focus-visible:ring-4 focus-visible:ring-ink/5 aria-[invalid=true]:border-red-300 aria-[invalid=true]:bg-red-50/40";
 const primary =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-ink px-6 font-medium text-white transition hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/20 disabled:opacity-60";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent px-6 font-medium text-black transition hover:bg-accent-dark focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/20 disabled:opacity-60";
 
 function Field({
   label,

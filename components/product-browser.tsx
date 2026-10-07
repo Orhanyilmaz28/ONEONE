@@ -115,7 +115,7 @@ function BrowserView({
               ))}
             </nav>
             <div className="flex w-full items-center gap-2 sm:w-auto">
-              <label className="flex flex-1 items-center gap-2 rounded-full border border-line bg-white px-4 py-2 focus-within:border-ink sm:w-56 sm:flex-none">
+              <label className="flex flex-1 items-center gap-2 rounded-full border border-line bg-card px-4 py-2 focus-within:border-ink sm:w-56 sm:flex-none">
                 <SearchIcon className="size-4 text-muted" />
                 <input
                   aria-label="Produkte filtern"
@@ -130,7 +130,7 @@ function BrowserView({
               </label>
               <select
                 aria-label="Sortieren"
-                className="rounded-full border border-line bg-white px-4 py-2 text-sm transition hover:border-ink"
+                className="rounded-full border border-line bg-card px-4 py-2 text-sm transition hover:border-ink"
                 onChange={(e) => update("sort", e.target.value === "beliebt" ? null : e.target.value)}
                 value={sort}
               >
@@ -163,7 +163,7 @@ function BrowserView({
             <p className="t-h2">Nichts gefunden</p>
             <p className="mt-3 text-muted">Versuch es mit einem anderen Begriff – z. B. „Classic“, „Zero“ oder „12er“.</p>
             <button
-              className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-sm transition hover:border-ink"
+              className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-card px-5 py-2.5 text-sm transition hover:border-ink"
               onClick={resetFilters}
               type="button"
             >
@@ -199,7 +199,7 @@ function Chip({ href, label, active }: { href: string; label: string; active: bo
     <Link
       aria-current={active ? "page" : undefined}
       className={`shrink-0 rounded-full px-4 py-2 text-sm transition ${
-        active ? "bg-ink text-paper" : "border border-line bg-white hover:border-ink"
+        active ? "bg-accent text-paper" : "border border-line bg-card hover:border-ink"
       }`}
       href={href}
       scroll={false}

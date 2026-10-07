@@ -21,7 +21,7 @@ export function ReviewCard({ review, product }: { review: Review; product?: { ha
   const date = review.date ? new Date(review.date) : null;
   const validDate = date && !Number.isNaN(date.getTime()) ? date : null;
   return (
-    <figure className="flex h-full flex-col rounded-[1.75rem] border border-line bg-white p-6">
+    <figure className="flex h-full flex-col rounded-[1.75rem] border border-line bg-card p-6">
       <div className="flex items-center justify-between gap-3">
         <span className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
           <Stars value={review.rating} />
@@ -40,7 +40,7 @@ export function ReviewCard({ review, product }: { review: Review; product?: { ha
       {review.title ? <p className="mt-4 font-medium">{review.title}</p> : null}
       <blockquote className="mt-3 flex-1 whitespace-pre-line text-[17px] leading-relaxed">„{review.text}“</blockquote>
       <figcaption className="mt-5 flex items-center gap-3 border-line border-t pt-4 text-sm">
-        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#ece6ff,#ffe9df)] font-medium">
+        <span className="flex size-9 shrink-0 items-center justify-center rounded-full border border-line bg-card font-medium text-accent">
           {review.name.charAt(0)}
         </span>
         <span className="min-w-0">
@@ -91,7 +91,7 @@ export async function ProductReviews({ handle, title, reviews: given = [], sold 
                 {distribution.map((d) => (
                   <li className="flex items-center gap-3 text-sm" key={d.stars}>
                     <span className="w-8 text-muted">{d.stars} ★</span>
-                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-white">
+                    <span className="h-2 flex-1 overflow-hidden rounded-full bg-card">
                       <span className="block h-full rounded-full bg-[#f5a524]" style={{ width: `${count ? (d.count / count) * 100 : 0}%` }} />
                     </span>
                     <span className="w-5 text-right text-muted">{d.count}</span>

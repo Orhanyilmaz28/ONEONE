@@ -51,7 +51,7 @@ export function SubscriberList({ subscribers, empty }: { subscribers: Subscriber
       {/* Handy: Karten */}
       <ul aria-busy={pending} className="space-y-2 md:hidden">
         {list.map((s) => (
-          <li className="flex flex-col gap-3 rounded-2xl border border-line bg-white px-4 py-3.5" key={s.email}>
+          <li className="flex flex-col gap-3 rounded-2xl border border-line bg-card px-4 py-3.5" key={s.email}>
             <div className="min-w-0">
               <p className="truncate font-medium text-[15px]">
                 {s.email}
@@ -67,7 +67,7 @@ export function SubscriberList({ subscribers, empty }: { subscribers: Subscriber
       </ul>
 
       {/* Ab Tablet: schlanke Tabelle (nur 3 Spalten – passt auch neben die Hinweis-Spalte) */}
-      <div aria-busy={pending} className="hidden rounded-3xl border border-line bg-white px-6 pb-1 shadow-[0_1px_2px_rgba(20,20,20,0.04)] md:block">
+      <div aria-busy={pending} className="hidden rounded-3xl border border-line bg-card px-6 pb-1 shadow-[0_1px_2px_rgba(20,20,20,0.04)] md:block">
         <table className="w-full border-collapse text-left text-sm">
           <thead>
             <tr className="border-line border-b text-[12px] text-muted uppercase tracking-[0.08em]">

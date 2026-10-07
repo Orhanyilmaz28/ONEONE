@@ -26,7 +26,7 @@ export default async function AccountOrdersPage() {
           </p>
         </>
       ) : (
-        <div className="rounded-[1.75rem] border border-line border-dashed bg-white p-8 text-center">
+        <div className="rounded-[1.75rem] border border-line border-dashed bg-card p-8 text-center">
           <p className="font-medium">Noch keine Bestellungen</p>
           <p className="mt-1 text-[15px] text-muted">Bestellungen mit der Adresse {customer.email} erscheinen hier automatisch.</p>
         </div>

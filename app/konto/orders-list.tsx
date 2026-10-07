@@ -27,7 +27,7 @@ export async function OrdersList({ orders }: { orders: Order[] }) {
       {orders.map((o) => {
         const track = trackingUrl(o.meta.tracking, o.meta.carrier);
         return (
-          <li className="rounded-[1.75rem] border border-line bg-white p-5 sm:p-6" key={o.id}>
+          <li className="rounded-[1.75rem] border border-line bg-card p-5 sm:p-6" key={o.id}>
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="font-medium">Bestellung {o.number}</p>

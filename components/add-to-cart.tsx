@@ -54,7 +54,7 @@ export function AddToCart({ product }: { product: Product }) {
       </div>
       {variant && cansOf(variant) > 1 ? (
         <p className="-mt-6 flex flex-wrap items-center gap-2 text-sm">
-          <span className="rounded-full bg-ink px-3 py-1 font-medium text-white text-xs">{cansOf(variant)} Dosen</span>
+          <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{cansOf(variant)} Dosen</span>
           <span className="font-medium">{formatPrice(Math.round(variant.price / cansOf(variant)))} pro Dose</span>
           <span className="text-muted">+ {formatPrice(depositFor(variant, 1))} Pfand</span>
         </p>
@@ -93,7 +93,7 @@ export function AddToCart({ product }: { product: Product }) {
                 <button
                   aria-pressed={active}
                   className={`relative rounded-full border px-5 py-2.5 text-sm transition ${
-                    active ? "border-ink bg-ink text-paper" : "border-line bg-white hover:border-ink"
+                    active ? "border-ink bg-accent text-paper" : "border-line bg-card hover:border-ink"
                   } ${available ? "" : "text-muted line-through decoration-1"}`}
                   key={value}
                   onClick={() => setSelected((s) => ({ ...s, [option.name]: value }))}
@@ -111,7 +111,7 @@ export function AddToCart({ product }: { product: Product }) {
       ))}
 
       <div className="flex flex-wrap gap-3">
-        <div className="flex shrink-0 items-center rounded-full border border-line bg-white">
+        <div className="flex shrink-0 items-center rounded-full border border-line bg-card">
           <button aria-label="Weniger" className="p-4" onClick={() => setQuantity((q) => Math.max(1, q - 1))} type="button">
             <MinusIcon />
           </button>
@@ -121,7 +121,7 @@ export function AddToCart({ product }: { product: Product }) {
           </button>
         </div>
         <motion.button
-          className="anim-shine relative flex min-w-56 flex-1 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-ink px-6 py-4 font-medium text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:bg-muted"
+          className="anim-shine relative flex min-w-56 flex-1 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full bg-accent px-6 py-4 font-medium text-paper transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:bg-muted"
           disabled={!canBuy}
           onClick={() => {
             if (variant) {
@@ -155,7 +155,7 @@ export function AddToCart({ product }: { product: Product }) {
         </motion.button>
       </div>
 
-      <ul className="grid gap-2 rounded-[1.5rem] border border-line bg-white p-4 text-sm sm:grid-cols-2">
+      <ul className="grid gap-2 rounded-[1.5rem] border border-line bg-card p-4 text-sm sm:grid-cols-2">
         <li className="flex items-center gap-2.5">
           <FlagDE />
           Händler & Versand aus Deutschland

@@ -64,7 +64,7 @@ export function Header({
       </div>
 
       <header className="sticky top-3 z-40 px-3 pt-3 sm:px-4" data-print-hide>
-        <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 rounded-full border border-line/80 bg-white pr-1.5 pl-3 shadow-[0_10px_40px_-18px_rgba(20,20,20,0.25)] sm:pr-2 sm:pl-5">
+        <div className="relative mx-auto flex h-14 max-w-7xl items-center justify-between gap-3 rounded-full border border-line/80 bg-card pr-1.5 pl-3 shadow-[0_10px_40px_-18px_rgba(20,20,20,0.25)] sm:pr-2 sm:pl-5">
           <div className="flex items-center gap-1">
             <button
               aria-controls="mobil-menue"
@@ -113,7 +113,7 @@ export function Header({
             ) : null}
             <button
               aria-label={`Warenkorb ${count} Artikel`}
-              className="flex h-10 items-center gap-1.5 rounded-full bg-ink pr-1.5 pl-3 text-[15px] sm:gap-2 sm:pr-2 sm:pl-4 text-white transition hover:bg-black"
+              className="flex h-10 items-center gap-1.5 rounded-full bg-accent pr-1.5 pl-3 text-[15px] sm:gap-2 sm:pr-2 sm:pl-4 text-black transition hover:bg-accent-dark"
               onClick={open}
               type="button"
             >
@@ -122,7 +122,7 @@ export function Header({
               <AnimatePresence mode="popLayout">
                 <motion.span
                   animate={{ scale: 1, opacity: 1 }}
-                  className="flex size-6 items-center justify-center rounded-full bg-white font-medium text-[12px] text-ink max-sm:size-[22px]"
+                  className="flex size-6 items-center justify-center rounded-full bg-card font-medium text-[12px] text-ink max-sm:size-[22px]"
                   initial={{ scale: 0.4, opacity: 0 }}
                   key={count}
                   transition={{ type: "spring", stiffness: 500, damping: 18 }}
@@ -158,7 +158,7 @@ export function Header({
             </div>
             <div className="relative flex h-20 items-center justify-between px-6">
               <Logo className="h-[30px] w-auto" compact title={brand} />
-              <button aria-label="Menü schließen" className="rounded-full bg-white p-2.5 shadow" onClick={() => setMenuOpen(false)} type="button">
+              <button aria-label="Menü schließen" className="rounded-full bg-card p-2.5 shadow" onClick={() => setMenuOpen(false)} type="button">
                 <CloseIcon />
               </button>
             </div>

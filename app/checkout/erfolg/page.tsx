@@ -40,7 +40,7 @@ export default async function SuccessPage({ searchParams }: Props) {
       </p>
 
       {session?.line_items?.data.length ? (
-        <div className="mt-12 rounded-3xl border border-line bg-white p-6 text-left">
+        <div className="mt-12 rounded-3xl border border-line bg-card p-6 text-left">
           <ul className="divide-y divide-line">
             {session.line_items.data.map((item) => (
               <li className="flex justify-between gap-4 py-3" key={item.id}>
@@ -59,7 +59,7 @@ export default async function SuccessPage({ searchParams }: Props) {
       ) : null}
 
       <Link
-        className="mt-12 inline-flex items-center gap-2 rounded-full bg-ink px-7 py-4 font-medium text-paper transition hover:bg-accent"
+        className="mt-12 inline-flex items-center gap-2 rounded-full bg-accent px-7 py-4 font-medium text-paper transition hover:bg-accent"
         href="/products"
       >
         Weiter einkaufen <ArrowIcon />

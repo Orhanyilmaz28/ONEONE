@@ -40,7 +40,7 @@ export function Toast({ toast, onClose }: { toast: (ToastData & { key: number })
       {toast ? (
         <div
           className={`pointer-events-auto flex w-full max-w-lg items-start gap-3 rounded-2xl px-4 py-3 text-sm shadow-[0_12px_40px_-12px_rgba(20,20,20,0.45)] ${
-            toast.tone === "error" ? "border border-red-200 bg-red-50 text-red-900" : "bg-ink text-white"
+            toast.tone === "error" ? "border border-red-200 bg-red-50 text-red-900" : "bg-accent text-black"
           }`}
           key={toast.key}
         >
@@ -132,7 +132,7 @@ export function ConfirmButton({
   if (!asking) {
     return (
       <button
-        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-red-200 bg-white px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100 disabled:cursor-not-allowed disabled:opacity-50"
+        className="inline-flex items-center justify-center gap-1.5 rounded-full border border-red-200 bg-card px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100 disabled:cursor-not-allowed disabled:opacity-50"
         disabled={disabled}
         onClick={() => setAsking(true)}
         ref={triggerRef}
@@ -170,7 +170,7 @@ export function ConfirmButton({
         {srContext ? <span className="sr-only"> {srContext}</span> : null}
       </button>
       <button
-        className="rounded-full bg-white px-3.5 py-1.5 font-medium text-ink transition hover:bg-white/70 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
+        className="rounded-full bg-card px-3.5 py-1.5 font-medium text-ink transition hover:bg-card/70 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-200"
         onClick={() => setAsking(false)}
         ref={cancelRef}
         type="button"

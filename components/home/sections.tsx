@@ -78,7 +78,7 @@ export function Bestsellers({ products }: { products: Product[] }) {
 export function Promises() {
   const items = [
     { icon: "versand" as IconName, title: "Versand aus Deutschland", text: "Direkt aus Straelen (NRW), in 1–3 Werktagen bei dir – sicher verpackt." },
-    { icon: "nachhaltig" as IconName, title: "Fair beim Pfand", text: "0,25 € Einwegpfand je Dose – separat ausgewiesen, damit du immer weißt, was du zahlst." },
+    { icon: "nachhaltig" as IconName, title: "Fair beim Pfand", text: "0,25 € Einwegpfand je Dose/Flasche – separat ausgewiesen, damit du immer weißt, was du zahlst." },
     { icon: "antibakteriell" as IconName, title: "Sicher bezahlen", text: "PayPal, Klarna, Kreditkarte, Apple Pay & Google Pay – SSL-verschlüsselt über Stripe." },
   ];
   return (
@@ -86,7 +86,7 @@ export function Promises() {
       <div className="grid gap-4 md:grid-cols-3">
         {items.map(({ icon, title, text }) => (
           <div className="sd-up group flex gap-4 rounded-[1.75rem] bg-cream p-7" key={title}>
-            <span className="icon-hover flex size-12 shrink-0 items-center justify-center rounded-full bg-white">
+            <span className="icon-hover flex size-12 shrink-0 items-center justify-center rounded-full bg-card">
               <FeatureIcon className="size-6" name={icon} />
             </span>
             <div>
@@ -102,10 +102,10 @@ export function Promises() {
 
 /* ───────── FAQ ───────── */
 const FAQ = [
-  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut (350 ml) und Zero (ohne Zucker). Dazu X-Tea Ice Tea in Watermelon, Peach und Lemon. Im Probier-Mix bekommst du die Energy-Sorten zusammen."],
+  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero (ohne Zucker). Dazu X-Tea Ice Tea (Watermelon, Peach, Lemon), Ice Coffee (Latte, Cappuccino) und Aqua x Mineralwasser (Still, Medium, Classic). Im Probier-Mix bekommst du die Energy-Sorten zusammen."],
   ["Wie viel Koffein ist enthalten?", "Die genauen Angaben stehen auf der Dose und auf der jeweiligen Produktseite. EXSTASE hat einen erhöhten Koffeingehalt – für Kinder, schwangere und stillende Frauen nicht empfohlen."],
   ["Was bedeutet „Zero“?", "Zero ist die Variante ohne Zucker. Der volle EXSTASE-Geschmack, aber ohne Zucker."],
-  ["Gibt es Pfand?", "Ja. Auf jede Dose kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],
+  ["Gibt es Pfand?", "Ja. Auf jede Dose und Flasche kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],
   ["Wie lange dauert der Versand?", "In Deutschland in der Regel 1–3 Werktage. Ab dem im Warenkorb angezeigten Warenwert ist der Versand kostenlos."],
   ["Kann ich Dosen zurückgeben?", "Ungeöffnete Ware kannst du innerhalb der gesetzlichen Widerrufsfrist zurücksenden. Details stehen in der Widerrufsbelehrung."],
 ];
@@ -140,7 +140,7 @@ export function Faq() {
 export function NewsletterCta() {
   return (
     <section className="px-3 sm:px-4">
-      <div className="sd-up relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] border border-line bg-white px-6 py-14 text-center sm:py-16">
+      <div className="sd-up relative isolate mx-auto max-w-7xl overflow-hidden rounded-[2.5rem] border border-line bg-card px-6 py-14 text-center sm:py-16">
         <div aria-hidden className="-z-10 pointer-events-none absolute inset-0">
           <div className="anim-blob absolute -top-32 left-1/4 size-[28rem] rounded-full bg-lilac/60 blur-3xl" />
           <div className="anim-blob absolute -bottom-40 right-1/4 size-[26rem] rounded-full bg-peach/60 blur-3xl [animation-delay:-6s]" />
@@ -170,7 +170,7 @@ export async function HomeReviews() {
     <Section id="bewertungen">
       <SectionTitle
         action={
-          <div className="flex items-center gap-4 rounded-[1.5rem] border border-line bg-white px-5 py-4">
+          <div className="flex items-center gap-4 rounded-[1.5rem] border border-line bg-card px-5 py-4">
             <span className="t-h1 leading-none">{formatAverage(average)}</span>
             <span>
               <Stars className="size-5" value={average} />
@@ -191,12 +191,12 @@ export async function HomeReviews() {
             <ReviewCard product={productByHandle.get(r.product)} review={r} />
           </div>
         ))}
-        <div className="sd-up flex flex-col justify-between gap-6 rounded-[1.75rem] bg-ink p-6 text-white">
+        <div className="sd-up flex flex-col justify-between gap-6 rounded-[1.75rem] bg-accent p-6 text-black">
           <div>
             <p className="t-h3">Du kennst EXSTASE schon?</p>
             <p className="mt-2 text-white/60">Teile deine Erfahrung und hilf anderen bei der Entscheidung – auf der Produktseite unter „Bewertung schreiben“.</p>
           </div>
-          <Link className="inline-flex h-11 w-fit items-center gap-2 rounded-full bg-white px-5 font-medium text-ink" href="/products">
+          <Link className="inline-flex h-11 w-fit items-center gap-2 rounded-full bg-card px-5 font-medium text-ink" href="/products">
             Zu den Produkten <ArrowIcon />
           </Link>
         </div>

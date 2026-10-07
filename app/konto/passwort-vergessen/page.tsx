@@ -14,7 +14,7 @@ export default async function ForgotPage() {
     <div className="mx-auto max-w-md">
       <p className="t-eyebrow">Mein Konto</p>
       <h1 className="t-h1 mt-3">Passwort vergessen?</h1>
-      <div className="mt-8 space-y-4 rounded-[1.75rem] border border-line bg-white p-6 text-ink/80 leading-relaxed sm:p-8">
+      <div className="mt-8 space-y-4 rounded-[1.75rem] border border-line bg-card p-6 text-ink/80 leading-relaxed sm:p-8">
         {ready ? (
           <>
             <p>Kein Problem. Gib deine E-Mail-Adresse ein – wir schicken dir einen Link, mit dem du ein neues Passwort festlegst.</p>
@@ -25,7 +25,7 @@ export default async function ForgotPage() {
             <p>Kein Problem. Schreib uns eine kurze E-Mail von der Adresse, mit der du registriert bist – wir helfen dir persönlich weiter.</p>
             {email ? (
               <a
-                className="inline-flex h-12 items-center rounded-full bg-ink px-6 font-medium text-white transition hover:bg-black"
+                className="inline-flex h-12 items-center rounded-full bg-accent px-6 font-medium text-black transition hover:bg-accent-dark"
                 href={`mailto:${email}?subject=${encodeURIComponent("Passwort vergessen")}`}
               >
                 E-Mail an {email}

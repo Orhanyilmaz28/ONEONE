@@ -436,7 +436,7 @@ export function ProductEditor({ product, featuredCount }: Props) {
                   </div>
                 ) : (
                   <button
-                    className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-white px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100 disabled:opacity-50"
+                    className="mt-4 inline-flex items-center justify-center gap-2 rounded-full border border-red-200 bg-card px-4 py-2 font-medium text-red-700 text-sm transition hover:bg-red-50 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-red-100 disabled:opacity-50"
                     disabled={resetPending || pending}
                     onClick={() => setConfirmReset(true)}
                     type="button"
@@ -464,7 +464,7 @@ export function ProductEditor({ product, featuredCount }: Props) {
       {/* ── Speichern-Leiste (bleibt beim Scrollen unten sichtbar) ── */}
       <div className={`${barSticky ? "sticky bottom-3" : ""} z-20 mt-6`}>
         <div
-          className={`flex flex-col gap-3 rounded-2xl border bg-white/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
+          className={`flex flex-col gap-3 rounded-2xl border bg-card/95 p-3 shadow-[0_10px_30px_-12px_rgba(20,20,20,0.25)] backdrop-blur sm:flex-row sm:items-center sm:justify-between sm:pl-5 ${dirty ? "border-ink/25" : "border-line"}`}
         >
           <p aria-live="polite" className="flex min-w-0 items-center gap-2.5 px-2 text-[14px] sm:px-0" role="status">
             <StatusDot tone={status.tone} />
@@ -563,7 +563,7 @@ function Track({ small = false }: { small?: boolean }) {
   return (
     <span
       aria-hidden
-      className={`relative mt-0.5 shrink-0 rounded-full bg-ink/15 transition-colors peer-checked:bg-ink after:absolute after:top-0.5 after:left-0.5 after:rounded-full after:bg-white after:shadow-[0_1px_3px_rgba(0,0,0,0.25)] after:transition-transform after:content-[''] ${small ? "h-5 w-9 after:size-4 peer-checked:after:translate-x-4" : "h-6 w-11 after:size-5 peer-checked:after:translate-x-5"}`}
+      className={`relative mt-0.5 shrink-0 rounded-full bg-ink/15 transition-colors peer-checked:bg-ink after:absolute after:top-0.5 after:left-0.5 after:rounded-full after:bg-card after:shadow-[0_1px_3px_rgba(0,0,0,0.25)] after:transition-transform after:content-[''] ${small ? "h-5 w-9 after:size-4 peer-checked:after:translate-x-4" : "h-6 w-11 after:size-5 peer-checked:after:translate-x-5"}`}
     />
   );
 }
@@ -571,7 +571,7 @@ function Track({ small = false }: { small?: boolean }) {
 function MiniButton({ children, onClick, disabled }: { children: ReactNode; onClick: () => void; disabled?: boolean }) {
   return (
     <button
-      className="rounded-full border border-line bg-white px-3 py-1 font-medium text-[12.5px] text-ink/80 transition hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 disabled:cursor-default disabled:opacity-40 disabled:hover:border-line"
+      className="rounded-full border border-line bg-card px-3 py-1 font-medium text-[12.5px] text-ink/80 transition hover:border-ink/40 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 disabled:cursor-default disabled:opacity-40 disabled:hover:border-line"
       disabled={disabled}
       onClick={onClick}
       type="button"

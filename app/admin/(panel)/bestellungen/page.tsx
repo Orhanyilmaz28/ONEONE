@@ -81,7 +81,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
       {error ? (
         <div className="mb-6">
           <Notice title="Bestellungen konnten nicht vollständig geladen werden" tone="red">
-            {error} Prüfe in Vercel unter <b>Settings → Environment Variables</b> den Wert <code className="rounded bg-white/70 px-1">STRIPE_SECRET_KEY</code>.
+            {error} Prüfe in Vercel unter <b>Settings → Environment Variables</b> den Wert <code className="rounded bg-card/70 px-1">STRIPE_SECRET_KEY</code>.
           </Notice>
         </div>
       ) : null}
@@ -122,14 +122,14 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
           {/* Filter + Suche */}
           <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
             <nav aria-label="Nach Status filtern" className="no-scrollbar -mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
-              <ul className="flex w-max gap-1 rounded-full border border-line bg-white p-1">
+              <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
                 {tabs.map((t) => {
                   const active = t.key === status;
                   return (
                     <li key={t.key || "alle"}>
                       <Link
                         aria-current={active ? "page" : undefined}
-                        className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-ink text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                        className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                         href={hrefWith(t.key, q)}
                         scroll={false}
                       >
@@ -274,7 +274,7 @@ function OrderRow({ order: o }: { order: Order }) {
 function OrderCard({ order: o }: { order: Order }) {
   return (
     <Link
-      className="block rounded-3xl border border-line bg-white p-4 shadow-[0_1px_2px_rgba(20,20,20,0.04)] transition hover:border-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
+      className="block rounded-3xl border border-line bg-card p-4 shadow-[0_1px_2px_rgba(20,20,20,0.04)] transition hover:border-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
       href={`${BASE}/${encodeURIComponent(o.id)}`}
     >
       <div className="flex items-center justify-between gap-3">

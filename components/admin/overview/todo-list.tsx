@@ -82,7 +82,7 @@ export function TodoList({
             return (
               <li key={o.id}>
                 <Link className={rowLink} href={`/admin/bestellungen/${encodeURIComponent(o.id)}`}>
-                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-ink font-medium text-[12px] text-white tracking-wide">
+                  <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded-full bg-accent font-medium text-[12px] text-black tracking-wide">
                     {initials(o.customer.name)}
                   </span>
                   <span className="min-w-0 flex-1">

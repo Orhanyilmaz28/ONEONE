@@ -109,7 +109,7 @@ export function ProductCard({
             <AiMediaLabel className="transition-opacity md:group-hover:opacity-0" src={firstMedia?.src} type={firstMedia?.type} />
             <AiMediaLabel className="opacity-0 transition-opacity md:group-hover:opacity-100" position="top-right" src={hoverMedia?.src} type={hoverMedia?.type} />
             {video ? (
-              <span className="pointer-events-none absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-white/95 shadow-sm transition-opacity group-hover:opacity-0 motion-reduce:hidden">
+              <span className="pointer-events-none absolute right-3 top-3 flex size-8 items-center justify-center rounded-full bg-card/95 shadow-sm transition-opacity group-hover:opacity-0 motion-reduce:hidden">
                 <svg aria-hidden className="ml-0.5 size-2.5" viewBox="0 0 10 12">
                   <path d="M0 0l10 6-10 6z" fill="currentColor" />
                 </svg>
@@ -119,14 +119,14 @@ export function ProductCard({
         </Link>
 
         <div className="pointer-events-none absolute top-3 left-3 flex gap-1.5">
-          {pack > 1 ? <span className="rounded-full bg-ink px-3 py-1 font-medium text-white text-xs">{pack} Dosen</span> : null}
-          {onSale && saving ? <span className="rounded-full bg-[linear-gradient(135deg,#b5e86a,#ffe566)] px-3 py-1 font-medium text-xs">−{saving} %</span> : null}
+          {pack > 1 ? <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{pack} Dosen</span> : null}
+          {onSale && saving ? <span className="rounded-full bg-[linear-gradient(135deg,#b5e86a,#ffe566)] px-3 py-1 font-medium text-black text-xs">−{saving} %</span> : null}
           {colorOption ? <ColorDots colors={colorOption.values} /> : null}
-          {available ? null : <span className="rounded-full bg-white/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
+          {available ? null : <span className="rounded-full bg-card/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
         </div>
 
         {available && quickVariants.length ? (
-          <div className="absolute inset-x-3 bottom-3 hidden translate-y-4 rounded-2xl bg-white/95 p-3 opacity-0 shadow-lg transition-all duration-500 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100 md:block">
+          <div className="absolute inset-x-3 bottom-3 hidden translate-y-4 rounded-2xl bg-card/95 p-3 opacity-0 shadow-lg transition-all duration-500 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100 md:block">
             <p className="mb-2 text-center text-muted text-xs">
               Schnell hinzufügen{colorOption ? ` · ${colorOption.values[0]}` : ""}
             </p>
@@ -134,7 +134,7 @@ export function ProductCard({
               {quickVariants.map((v) => (
                 <button
                   aria-label={`${product.title} ${v.title} in den Warenkorb`}
-                  className="min-w-10 rounded-full border border-line bg-white px-3 py-1.5 font-medium text-sm transition hover:border-ink hover:bg-ink hover:text-white disabled:opacity-40"
+                  className="min-w-10 rounded-full border border-line bg-card px-3 py-1.5 font-medium text-sm transition hover:border-ink hover:bg-accent hover:text-black disabled:opacity-40"
                   data-quick-add
                   disabled={!v.available}
                   key={v.id}
@@ -183,7 +183,7 @@ const SWATCH: Record<string, string> = { Schwarz: "#141414", "Midnight Blue": "#
 
 function ColorDots({ colors }: { colors: string[] }) {
   return (
-    <span aria-label={`Farben: ${colors.join(", ")}`} className="flex items-center gap-1 rounded-full bg-white/90 px-2 py-1" role="img">
+    <span aria-label={`Farben: ${colors.join(", ")}`} className="flex items-center gap-1 rounded-full bg-card/90 px-2 py-1" role="img">
       {colors.map((c) => (
         <span className="size-3 rounded-full ring-1 ring-ink/15" key={c} style={{ background: SWATCH[c] ?? "#ccc" }} />
       ))}

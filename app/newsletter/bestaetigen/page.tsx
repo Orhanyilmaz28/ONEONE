@@ -46,7 +46,7 @@ export default async function ConfirmPage({ searchParams }: Props) {
           <p className="t-lead mt-4 text-ink/75">Ein Klick noch – dann bist du angemeldet.</p>
           <form action={confirmAction} className="mt-8">
             <input name="t" type="hidden" value={token} />
-            <button className="inline-flex h-12 items-center rounded-full bg-ink px-7 font-medium text-white transition hover:bg-black" type="submit">
+            <button className="inline-flex h-12 items-center rounded-full bg-accent px-7 font-medium text-black transition hover:bg-accent-dark" type="submit">
               Anmeldung bestätigen
             </button>
           </form>
