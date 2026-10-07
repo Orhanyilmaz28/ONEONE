@@ -1,5 +1,5 @@
 import { LOGO_BURST, LOGO_GREEN, LOGO_TAGLINE, LOGO_VIEWBOX, LOGO_WORD } from "./logo-official";
-import { BURST } from "./logo-paths";
+import { BURST_PATH, BURST_VIEWBOX } from "./logo-paths";
 
 /**
  * EXSTASE-Logo (offizielle Datei von exstase.com, siehe components/logo-official.ts) und Splash-Zeichen (components/logo-paths.ts).
@@ -39,8 +39,8 @@ export function LogoStacked({ className = "h-24 w-auto", title = "EXSTASE Energy
 /** Nur das Zeichen (Splash) – für große Darstellungen */
 export function LogoMark({ className = "h-8 w-auto" }: { className?: string }) {
   return (
-    <svg aria-hidden className={className} viewBox="0 0 100 100">
-      <polygon fill="currentColor" points={BURST} />
+    <svg aria-hidden className={className} viewBox={BURST_VIEWBOX}>
+      <path d={BURST_PATH} fill="currentColor" />
     </svg>
   );
 }
@@ -48,8 +48,8 @@ export function LogoMark({ className = "h-8 w-auto" }: { className?: string }) {
 /** Kleines Marken-Icon (Aufzählungen, Trenner, Badges) */
 export function DropIcon({ className = "h-3.5 w-auto" }: { className?: string }) {
   return (
-    <svg aria-hidden className={`shrink-0 ${className}`} viewBox="0 0 100 100">
-      <polygon fill="currentColor" points={BURST} />
+    <svg aria-hidden className={`shrink-0 ${className}`} viewBox={BURST_VIEWBOX}>
+      <path d={BURST_PATH} fill="currentColor" />
     </svg>
   );
 }
