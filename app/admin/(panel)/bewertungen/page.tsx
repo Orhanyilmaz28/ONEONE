@@ -103,7 +103,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Sear
                   <li key={t.key}>
                     <Link
                       aria-current={active ? "page" : undefined}
-                      className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                      className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                       href={tabHref(t.key)}
                       scroll={false}
                     >
@@ -135,7 +135,7 @@ export default async function ReviewsPage({ searchParams }: { searchParams: Sear
                 "Du klickst auf „Veröffentlichen“ – sie erscheint sofort im Shop.",
               ].map((step, i) => (
                 <li className="flex gap-3" key={step}>
-                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent font-medium text-[12px] text-black tabular-nums">{i + 1}</span>
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent font-medium text-[12px] text-white tabular-nums">{i + 1}</span>
                   <span>{step}</span>
                 </li>
               ))}

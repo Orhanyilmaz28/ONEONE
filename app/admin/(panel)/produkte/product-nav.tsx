@@ -28,7 +28,7 @@ export function ProductTabs({ handle, active }: { handle: string; active: "preis
           <li key={t.key}>
             <Link
               aria-current={t.key === active ? "page" : undefined}
-              className={`block whitespace-nowrap rounded-full px-4 py-2 text-[14px] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${t.key === active ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+              className={`block whitespace-nowrap rounded-full px-4 py-2 text-[14px] transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${t.key === active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
               href={t.href}
             >
               {t.label}

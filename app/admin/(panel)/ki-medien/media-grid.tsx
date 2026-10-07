@@ -74,7 +74,7 @@ export function MediaGrid({ items }: { items: MediaItem[] }) {
             <li key={f.key}>
               <button
                 aria-pressed={filter === f.key}
-                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${filter === f.key ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition ${filter === f.key ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                 onClick={() => setFilter(f.key)}
                 type="button"
               >
@@ -100,7 +100,7 @@ export function MediaGrid({ items }: { items: MediaItem[] }) {
 
       <div aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-5 z-50 flex justify-center px-4" role="status">
         {status ? (
-          <p className={`pointer-events-auto max-w-lg rounded-full px-5 py-3 text-[14px] shadow-lg ${status.tone === "ok" ? "bg-accent text-black" : "bg-red-700 text-black"}`}>
+          <p className={`pointer-events-auto max-w-lg rounded-full px-5 py-3 text-[14px] shadow-lg ${status.tone === "ok" ? "bg-accent text-white" : "bg-red-700 text-white"}`}>
             {status.tone === "ok" ? "✓ " : ""}
             {status.text}
           </p>
@@ -158,7 +158,7 @@ function MediaCard({ item, type, onChoose, saving }: { item: MediaItem; type: Ai
             return (
               <button
                 aria-pressed={active}
-                className={`rounded-lg px-1 py-1.5 font-medium text-[12px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 ${active ? (c.type === "original" ? "bg-card text-ink shadow-sm" : "bg-accent text-black shadow-sm") : "text-ink/60 hover:bg-card/70 hover:text-ink"}`}
+                className={`rounded-lg px-1 py-1.5 font-medium text-[12px] leading-tight transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/30 ${active ? (c.type === "original" ? "bg-card text-ink shadow-sm" : "bg-accent text-white shadow-sm") : "text-ink/60 hover:bg-card/70 hover:text-ink"}`}
                 disabled={saving}
                 key={c.type}
                 onClick={() => onChoose(c.type)}

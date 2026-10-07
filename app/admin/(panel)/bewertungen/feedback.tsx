@@ -40,7 +40,7 @@ export function Toast({ toast, onClose }: { toast: (ToastData & { key: number })
       {toast ? (
         <div
           className={`pointer-events-auto flex w-full max-w-lg items-start gap-3 rounded-2xl px-4 py-3 text-sm shadow-[0_12px_40px_-12px_rgba(20,20,20,0.45)] ${
-            toast.tone === "error" ? "border border-red-200 bg-red-50 text-red-900" : "bg-accent text-black"
+            toast.tone === "error" ? "border border-red-200 bg-red-50 text-red-900" : "bg-accent text-white"
           }`}
           key={toast.key}
         >

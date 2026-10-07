@@ -192,7 +192,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
                 <li key={f.key || "alle"}>
                   <Link
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-black ring-1 ring-ink sm:ring-0" : "bg-card text-ink/70 ring-1 ring-line hover:bg-ink/5 hover:text-ink sm:bg-transparent sm:ring-0"}`}
+                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white ring-1 ring-ink sm:ring-0" : "bg-card text-ink/70 ring-1 ring-line hover:bg-ink/5 hover:text-ink sm:bg-transparent sm:ring-0"}`}
                     href={hrefWith(f.key, q)}
                     scroll={false}
                   >

@@ -129,7 +129,7 @@ export default async function OrdersPage({ searchParams }: { searchParams: Searc
                     <li key={t.key || "alle"}>
                       <Link
                         aria-current={active ? "page" : undefined}
-                        className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-black" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
+                        className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                         href={hrefWith(t.key, q)}
                         scroll={false}
                       >

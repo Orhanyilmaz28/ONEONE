@@ -762,7 +762,7 @@ function ToolButton({ children, onClick, title, disabled, pressed }: { children:
   return (
     <button
       aria-pressed={pressed}
-      className={`rounded-lg px-2.5 py-1 text-[13px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 disabled:opacity-35 ${pressed ? "bg-accent text-black" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
+      className={`rounded-lg px-2.5 py-1 text-[13px] transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink/20 disabled:opacity-35 ${pressed ? "bg-accent text-white" : "text-ink/75 hover:bg-ink/5 hover:text-ink"}`}
       disabled={disabled}
       onClick={onClick}
       title={title}
