@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { TierBadge } from "@/components/tier-badge";
 import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
 import { getDealerPasses } from "@/lib/dealer-data";
@@ -25,6 +26,10 @@ export default async function PortalHome() {
     <div className="mx-auto max-w-6xl">
       <section className="relative overflow-hidden rounded-[2.5rem] border border-accent/30 bg-card p-8 sm:p-12">
         <div aria-hidden className="pointer-events-none absolute -top-24 -right-24 size-[28rem] rounded-full bg-accent/20 blur-3xl" />
+        <div className="absolute top-6 right-6 text-right sm:top-10 sm:right-10">
+          <p className="mb-1 text-[10px] text-muted uppercase tracking-[0.25em]">Deine Stufe</p>
+          <TierBadge name={tierName} size="lg" />
+        </div>
         <p className="t-eyebrow relative">Händlerbereich</p>
         <h1 className="t-display relative mt-4">
           Hallo <span className="grad-text">{first}</span>.
@@ -36,8 +41,7 @@ export default async function PortalHome() {
           <li className="flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3.5 py-1.5">
             <span aria-hidden className="text-accent">✓</span> Gewerbenachweis geprüft
           </li>
-          <li className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5">Stufe {tierName}</li>
-          <li className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5">Händlerkonto aktiv{since ? ` seit ${since}` : ""}</li>
+                    <li className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5">Händlerkonto aktiv{since ? ` seit ${since}` : ""}</li>
         </ul>
       </section>
 

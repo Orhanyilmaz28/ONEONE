@@ -1,11 +1,15 @@
 import Link from "next/link";
 import { dealerLogoutAction } from "../../actions";
+import { TierBadge } from "@/components/tier-badge";
 import { requireDealer } from "@/lib/dealer-auth";
+import { getTiers } from "@/lib/dealer-data";
 
 export const metadata = { title: "Konto & Dokumente" };
 
 export default async function AccountPage() {
   const d = await requireDealer();
+  const tiers = await getTiers();
+  const tierName = (tiers.find((t) => t.id === d.tierId) ?? tiers[0]).name;
   const rows: [string, string][] = [
     ["Firma", d.company],
     ["Ansprechperson", d.contact],
@@ -19,6 +23,9 @@ export default async function AccountPage() {
     <div className="mx-auto max-w-4xl">
       <p className="t-eyebrow">Händlerbereich</p>
       <h1 className="t-h1 mt-3">Konto & Dokumente</h1>
+      <p className="mt-4 flex items-center gap-3 text-muted text-sm">
+        Deine Händlerstufe: <TierBadge name={tierName} />
+      </p>
 
       <section className="mt-8 rounded-[2rem] border border-line bg-card p-6 sm:p-8">
         <h2 className="t-h3">Firmendaten</h2>

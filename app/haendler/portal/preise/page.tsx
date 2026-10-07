@@ -1,3 +1,4 @@
+import { TierBadge } from "@/components/tier-badge";
 import { PriceTable } from "./price-table";
 import { DEALER_GROUPS } from "@/lib/dealer-catalog";
 import { requireDealer } from "@/lib/dealer-auth";
@@ -14,8 +15,11 @@ export default async function PricesPage() {
   const groups = DEALER_GROUPS.map((g) => ({ key: g.key, title: g.title })).filter((g) => rows.some((r) => r.group === g.key));
   return (
     <div className="mx-auto max-w-6xl">
-      <p className="t-eyebrow">Händlerbereich · Stufe {tierName}</p>
-      <h1 className="t-h1 mt-3">Preisliste</h1>
+      <p className="t-eyebrow">Händlerbereich</p>
+      <div className="mt-3 flex flex-wrap items-center gap-4">
+        <h1 className="t-h1">Preisliste</h1>
+        <TierBadge name={tierName} />
+      </div>
       <p className="t-lead mt-3 max-w-2xl">Deine Händlerpreise je Artikel: 1 Tray, ab 2 Trays (Preis je Tray) und ganze Palette. Alle Preise netto – zuzüglich gesetzlicher MwSt. und 0,25 € Einwegpfand je Dose bzw. Flasche.</p>
       <PriceTable groups={groups} katalog={Boolean(passes.katalog)} rows={rows} />
     </div>

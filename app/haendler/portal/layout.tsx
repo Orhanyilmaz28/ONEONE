@@ -4,7 +4,9 @@ import type { ReactNode } from "react";
 import { PortalNav } from "./portal-nav";
 import { dealerLogoutAction } from "../actions";
 import { Logo } from "@/components/logo";
+import { TierBadge } from "@/components/tier-badge";
 import { requireDealer } from "@/lib/dealer-auth";
+import { getTiers } from "@/lib/dealer-data";
 
 export const metadata: Metadata = { title: { default: "Händlerbereich", template: "%s · Händlerbereich" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -12,6 +14,8 @@ export const dynamic = "force-dynamic";
 /** Eigene Bühne für freigegebene Händler: Seitenleiste statt Shop-Kopfzeile */
 export default async function PortalLayout({ children }: { children: ReactNode }) {
   const dealer = await requireDealer();
+  const tiers = await getTiers();
+  const tierName = (tiers.find((t) => t.id === dealer.tierId) ?? tiers[0]).name;
   return (
     <div className="relative isolate min-h-screen lg:grid lg:grid-cols-[17rem_1fr]">
       <div aria-hidden className="-z-10 pointer-events-none absolute inset-x-0 top-0 h-[40rem] bg-[radial-gradient(ellipse_at_top_left,rgba(168,230,82,0.14),transparent_60%)]" />
@@ -21,6 +25,9 @@ export default async function PortalLayout({ children }: { children: ReactNode }
             <Logo className="h-14 w-auto lg:h-20" />
           </Link>
           <p className="rounded-full border border-accent/50 px-3 py-1 font-black text-[10px] text-accent uppercase tracking-[0.25em] lg:mt-4 lg:w-fit">Händlerbereich</p>
+        </div>
+        <div className="mt-4 lg:mt-6">
+          <TierBadge name={tierName} />
         </div>
         <PortalNav />
         <div className="mt-4 hidden border-line border-t pt-4 text-sm lg:absolute lg:right-6 lg:bottom-6 lg:left-6 lg:block">

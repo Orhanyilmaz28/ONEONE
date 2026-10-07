@@ -11,7 +11,13 @@ export const PRICE_KEYS = ["t1", "t2", "pal"] as const;
 export type PriceKey = (typeof PRICE_KEYS)[number];
 export const PRICE_LABELS: Record<PriceKey, string> = { t1: "1 Tray", t2: "ab 2 Trays (je Tray)", pal: "Palette" };
 
-export const DEFAULT_TIERS: Tier[] = [{ id: "standard", name: "Standard", percent: 0 }];
+/** Voreinstellung, bis im Dashboard eigene Stufen gespeichert werden (Prozente frei änderbar) */
+export const DEFAULT_TIERS: Tier[] = [
+  { id: "basic", name: "Basic", percent: 0 },
+  { id: "silver", name: "Silver", percent: 3 },
+  { id: "gold", name: "Gold", percent: 6 },
+  { id: "platin", name: "Platin", percent: 10 },
+];
 
 export type Effective = { value?: number; source: "individuell" | "stufe" | "basis" | "leer" };
 
