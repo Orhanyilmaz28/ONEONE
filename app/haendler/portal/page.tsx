@@ -1,13 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
-import { getDealerPasses, getDealerPrices } from "@/lib/dealer-data";
+import { getDealerPasses } from "@/lib/dealer-data";
+import { dealerRows } from "@/lib/dealer-rows";
 import { getProducts } from "@/lib/catalog";
 
 export default async function PortalHome() {
   const dealer = await requireDealer();
-  const [products, passes, prices] = await Promise.all([getProducts(), getDealerPasses(), getDealerPrices()]);
-  const priced = products.filter((p) => prices[p.handle]?.net).length;
+  const [products, passes] = await Promise.all([getProducts(), getDealerPasses()]);
+  const { rows, tierName } = await dealerRows(dealer, products);
+  const priced = rows.filter((r) => r.t1.value).length;
   const singles = products.filter((p) => !p.collections.includes("mixpakete"));
   const passCount = Object.keys(passes).filter((k) => k !== "katalog").length;
   const since = dealer.approvedAt ? new Date(dealer.approvedAt).toLocaleDateString("de-DE", { month: "long", year: "numeric" }) : null;
@@ -34,6 +36,7 @@ export default async function PortalHome() {
           <li className="flex items-center gap-2 rounded-full border border-accent/40 bg-accent/10 px-3.5 py-1.5">
             <span aria-hidden className="text-accent">✓</span> Gewerbenachweis geprüft
           </li>
+          <li className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5">Stufe {tierName}</li>
           <li className="flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5">Händlerkonto aktiv{since ? ` seit ${since}` : ""}</li>
         </ul>
       </section>

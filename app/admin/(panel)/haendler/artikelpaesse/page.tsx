@@ -17,7 +17,7 @@ export default async function PassesAdminPage({ searchParams }: { searchParams: 
   await requireAdmin();
   const sp = await searchParams;
   const [products, passes] = await Promise.all([getProducts({ includeHidden: true }), getDealerPasses()]);
-  const items = [{ key: "katalog", title: "Gesamtkatalog", group: "Allgemein" }, ...DEALER_GROUPS.filter((g) => g.key !== "mix" && g.key !== "palette").flatMap((g) => products.filter(g.test).map((p) => ({ key: p.handle, title: p.title, group: g.title })))];
+  const items = [{ key: "katalog", title: "Gesamtkatalog", group: "Allgemein" }, ...DEALER_GROUPS.flatMap((g) => products.filter(g.test).map((p) => ({ key: p.handle, title: p.title, group: g.title })))];
   const have = items.filter((i) => passes[i.key]).length;
   return (
     <>

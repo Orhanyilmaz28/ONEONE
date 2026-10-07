@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { DealerTabs } from "@/components/admin/dealer-tabs";
 import { Badge, Card, EmptyState, PageHeader, Stat, btnDanger, btnSecondary, formatDateTime } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
@@ -79,6 +80,9 @@ export default async function HaendlerAdminPage() {
                   ) : (
                     <p className="text-muted">Der Zugangs-Link ist abgelaufen oder fehlt – unten einen neuen erzeugen.</p>
                   )}
+                  <Link className={`${btnSecondary} mt-3`} href={`/admin/haendler/${d.id}/preise`}>
+                    Preise &amp; Stufe
+                  </Link>
                   <form action={renewActivationAction.bind(null, d.id)} className="mt-3">
                     <button className={btnSecondary} type="submit">
                       {d.passwordHash ? "Neuen Link erzeugen (Passwort zurücksetzen)" : "Neuen Link erzeugen"}

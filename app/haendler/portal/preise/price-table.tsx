@@ -1,10 +1,9 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useMemo, useState } from "react";
-import type { DealerRow } from "@/lib/dealer-catalog";
-import { formatPrice } from "@/lib/format";
+import type { DealerPriceCell, DealerRow } from "@/lib/dealer-catalog";
+import { formatPrice as euro } from "@/lib/format";
 
 /** Durchsuchbare Preisliste, nach Bereichen gefiltert */
 export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; groups: { key: string; title: string }[]; katalog: boolean }) {
@@ -49,9 +48,9 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
               <thead className="border-line border-b text-muted text-xs uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3 font-medium">Artikel</th>
-                  <th className="hidden px-4 py-3 font-medium md:table-cell">Einheit</th>
-                  <th className="px-4 py-3 text-right font-medium">Netto je Einheit</th>
-                  <th className="hidden px-4 py-3 text-right font-medium sm:table-cell">Netto je Stück</th>
+                  <th className="px-3 py-3 text-right font-medium">1 Tray</th>
+                  <th className="px-3 py-3 text-right font-medium">ab 2 Trays<span className="hidden sm:inline"> (je Tray)</span></th>
+                  <th className="px-3 py-3 text-right font-medium">Palette</th>
                   <th className="px-4 py-3 text-right font-medium">Pass</th>
                 </tr>
               </thead>
@@ -65,12 +64,21 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
                           <span className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-paper">
                             {r.image ? <Image alt="" className="object-cover" fill sizes="48px" src={r.image} /> : null}
                           </span>
-                          <span className="font-medium">{r.title}</span>
+                          <span>
+                            <span className="block font-medium">{r.title}</span>
+                            <span className="block text-muted text-xs">{r.unit}</span>
+                          </span>
                         </span>
                       </td>
-                      <td className="hidden px-4 py-3 text-muted md:table-cell">{r.unit}</td>
-                      <td className="px-4 py-3 text-right font-bold tabular-nums">{r.net ? formatPrice(r.net) : <span className="font-normal text-muted">Preis folgt</span>}</td>
-                      <td className="hidden px-4 py-3 text-right text-muted tabular-nums sm:table-cell">{r.netPerUnit ? formatPrice(r.netPerUnit) : "–"}</td>
+                      <td className="px-3 py-3 text-right">
+                        <Cell cell={r.t1} sub={r.t1.value ? `${euro(Math.round(r.t1.value / r.perTray))} je Stück` : undefined} />
+                      </td>
+                      <td className="px-3 py-3 text-right">
+                        <Cell cell={r.t2} sub={r.t2.value ? `${euro(Math.round(r.t2.value / r.perTray))} je Stück` : undefined} />
+                      </td>
+                      <td className="px-3 py-3 text-right">
+                        <Cell cell={r.pal} sub={r.pal.value && r.trays ? `${r.trays} Trays · ${euro(Math.round(r.pal.value / r.trays))} je Tray` : undefined} />
+                      </td>
                       <td className="px-4 py-3 text-right">
                         {r.pass ? (
                           <a className="inline-flex h-8 items-center rounded-full border border-accent px-3 font-bold text-accent text-xs transition hover:bg-accent hover:text-black" href={`/haendler/portal/pass/${r.handle}`}>
@@ -85,16 +93,18 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
               </tbody>
             </table>
           </div>
-          {g.key === "palette" ? (
-            <p className="mt-3 text-muted text-sm">
-              Paletten bekommst du auf Anfrage mit Staffelpreis.{" "}
-              <Link className="text-accent underline" href="/palette">
-                Palette anfragen
-              </Link>
-            </p>
-          ) : null}
         </section>
       ))}
     </div>
+  );
+}
+
+function Cell({ cell, sub }: { cell: DealerPriceCell; sub?: string }) {
+  if (!cell.value) return <span className="text-muted">Preis folgt</span>;
+  return (
+    <>
+      <span className="block font-bold tabular-nums">{euro(cell.value)}</span>
+      {sub ? <span className="block text-muted text-xs tabular-nums">{sub}</span> : null}
+    </>
   );
 }

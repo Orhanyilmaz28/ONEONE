@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { hashPassword, verifyPassword } from "./customers";
+import type { PriceSet } from "./dealer-pricing";
 import { KEYS, getJSON, updateJSON } from "./store";
 
 /** Händler-Anfragen von /haendler (nur auf dem Server verwenden). Die Freigabe erfolgt im Dashboard unter „Händler“. */
@@ -23,6 +24,10 @@ export type Dealer = {
   /** Gewerbenachweis (Datei liegt im Binärspeicher unter proof.id) */
   proof?: { id: string; name: string; type: string; size: number };
   approvedAt?: string;
+  /** Händlerstufe (Prozent-Nachlass auf die Basispreise) */
+  tierId?: string;
+  /** Individuelle Preise dieses Händlers (Vorrang vor Stufe), je Produkt-Handle */
+  customPrices?: Record<string, PriceSet>;
   /** Zugang: erst nach Freigabe – Händler:in legt über den Link selbst ein Passwort fest */
   activationToken?: string;
   activationExpires?: string;
@@ -167,6 +172,19 @@ export async function deleteDealer(id: string): Promise<boolean> {
     (Array.isArray(list) ? list : []).filter((d) => {
       if (d.id === id) found = true;
       return d.id !== id;
+    }),
+  );
+  return found;
+}
+
+/** Stufe und individuelle Preise eines Händlers speichern */
+export async function setDealerPricing(id: string, tierId: string | undefined, customPrices: Record<string, PriceSet>): Promise<boolean> {
+  let found = false;
+  await updateJSON<Dealer[]>(KEYS.dealers, [], (list) =>
+    (Array.isArray(list) ? list : []).map((d) => {
+      if (d.id !== id) return d;
+      found = true;
+      return { ...d, tierId, customPrices };
     }),
   );
   return found;

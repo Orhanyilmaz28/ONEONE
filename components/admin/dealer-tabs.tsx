@@ -2,7 +2,8 @@ import Link from "next/link";
 
 const TABS = [
   { href: "/admin/haendler", label: "Anfragen" },
-  { href: "/admin/haendler/preise", label: "Händlerpreise" },
+  { href: "/admin/haendler/preise", label: "Basispreise" },
+  { href: "/admin/haendler/stufen", label: "Stufen" },
   { href: "/admin/haendler/artikelpaesse", label: "Artikelpässe" },
 ];
 

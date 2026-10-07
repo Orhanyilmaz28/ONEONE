@@ -11,7 +11,7 @@ const kb = (n: number) => (n > 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1).rep
 export default async function PassesPage() {
   await requireDealer();
   const [products, passes] = await Promise.all([getProducts(), getDealerPasses()]);
-  const groups = DEALER_GROUPS.filter((g) => g.key !== "mix" && g.key !== "palette")
+  const groups = DEALER_GROUPS
     .map((g) => ({ ...g, items: products.filter(g.test) }))
     .filter((g) => g.items.length);
   const katalog = passes.katalog;

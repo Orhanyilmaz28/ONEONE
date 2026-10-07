@@ -41,6 +41,8 @@ export const KEYS = {
   dealers: "tt:dealers",
   /** Händlerpreise (netto) je Produkt */
   dealerPrices: "tt:dealer-prices",
+  /** Händlerstufen (Name + Prozent) */
+  dealerTiers: "tt:dealer-tiers",
   /** Artikelpässe (PDF) je Produkt – nur für freigegebene Händler */
   dealerPasses: "tt:dealer-passes",
 } as const;
