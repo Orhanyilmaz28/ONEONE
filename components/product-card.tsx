@@ -50,6 +50,8 @@ export function ProductCard({
   const simple = product.options.every((o) => o.name === "Packung" || o.name === "Farbe" || o.name === "Größe");
   const quickVariants = !simple ? [] : colorOption ? product.variants.filter((v) => v.options.Farbe === colorOption.values[0]) : product.variants;
   const pack = product.packSize ?? 1;
+  // Ein einziges Angebot (z. B. 24er Tray): direkt „Jetzt kaufen“ auf der Karte
+  const single = simple && product.variants.length === 1 ? product.variants[0] : undefined;
   // Preis pro Dose: aus der günstigsten Variante (Packungsgröße), sonst aus der Paketgröße des Produkts
   const perUnit = cheapest ? cansOf(cheapest) : pack;
   const saving = cheapest?.compareAtPrice ? Math.round((1 - cheapest.price / cheapest.compareAtPrice) * 100) : 0;
@@ -125,7 +127,7 @@ export function ProductCard({
           {available ? null : <span className="rounded-full bg-card/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
         </div>
 
-        {available && quickVariants.length ? (
+        {available && quickVariants.length > 1 ? (
           <div className="absolute inset-x-3 bottom-3 hidden translate-y-4 rounded-2xl bg-card/95 p-3 opacity-0 shadow-lg transition-all duration-500 group-focus-within:translate-y-0 group-focus-within:opacity-100 group-hover:translate-y-0 group-hover:opacity-100 md:block">
             <p className="mb-2 text-center text-muted text-xs">
               Schnell hinzufügen{colorOption ? ` · ${colorOption.values[0]}` : ""}
@@ -162,6 +164,21 @@ export function ProductCard({
             {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro Dose · zzgl. Pfand
           </p>
         ) : null}
+        {single ? (
+          <button
+            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent font-bold text-black text-sm transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+            data-quick-add
+            disabled={!single.available}
+            onClick={() => add(product.handle, single.id)}
+            type="button"
+          >
+            {single.available ? "Jetzt kaufen" : "Ausverkauft"}
+          </button>
+        ) : (
+          <Link className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-full border border-line font-medium text-sm transition hover:border-accent hover:text-accent" href={`/products/${product.handle}`}>
+            Auswählen
+          </Link>
+        )}
         {rating.count || sold ? (
           <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
             {rating.count ? (
