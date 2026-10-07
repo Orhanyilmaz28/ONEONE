@@ -71,20 +71,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "classic-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "classic-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -122,20 +122,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "tropical-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "tropical-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -173,20 +173,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "kiwi-lemon-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "kiwi-lemon-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -224,20 +224,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "watermelon-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "watermelon-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -275,20 +275,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "white-peach-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "white-peach-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": false,
@@ -326,20 +326,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "ice-bonbon-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "ice-bonbon-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": false,
@@ -377,20 +377,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "lime-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "lime-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": false,
@@ -428,20 +428,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "blueberry-coconut-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "blueberry-coconut-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": false,
@@ -481,20 +481,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "zero-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "zero-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -532,20 +532,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "xtea-watermelon-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "xtea-watermelon-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": false,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -582,20 +582,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "xtea-peach-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "xtea-peach-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": false,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -632,20 +632,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "xtea-lemon-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "xtea-lemon-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": false,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -721,20 +721,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "ice-coffee-latte-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "ice-coffee-latte-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -772,20 +772,20 @@
         {
           "name": "Packung",
           "values": [
-            "12er Pack"
+            "24er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "ice-coffee-cappuccino-12er",
-          "title": "12er Pack",
-          "price": 900,
+          "id": "ice-coffee-cappuccino-24er",
+          "title": "24er Pack",
+          "price": 1800,
           "available": true,
           "options": {
-            "Packung": "12er Pack"
+            "Packung": "24er Pack"
           },
-          "cans": 12
+          "cans": 24
         }
       ],
       "featured": true,
@@ -823,20 +823,20 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "12er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "wasser-still-24er",
-          "title": "24er Pack",
-          "price": 1320,
+          "id": "wasser-still-12er",
+          "title": "12er Pack",
+          "price": 660,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "12er Pack"
           },
-          "cans": 24
+          "cans": 12
         }
       ],
       "featured": false,
@@ -873,20 +873,20 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "12er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "wasser-medium-24er",
-          "title": "24er Pack",
-          "price": 1320,
+          "id": "wasser-medium-12er",
+          "title": "12er Pack",
+          "price": 660,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "12er Pack"
           },
-          "cans": 24
+          "cans": 12
         }
       ],
       "featured": false,
@@ -923,20 +923,20 @@
         {
           "name": "Packung",
           "values": [
-            "24er Pack"
+            "12er Pack"
           ]
         }
       ],
       "variants": [
         {
-          "id": "wasser-classic-24er",
-          "title": "24er Pack",
-          "price": 1320,
+          "id": "wasser-classic-12er",
+          "title": "12er Pack",
+          "price": 660,
           "available": true,
           "options": {
-            "Packung": "24er Pack"
+            "Packung": "12er Pack"
           },
-          "cans": 24
+          "cans": 12
         }
       ],
       "featured": false,
