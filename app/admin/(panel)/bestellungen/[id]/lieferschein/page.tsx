@@ -155,7 +155,7 @@ export default async function DeliveryNotePage({ params }: { params: Params }) {
           <article aria-label={`Lieferschein ${order.number}`} className={`${SHEET} text-[13px]`}>
             {/* Kopf: Logo + Absender */}
             <header className="flex items-start justify-between gap-6">
-              <Logo className="h-8 w-auto sm:h-9" title={brand} />
+              <Logo className="h-14 w-auto sm:h-16" title={brand} />
               <div className="text-right text-[11px] text-ink/70 leading-snug">
                 {real(c.name) ? <p className="font-medium text-ink">{real(c.name)}</p> : null}
                 {real(c.street) ? <p>{real(c.street)}</p> : null}
@@ -256,7 +256,7 @@ export default async function DeliveryNotePage({ params }: { params: Params }) {
           {/* Seite 2: Widerrufsbelehrung + Muster-Widerrufsformular (dauerhafter Datenträger) */}
           <article aria-label="Widerrufsbelehrung und Muster-Widerrufsformular" className={`${SHEET} ls-sheet-dense text-[10.5px]`}>
             <header className="flex items-start justify-between gap-6">
-              <Logo className="h-7 w-auto" title={brand} />
+              <Logo className="h-12 w-auto" title={brand} />
               <p className="text-right text-[10.5px] text-ink/60 leading-snug">
                 Zu deiner Bestellung <span className="font-medium text-ink">{order.number}</span>
                 <br />

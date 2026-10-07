@@ -21,7 +21,7 @@ export default async function AccessPage({ searchParams }: Props) {
         <div className="anim-blob absolute -right-24 -bottom-32 size-96 rounded-full bg-peach/40 blur-3xl [animation-delay:-6s]" />
       </div>
       <div className="w-full max-w-sm text-center">
-        <LogoStacked className="mx-auto h-24 w-auto" title="EXSTASE" />
+        <LogoStacked className="mx-auto h-28 w-auto" title="EXSTASE" />
         <h1 className="t-h2 mt-10">Bald geöffnet</h1>
         <p className="mt-3 text-ink/70 leading-relaxed">{lock.message?.trim() || "Unser Shop ist gerade noch in Vorbereitung. Mit dem Passwort kannst du schon einen Blick hineinwerfen."}</p>
         <UnlockForm target={target} />

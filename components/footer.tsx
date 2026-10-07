@@ -26,7 +26,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
       <div className="relative mx-auto max-w-7xl px-4 pt-16 pb-24 sm:px-6">
         <div className="grid gap-12 lg:grid-cols-[1.5fr_1fr_1fr_1fr]">
           <div>
-            <Logo className="h-10 w-auto" title={brand} />
+            <Logo className="h-20 w-auto" title={brand} />
             <p className="t-small mt-5 max-w-sm text-muted">
               EXSTASE Energy – Energy Drinks für jeden Moment. Pure Ekstase in jeder Dose.
             </p>

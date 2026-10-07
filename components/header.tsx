@@ -78,7 +78,7 @@ export function Header({
               <MenuIcon />
             </button>
             <Link aria-label={`${brand} – Startseite`} className="shrink-0 text-ink" href="/">
-              <Logo className="h-[22px] w-auto min-[330px]:h-[24px] min-[370px]:h-[28px] sm:h-[30px] xl:h-[32px]" compact title={brand} />
+              <Logo className="h-[38px] w-auto min-[370px]:h-[42px] sm:h-[46px] xl:h-[50px]" compact title={brand} />
             </Link>
           </div>
 
@@ -157,7 +157,7 @@ export function Header({
               <div className="anim-blob absolute bottom-0 -left-24 size-80 rounded-full bg-peach/60 blur-3xl [animation-delay:-5s]" />
             </div>
             <div className="relative flex h-20 items-center justify-between px-6">
-              <Logo className="h-[30px] w-auto" compact title={brand} />
+              <Logo className="h-[40px] w-auto" compact title={brand} />
               <button aria-label="Menü schließen" className="rounded-full bg-card p-2.5 shadow" onClick={() => setMenuOpen(false)} type="button">
                 <CloseIcon />
               </button>

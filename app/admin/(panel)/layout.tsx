@@ -17,7 +17,7 @@ export default async function PanelLayout({ children }: { children: React.ReactN
         <div className="flex h-full flex-col gap-5 rounded-[1.75rem] border border-line bg-card p-4 lg:p-5">
           <div className="flex items-center justify-between lg:block">
             <Link aria-label="EXSTASE Dashboard" href="/admin">
-              <Logo className="h-8 w-auto" />
+              <Logo className="h-11 w-auto" />
             </Link>
             <p className="hidden text-[12px] text-muted uppercase tracking-[0.12em] lg:mt-2 lg:block">Dashboard</p>
           </div>

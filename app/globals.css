@@ -397,6 +397,7 @@ body::after {
 /* Dashboard bleibt hell (nur der Shop nutzt das dunkle EXSTASE-Theme) */
 .admin-light {
   color-scheme: light;
+  --logo-ink: #141414;
   --color-paper: #fbfaf8;
   --color-cream: #f3f1ed;
   --color-card: #ffffff;

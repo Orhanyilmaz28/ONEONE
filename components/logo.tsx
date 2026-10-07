@@ -1,55 +1,39 @@
-import { BRAND_FONT, BURST } from "./logo-paths";
+import { LOGO_BURST, LOGO_GREEN, LOGO_TAGLINE, LOGO_VIEWBOX, LOGO_WORD } from "./logo-official";
+import { BURST } from "./logo-paths";
 
 /**
- * EXSTASE-Logo: Splash-Zeichen und Schriftzug „exstase“ mit „ENERGY“ darunter.
- * Einfarbig in Textfarbe (currentColor). Das Zeichen stammt von den Dosen (components/logo-paths.ts).
+ * EXSTASE-Logo (offizielle Datei von exstase.com, siehe components/logo-official.ts) und Splash-Zeichen (components/logo-paths.ts).
  */
 
-function Splash({ x, y, size }: { x: number; y: number; size: number }) {
+function OfficialLogo({ className, title }: { className: string; title: string }) {
   return (
-    <g transform={`translate(${x} ${y}) scale(${size / 100})`}>
-      <polygon fill="currentColor" points={BURST} />
-    </g>
+    <svg aria-label={title} className={`logo ${className}`} role="img" viewBox={LOGO_VIEWBOX}>
+      <title>{title}</title>
+      <g fill="none" fillRule="evenodd">
+        <path d={LOGO_BURST} fill={LOGO_GREEN} />
+        <path d={LOGO_WORD} fill="var(--logo-ink, #fff)" />
+        <path d={LOGO_TAGLINE} fill={LOGO_GREEN} />
+      </g>
+    </svg>
   );
 }
 
+/** Offizielles EXSTASE-Logo (Splash, Schriftzug „exstase“, „ENERGY DRINK“) – Farben wie auf exstase.com */
 export function Logo({
   className = "h-8 w-auto",
   title = "EXSTASE Energy",
 }: {
   className?: string;
   title?: string;
-  /** Wird für alte Aufrufe beibehalten – das Logo hat nur eine Strichstärke */
+  /** Wird für alte Aufrufe beibehalten – das Logo hat nur eine Variante */
   compact?: boolean;
 }) {
-  return (
-    <svg aria-label={title} className={`logo ${className}`} role="img" viewBox="0 0 232 60">
-      <title>{title}</title>
-      <Splash size={56} x={0} y={2} />
-      <text fill="currentColor" fontFamily={BRAND_FONT} fontSize="42" fontWeight="900" lengthAdjust="spacingAndGlyphs" textLength="164" x="64" y="39">
-        exstase
-      </text>
-      <text fill="currentColor" fontFamily={BRAND_FONT} fontSize="11" fontWeight="700" lengthAdjust="spacing" textLength="164" x="65" y="56">
-        ENERGY
-      </text>
-    </svg>
-  );
+  return <OfficialLogo className={className} title={title} />;
 }
 
-/** Gestapelt: Splash mittig über dem Schriftzug (für schmale, hohe Flächen) */
+/** Gleiches Logo für schmale, hohe Flächen (das offizielle Logo ist bereits kompakt) */
 export function LogoStacked({ className = "h-24 w-auto", title = "EXSTASE Energy" }: { className?: string; title?: string }) {
-  return (
-    <svg aria-label={title} className={`logo ${className}`} role="img" viewBox="0 0 180 120">
-      <title>{title}</title>
-      <Splash size={62} x={59} y={0} />
-      <text fill="currentColor" fontFamily={BRAND_FONT} fontSize="46" fontWeight="900" lengthAdjust="spacingAndGlyphs" textAnchor="middle" textLength="170" x="90" y="98">
-        exstase
-      </text>
-      <text fill="currentColor" fontFamily={BRAND_FONT} fontSize="12" fontWeight="700" lengthAdjust="spacing" textAnchor="middle" textLength="170" x="90" y="116">
-        ENERGY
-      </text>
-    </svg>
-  );
+  return <OfficialLogo className={className} title={title} />;
 }
 
 /** Nur das Zeichen (Splash) – für große Darstellungen */
