@@ -1,0 +1,11 @@
+{
+  "_hinweis": "Nur echte Zahlen eintragen (z. B. aus Stripe → Berichte). Leere Werte werden nicht angezeigt.",
+  "customers": null,
+  "products": {
+    "classic": null,
+    "tropical": null,
+    "kiwi-lemon": null,
+    "zero": null,
+    "mixpaket": null
+  }
+}

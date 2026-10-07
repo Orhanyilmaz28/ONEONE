@@ -1,0 +1,363 @@
+{
+  "brand": {
+    "name": "EXSTASE Energy",
+    "tagline": "Pure Ekstase in jeder Dose.",
+    "announcement": "",
+    "description": "EXSTASE Energy – Energy Drinks in vielen Sorten. Jetzt online bestellen und direkt nach Hause liefern lassen."
+  },
+  "collections": [
+    {
+      "handle": "energy",
+      "title": "Energy Drinks",
+      "description": "Classic, Tropical, Kiwi & Lemon und Zero.",
+      "image": "/dosen/classic.svg"
+    },
+    {
+      "handle": "zero",
+      "title": "Zero",
+      "description": "Energie ohne Zucker.",
+      "image": "/dosen/zero.svg"
+    },
+    {
+      "handle": "mixpakete",
+      "title": "Mixpakete",
+      "description": "Alles ausprobieren – im Probier-Mix.",
+      "image": "/dosen/mixpaket.svg"
+    }
+  ],
+  "products": [
+    {
+      "handle": "classic",
+      "title": "Classic",
+      "subtitle": "Der Klassiker · 250 ml",
+      "descriptionHtml": "<p>Der Klassiker unter den EXSTASE-Sorten: kräftig, erfrischend und mit ordentlich Energie.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/classic.svg",
+          "alt": "Classic – Dose"
+        },
+        {
+          "src": "/dosen/classic-trio.svg",
+          "alt": "Classic – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "classic-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "classic-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "classic-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-07T12:00:00.000Z"
+    },
+    {
+      "handle": "tropical",
+      "title": "Tropical",
+      "subtitle": "Tropical Taste · 250 ml",
+      "descriptionHtml": "<p>Exotisch-fruchtig und eiskalt: Tropical Taste bringt Urlaubsgefühl in die Dose.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/tropical.svg",
+          "alt": "Tropical – Dose"
+        },
+        {
+          "src": "/dosen/tropical-trio.svg",
+          "alt": "Tropical – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "tropical-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "tropical-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "tropical-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-06T12:00:00.000Z"
+    },
+    {
+      "handle": "kiwi-lemon",
+      "title": "Kiwi & Lemon",
+      "subtitle": "Kiwi & Lemon Taste · 250 ml",
+      "descriptionHtml": "<p>Saftige Kiwi trifft auf frische Zitrone: spritzig, leicht säuerlich und richtig wach.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n</ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy"
+      ],
+      "collections": [
+        "energy"
+      ],
+      "images": [
+        {
+          "src": "/dosen/kiwi-lemon.svg",
+          "alt": "Kiwi & Lemon – Dose"
+        },
+        {
+          "src": "/dosen/kiwi-lemon-trio.svg",
+          "alt": "Kiwi & Lemon – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "kiwi-lemon-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "kiwi-lemon-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "kiwi-lemon-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "250-ml-Dose",
+        "Energy Drink",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-05T12:00:00.000Z"
+    },
+    {
+      "handle": "zero",
+      "title": "Zero",
+      "subtitle": "Ohne Zucker · 250 ml",
+      "descriptionHtml": "<p>Voller EXSTASE-Geschmack ohne Zucker: Zero ist die leichte Wahl.</p>\n<ul>\n<li>Je Dose <strong>250 ml</strong> – gekühlt am besten</li>\n<li><strong>Zero</strong> – ohne Zucker</li></ul>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "energy",
+        "zero"
+      ],
+      "collections": [
+        "energy",
+        "zero"
+      ],
+      "images": [
+        {
+          "src": "/dosen/zero.svg",
+          "alt": "Zero – Dose"
+        },
+        {
+          "src": "/dosen/zero-trio.svg",
+          "alt": "Zero – drei Dosen"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6er Pack",
+            "12er Pack",
+            "24er Pack"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "zero-6er",
+          "title": "6er Pack",
+          "price": 849,
+          "available": true,
+          "options": {
+            "Packung": "6er Pack"
+          },
+          "cans": 6
+        },
+        {
+          "id": "zero-12er",
+          "title": "12er Pack",
+          "price": 1599,
+          "available": true,
+          "options": {
+            "Packung": "12er Pack"
+          },
+          "cans": 12
+        },
+        {
+          "id": "zero-24er",
+          "title": "24er Pack",
+          "price": 2999,
+          "available": true,
+          "options": {
+            "Packung": "24er Pack"
+          },
+          "cans": 24
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "250-ml-Dose",
+        "Ohne Zucker",
+        "Gekühlt am besten"
+      ],
+      "createdAt": "2026-10-04T12:00:00.000Z"
+    },
+    {
+      "handle": "mixpaket",
+      "title": "Probier-Mix 12er",
+      "subtitle": "12 Dosen aus dem Energy-Sortiment",
+      "descriptionHtml": "<p>Du kannst dich nicht entscheiden? Dann nimm einen Mix: 12 Dosen gemischt aus Classic, Tropical, Kiwi &amp; Lemon und Zero (je 3 Dosen).</p>\n<p><strong>Erhöhter Koffeingehalt. Für Kinder, schwangere und stillende Frauen nicht empfohlen.</strong> Nicht mit Alkohol mischen.</p>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mixpaket",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen/mixpaket.svg",
+          "alt": "Probier-Mix – Classic, Tropical, Kiwi & Lemon, Zero"
+        }
+      ],
+      "options": [],
+      "variants": [
+        {
+          "id": "mixpaket-12er",
+          "title": "12 Dosen (4 Sorten à 3)",
+          "price": 1699,
+          "available": true,
+          "options": {},
+          "cans": 12
+        }
+      ],
+      "featured": true,
+      "highlights": [
+        "4 Sorten",
+        "12 Dosen",
+        "Der Einstieg"
+      ],
+      "packSize": 12,
+      "createdAt": "2026-10-03T12:00:00.000Z"
+    }
+  ]
+}

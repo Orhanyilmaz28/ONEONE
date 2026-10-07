@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img">
+  <defs>
+    <radialGradient id="bg" cx=".5" cy=".62" r=".75"><stop offset="0" stop-color="#8dc63f" stop-opacity=".4"/><stop offset=".65" stop-color="#8dc63f" stop-opacity=".08"/><stop offset="1" stop-color="#0b0b12"/></radialGradient>
+  </defs>
+  <rect width="800" height="800" fill="#0b0b12"/>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  
+  <g transform="translate(280 110) scale(1)">
+    <defs>
+      <linearGradient id="bzero280" x1="0" x2="1">
+        <stop offset="0" stop-color="#000" stop-opacity=".4"/><stop offset=".24" stop-color="#fff" stop-opacity="0"/>
+        <stop offset=".34" stop-color="#fff" stop-opacity=".2"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".45"/>
+      </linearGradient>
+      <linearGradient id="szero280" x1="0" x2="1">
+        <stop offset="0" stop-color="#8d8d99"/><stop offset=".35" stop-color="#f5f5f8"/><stop offset=".7" stop-color="#c7c7d1"/><stop offset="1" stop-color="#7f7f8b"/>
+      </linearGradient>
+      <clipPath id="czero280"><path d="M10,60 Q10,40 40,34 H200 Q230,40 230,60 V510 Q230,546 200,552 H40 Q10,546 10,510 Z"/></clipPath>
+    </defs>
+    <ellipse cx="120" cy="578" rx="148.8" ry="22" fill="#000" opacity=".4"/>
+    <path d="M10,60 Q10,40 40,34 H200 Q230,40 230,60 V510 Q230,546 200,552 H40 Q10,546 10,510 Z" fill="#f4f4f4"/>
+    <g clip-path="url(#czero280)">
+      <polygon points="216.0,400.0 160.5,405.8 220.0,429.4 157.3,417.0 214.1,460.4 151.0,426.8 197.5,489.5 142.1,434.5 171.3,512.3 131.5,439.3 138.0,525.5 120.0,441.0 101.8,526.7 108.5,439.3 67.2,515.6 97.9,434.5 38.7,493.8 89.0,426.8 19.6,464.5 82.7,417.0 11.6,431.8 79.5,405.8 14.6,400.0 79.5,394.2 26.6,372.6 82.7,383.0 33.4,344.4 89.0,373.2 47.5,316.4 97.9,365.5 71.2,293.2 108.5,360.7 102.5,278.4 120.0,359.0 138.0,274.9 131.5,360.7 173.1,283.6 142.1,365.5 203.4,303.7 151.0,373.2 224.9,332.6 157.3,383.0 235.3,366.1 160.5,394.2" fill="#8dc63f"/>
+      <text transform="translate(114 330) rotate(-90)" text-anchor="middle" font-family="Arial Black, Helvetica, Arial, sans-serif" font-weight="900" font-size="82" letter-spacing="-3" fill="#0d0d0d">exstase</text>
+      <text transform="translate(194 290) rotate(-90)" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="600" font-size="22" fill="#0d0d0d" opacity=".9">ENERGY</text>
+      <text transform="translate(50 250) rotate(-90)" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-weight="700" font-size="23" fill="#0d0d0d">zero</text>
+      <text x="120" y="534" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="14" fill="#0d0d0d" opacity=".85">250 ml</text>
+    </g>
+    <path d="M10,60 Q10,40 40,34 H200 Q230,40 230,60 V510 Q230,546 200,552 H40 Q10,546 10,510 Z" fill="url(#bzero280)"/>
+    <path d="M10,60 Q10,40 40,34 H200 Q230,40 230,60 L216,84 H24 Z" fill="url(#szero280)"/>
+    <path d="M24,510 H216 L230,510 Q230,546 200,552 H40 Q10,546 10,510 Z" fill="url(#szero280)" opacity=".85"/>
+    <rect x="86" y="22" width="68" height="14" rx="7" fill="#d5d5de"/>
+  </g>
+</svg>

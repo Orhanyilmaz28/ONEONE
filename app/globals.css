@@ -1,0 +1,382 @@
+@import "tailwindcss";
+
+/* ═════════════════════════ EXSTASE Energy Design-System ═════════════════════════ */
+
+@theme {
+  --color-paper: #fbfaf8;
+  --color-cream: #f3f1ed;
+  --color-ink: #141414;
+  --color-muted: #6b6966;
+  --color-line: #e8e4de;
+  --color-accent: #141414;
+  --color-accent-dark: #000000;
+  --color-lilac: #b5e86a;
+  --color-peach: #ffe566;
+  --color-sky: #7fd0f5;
+  --color-sage: #eceaf8;
+  --color-blush: #f8e9e1;
+  --color-water: #c9d9f5;
+  --font-sans: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-geist), ui-sans-serif, system-ui, sans-serif;
+  --animate-marquee: marquee 50s linear infinite;
+  --animate-marquee-reverse: marquee 50s linear infinite reverse;
+  --animate-spin-slow: spin 24s linear infinite;
+}
+
+:root {
+  color-scheme: light;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+html {
+  overflow-x: clip;
+  scroll-behavior: smooth;
+}
+
+body {
+  overflow-x: clip;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--color-lilac);
+  color: var(--color-ink);
+}
+
+/* ───────── Einheitliche Schrift-Skala (Utilities dürfen Farben überschreiben) ───────── */
+@layer components {
+  .font-display { font-weight: 500; letter-spacing: -0.03em; }
+  .t-display { font-size: clamp(2.6rem, 3.6vw + 1.1rem, 4.5rem); line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; }
+  .t-h1 { font-size: clamp(2.2rem, 2.4vw + 1.2rem, 3.4rem); line-height: 1.05; letter-spacing: -0.035em; font-weight: 500; }
+  .t-h2 { font-size: clamp(1.9rem, 1.9vw + 1.05rem, 2.9rem); line-height: 1.08; letter-spacing: -0.03em; font-weight: 500; }
+  .t-h3 { font-size: clamp(1.2rem, 0.5vw + 1rem, 1.45rem); line-height: 1.25; letter-spacing: -0.015em; font-weight: 500; }
+  .t-lead { font-size: 1.125rem; line-height: 1.65; color: var(--color-muted); }
+  .t-small { font-size: 0.875rem; line-height: 1.55; }
+  .t-eyebrow { font-size: 0.8125rem; line-height: 1.4; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-muted); }
+  /* Marken-Tropfen vor jeder Überschrift-Zeile */
+  .t-eyebrow::before { content: ""; display: inline-block; width: 0.62em; height: 1em; margin-right: 0.6em; vertical-align: -0.12em; background: currentColor; -webkit-mask: var(--drop) center / contain no-repeat; mask: var(--drop) center / contain no-repeat; }
+  .no-drop::before { content: none; }
+  .grad-text {
+    background: linear-gradient(100deg, #8dc63f 0%, #f2c230 55%, #1ea7e1 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+.prose-shop p { margin-block: 0.75em; line-height: 1.7; }
+.prose-shop ul { list-style: none; padding-left: 0; margin-block: 0.75em; }
+.prose-shop ul > li { position: relative; padding-left: 1.35em; }
+.prose-shop ul > li::before { content: ""; position: absolute; left: 0.1em; top: 0.42em; width: 0.5em; height: 0.8em; background: currentColor; opacity: 0.7; -webkit-mask: var(--drop) center / contain no-repeat; mask: var(--drop) center / contain no-repeat; }
+.prose-shop li { margin-block: 0.35em; }
+.prose-shop strong { font-weight: 600; color: var(--color-ink); }
+.prose-shop a { text-decoration: underline; text-underline-offset: 3px; }
+.prose-shop h2, .prose-shop h3 { font-size: 1.15rem; font-weight: 500; margin-top: 1.4em; color: var(--color-ink); }
+
+.legal h2 { font-size: 1.35rem; font-weight: 500; letter-spacing: -0.015em; margin-top: 2rem; margin-bottom: 0.5rem; }
+.legal p, .legal li { line-height: 1.75; color: var(--color-muted); }
+.legal ul { list-style: disc; padding-left: 1.25rem; }
+
+/* ───────── Ladeanimationen (laufen ohne JavaScript) ───────── */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@keyframes rise { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: none; } }
+@keyframes tile-in { from { opacity: 0; transform: translateY(28px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes word-in { from { opacity: 0; transform: translateY(0.45em); filter: blur(6px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes blob {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(8%, -6%) scale(1.08); }
+  66% { transform: translate(-6%, 6%) scale(0.95); }
+}
+@keyframes ripple { from { transform: scale(0.4); opacity: 0.6; } to { transform: scale(2.4); opacity: 0; } }
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+@keyframes ken-burns { from { transform: scale(1.02) translate(0, 0); } to { transform: scale(1.14) translate(-2%, -2%); } }
+@keyframes shine { from { transform: translateX(-120%) skewX(-18deg); } to { transform: translateX(220%) skewX(-18deg); } }
+@keyframes drop-fall {
+  0% { transform: translate(-50%, -190px) scale(0.6); opacity: 0; }
+  15% { opacity: 1; }
+  55% { transform: translate(-50%, -18px) scale(1, 1.1); opacity: 1; }
+  62% { transform: translate(-50%, -8px) scale(1.25, 0.6); opacity: 0.9; }
+  70%, 100% { transform: translate(-50%, -8px) scale(0); opacity: 0; }
+}
+@keyframes core-glow {
+  0%, 55% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 0 rgba(141, 198, 63, 0); }
+  70% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 14px rgba(141, 198, 63, 0.28); }
+  100% { box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35), 0 0 0 26px rgba(141, 198, 63, 0); }
+}
+
+.anim-rise { animation: rise 0.9s var(--ease-out) both; }
+.anim-tile { animation: tile-in 1.1s var(--ease-out) both; }
+.anim-word { display: inline-block; animation: word-in 1s var(--ease-out) both; }
+.anim-fade { animation: fade-in 1.2s ease both; }
+.anim-blob { animation: blob 16s ease-in-out infinite; will-change: transform; }
+.anim-ripple { animation: ripple 3s ease-out infinite; }
+.anim-float { animation: float 6s ease-in-out infinite; }
+.anim-ken { animation: ken-burns 14s ease-in-out infinite alternate; }
+.anim-shine::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 40%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  animation: shine 3.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ───────── Scroll-gesteuerte Animationen (CSS, ohne Zusatz-Bibliothek) ───────── */
+@keyframes sd-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: none; } }
+@keyframes sd-word { from { opacity: 0.16; } to { opacity: 1; } }
+@keyframes sd-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes sd-parallax { from { transform: translateY(var(--px-from, 40px)); } to { transform: translateY(var(--px-to, -40px)); } }
+@keyframes sd-layer-top {
+  0%, 15% { transform: translateY(0) rotateX(58deg) rotateZ(-38deg); }
+  60%, 100% { transform: translateY(-130px) rotateX(58deg) rotateZ(-38deg); }
+}
+@keyframes sd-layer-bottom {
+  0%, 15% { transform: translateY(0) rotateX(58deg) rotateZ(-38deg); }
+  60%, 100% { transform: translateY(130px) rotateX(58deg) rotateZ(-38deg); }
+}
+@keyframes sd-layer-label { 0%, 35% { opacity: 0; transform: translateX(-10px); } 60%, 100% { opacity: 1; transform: none; } }
+@keyframes sd-step { 0% { opacity: 0.3; } 30%, 70% { opacity: 1; } 100% { opacity: 0.3; } }
+@keyframes sd-help { from { opacity: 0; transform: translateY(20px) scale(0.9); } to { opacity: 1; transform: none; } }
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .sd-up { animation: sd-up linear both; animation-timeline: view(); animation-range: entry 0px entry 140px; }
+    .sd-word { animation: sd-word linear both; animation-timeline: view(); animation-range: cover 15% cover 40%; }
+    .sd-progress { animation: sd-progress linear both; animation-timeline: scroll(root); }
+    .sd-parallax { animation: sd-parallax linear both; animation-timeline: view(); }
+    .sd-help { animation: sd-help linear both; animation-timeline: scroll(root); animation-range: 300px 600px; }
+
+    .layers-section { view-timeline-name: --layers; }
+    .layer-top, .layer-bottom, .layer-label, .layer-step {
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-timeline: --layers;
+      animation-range: entry 40% cover 60%;
+    }
+    .layer-top { animation-name: sd-layer-top; }
+    .layer-bottom { animation-name: sd-layer-bottom; }
+    .layer-label { animation-name: sd-layer-label; }
+    .layer-step { animation-name: sd-up; }
+    .layer-step:nth-child(1) { animation-range: entry 30% cover 35%; }
+    .layer-step:nth-child(2) { animation-range: entry 45% cover 42%; }
+    .layer-step:nth-child(3) { animation-range: entry 60% cover 50%; }
+  }
+}
+
+/* Schichten im Ruhezustand */
+.layer-top { transform: translateY(-100px) rotateX(58deg) rotateZ(-38deg); }
+.layer-mid { position: relative; transform: rotateX(58deg) rotateZ(-38deg); box-shadow: 0 30px 60px -20px rgba(20, 20, 20, 0.35); }
+.layer-mid::after { content: ""; position: absolute; inset: -14px; border-radius: inherit; border: 14px solid rgba(141, 198, 63, 0.28); opacity: 0; animation: core-ring 3.2s ease-out infinite; will-change: transform, opacity; }
+@keyframes core-ring { 0%, 55% { opacity: 0; transform: scale(0.96); } 70% { opacity: 1; } 100% { opacity: 0; transform: scale(1.08); } }
+.layer-bottom { transform: translateY(100px) rotateX(58deg) rotateZ(-38deg); }
+.drop-fall { animation: drop-fall 3.2s cubic-bezier(0.5, 0, 0.75, 0) infinite; }
+
+/* ───────── Interaktive Extras ───────── */
+[data-tilt] { transform-style: preserve-3d; transition: transform 0.6s var(--ease-out); will-change: transform; }
+[data-spotlight] { --mx: 50%; --my: 50%; }
+[data-spotlight]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(420px circle at var(--mx) var(--my), rgba(203, 189, 255, 0.22), transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s;
+  pointer-events: none;
+}
+[data-spotlight]:hover::before { opacity: 1; }
+
+input[type="range"].range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-ink) var(--fill, 50%), var(--color-line) var(--fill, 50%));
+  outline: none;
+}
+input[type="range"].range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid var(--color-ink);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  cursor: grab;
+  transition: transform 0.2s;
+}
+input[type="range"].range::-webkit-slider-thumb:active { transform: scale(1.15); cursor: grabbing; }
+input[type="range"].range::-moz-range-thumb { width: 22px; height: 22px; border-radius: 50%; background: white; border: 2px solid var(--color-ink); }
+input[type="range"].range:focus-visible::-webkit-slider-thumb { outline: 3px solid var(--color-lilac); outline-offset: 2px; }
+
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+
+details summary { list-style: none; cursor: pointer; }
+details summary::-webkit-details-marker { display: none; }
+details[open] .faq-icon { transform: rotate(45deg); }
+details[open] .faq-body { animation: rise 0.5s var(--ease-out) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ───────── Marken-Tropfen (aus dem Logo „Herz aus zwei Tropfen“) ───────── */
+:root { --drop: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cpolygon%20points%3D%2250.0%2C14.5%2053.0%2C33.3%2063.2%2C13.6%2058.5%2C35.3%2076.8%2C18.1%2063.0%2C39.1%2088.3%2C27.9%2066.0%2C44.2%2095.5%2C42.0%2067.0%2C50.0%2096.8%2C58.3%2066.0%2C55.8%2091.6%2C74.0%2063.0%2C60.9%2080.6%2C86.5%2058.5%2C64.7%2065.9%2C93.7%2053.0%2C66.7%2050.0%2C94.6%2047.0%2C66.7%2035.6%2C89.6%2041.5%2C64.7%2024.8%2C80.0%2037.0%2C60.9%2018.8%2C68.0%2034.0%2C55.8%2012.4%2C56.6%2033.0%2C50.0%209.4%2C42.8%2034.0%2C44.2%2012.0%2C28.1%2037.0%2C39.1%2020.4%2C14.8%2041.5%2C35.3%2033.8%2C5.5%2047.0%2C33.3%22%2F%3E%3C%2Fsvg%3E"); }
+/* Logo: Tropfen hebt sich beim Hover */
+.logo-drop { transition: transform 0.6s var(--ease-out); transform-box: fill-box; transform-origin: bottom center; }
+/* Logo darf beim Anheben über seinen Rahmen hinausragen (sonst wird die Herzspitze oben abgeschnitten) */
+svg.logo { overflow: visible; }
+@media (hover: hover) { a:hover .logo-drop { transform: translateY(-2px) scale(1.05); } }
+/* Liste mit Tropfen statt Punkt */
+.drop-list { list-style: none; padding-left: 0; }
+.drop-list > li { position: relative; padding-left: 1.35em; }
+.drop-list > li::before { content: ""; position: absolute; left: 0.1em; top: 0.38em; width: 0.5em; height: 0.8em; background: currentColor; opacity: 0.85; -webkit-mask: var(--drop) center / contain no-repeat; mask: var(--drop) center / contain no-repeat; }
+
+/* ───────── Icons zeichnen sich selbst ───────── */
+@keyframes icon-draw { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes icon-pop { 0% { transform: scale(1); } 40% { transform: scale(1.15) rotate(-6deg); } 100% { transform: scale(1); } }
+.icon-draw path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+  transition: stroke-dashoffset 1.1s var(--ease-out) calc(var(--i, 0) * 0.14s);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tt-js .icon-draw:not(.is-drawn) path { stroke-dashoffset: 1; transition: none; }
+}
+.group:hover .icon-hover { animation: icon-pop 0.7s var(--ease-out); }
+
+/* Zähler (Werte setzt enhance.js) */
+[data-count-to] { font-variant-numeric: tabular-nums; }
+
+/* Sanftes Schweben für Chips */
+@keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-6px); } }
+.anim-bob { animation: bob 5s ease-in-out infinite; }
+
+/* ═════════ Hero-Slider ═════════ */
+.slide { opacity: 0; visibility: hidden; transition: opacity 0.9s var(--ease-out), visibility 0s linear 0.9s; }
+.slide.is-active { opacity: 1; visibility: visible; transition: opacity 0.9s var(--ease-out), visibility 0s; z-index: 1; }
+
+/* Text: Zeilen steigen nacheinander auf */
+.slide .slide-line { opacity: 0; transform: translateY(26px); filter: blur(6px); transition: opacity 0.5s ease, transform 0.5s ease, filter 0.5s ease; }
+.slide.is-active .slide-line { opacity: 1; transform: none; filter: blur(0); transition: opacity 0.9s var(--ease-out) var(--d, 0s), transform 1s var(--ease-out) var(--d, 0s), filter 0.9s var(--ease-out) var(--d, 0s); }
+
+/* Fotos: decken sich von unten auf, Bild zoomt langsam (Ken Burns) */
+.slide .slide-photo { clip-path: inset(100% 0 0 0 round 1.75rem); transform: translateY(30px); transition: clip-path 0.6s ease, transform 0.6s ease; }
+.slide.is-active .slide-photo { clip-path: inset(0 0 0 0 round 1.75rem); transform: none; transition: clip-path 1.2s var(--ease-out) 0.15s, transform 1.2s var(--ease-out) 0.15s; }
+.slide.is-active .slide-photo-2 { transition-delay: 0.4s; }
+.slide .slide-zoom { transform: scale(1.18); transition: transform 0.6s ease; }
+.slide.is-active .slide-zoom { transform: scale(1.02); transition: transform 8s cubic-bezier(0.2, 0.6, 0.3, 1); }
+
+/* Set-Slide: Fotos fächern sich auf */
+.slide .slide-fan { transform: translateY(40px) rotate(0deg); }
+.slide.is-active .slide-fan-1 { transform: rotate(-7deg); transition-delay: 0.15s; }
+.slide.is-active .slide-fan-2 { transform: translateY(-6px); transition-delay: 0.3s; z-index: 2; }
+.slide.is-active .slide-fan-3 { transform: rotate(7deg); transition-delay: 0.45s; }
+
+/* Chips & Preis-Badge ploppen auf */
+.slide .slide-chip { opacity: 0; scale: 0.6; transition: opacity 0.3s ease, scale 0.3s ease; }
+.slide.is-active .slide-chip { opacity: 1; scale: 1; transition: opacity 0.6s var(--ease-out) var(--d, 0.6s), scale 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) var(--d, 0.6s); }
+
+/* Farbfläche wandert bei jedem Wechsel */
+.slide .slide-blob { translate: -10% 0; transition: translate 1.5s var(--ease-out); }
+.slide.is-active .slide-blob { translate: 30% 20%; }
+
+/* Fallende Tropfen */
+@keyframes slide-drop { 0% { transform: translateY(-20px); opacity: 0; } 15% { opacity: 1; } 100% { transform: translateY(620px); opacity: 0; } }
+.slide-drop { animation: slide-drop 6s linear infinite; }
+
+/* Fortschrittsbalken */
+@keyframes slider-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+.slider-progress { transform: scaleX(0); }
+.slider-dot.is-done .slider-progress { transform: scaleX(1); }
+.slider-dot.is-active .slider-progress { animation: slider-progress var(--slider-interval, 6.5s) linear forwards; }
+[data-slider].is-paused .slider-dot.is-active .slider-progress { animation-play-state: paused; }
+
+@media (prefers-reduced-motion: reduce) {
+  .slide .slide-line, .slide .slide-photo, .slide .slide-chip, .slide .slide-zoom { opacity: 1; transform: none; clip-path: none; filter: none; scale: 1; }
+}
+
+/* ───────── Performance: Animationen außerhalb des Bildschirms anhalten (enhance.js setzt data-offscreen) ───────── */
+/* Nur Endlos-Animationen anhalten – Einblend-Animationen dürfen nie hängen bleiben */
+[data-offscreen] :is(.anim-blob, .anim-ken, .anim-float, .anim-bob, .anim-ripple, .animate-marquee, .animate-marquee-reverse, .slide-drop, .drop-fall, .anim-scroll-cue, .layer-mid),
+[data-offscreen] .layer-mid::after { animation-play-state: paused !important; }
+
+/* Weiche Farbflächen ohne teuren blur-Filter: radiale Maske statt Weichzeichner */
+.blur-3xl, .blur-2xl {
+  filter: none !important;
+  -webkit-mask-image: radial-gradient(closest-side, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%);
+  mask-image: radial-gradient(closest-side, #000 0%, rgba(0, 0, 0, 0.55) 45%, transparent 100%);
+}
+
+/* Hilfe-Button weicht der Kaufleiste aus */
+.help-btn { transition: translate 0.5s var(--ease-out), transform 0.3s; }
+[data-sticky-buy] .help-btn { translate: 0 -84px; }
+
+/* ═════════ Barrierefreiheit & Druck ═════════ */
+
+/* Sichtbarer Tastatur-Fokus im Marken-Look (nur bei Tastaturbedienung, nicht beim Klicken).
+   Im base-Layer, damit gezielte Fokus-Stile einzelner Elemente (Utilities) Vorrang behalten. */
+@layer base {
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+  /* Auf dunklen Flächen: heller Rahmen */
+  :is(.bg-ink, .bg-black) :focus-visible {
+    outline-color: #fff;
+  }
+  /* Bei Windows-Kontrastmodus die Systemfarbe nutzen */
+  @media (forced-colors: active) {
+    :focus-visible { outline-color: Highlight; }
+  }
+}
+
+/* „Zum Inhalt springen“ – erscheint nur, wenn man mit der Tab-Taste auf die Seite kommt */
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.75rem 1.25rem;
+  border-radius: 999px;
+  background: var(--color-ink);
+  color: #fff;
+  font-weight: 500;
+  box-shadow: 0 14px 40px -12px rgba(20, 20, 20, 0.45);
+  transform: translateY(calc(-100% - 1.5rem));
+  transition: transform 0.25s var(--ease-out);
+}
+.skip-link:focus,
+.skip-link:focus-visible { transform: none; }
+/* Sprungziel nicht unter der schwebenden Kopfzeile verstecken */
+#inhalt { scroll-margin-top: 6rem; }
+
+/* Hilfe-Button: per Tastatur erreichbar, auch bevor er beim Scrollen eingeblendet wird */
+.help-btn:focus-visible { opacity: 1 !important; transform: none !important; }
+
+/* Druckansicht (z. B. AGB, Widerruf, Bestellübersicht): ohne Navigation, Animationen und schwebende Elemente */
+@media print {
+  .skip-link, .help-btn, [data-print-hide] { display: none !important; }
+  body { background: #fff; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+  .slide.is-active :is(.slide-line, .slide-photo, .slide-chip) {
+    opacity: 1 !important;
+    transform: none !important;
+    filter: none !important;
+    clip-path: none !important;
+  }
+  a[href^="http"]:not([href*="localhost"])::after { content: " (" attr(href) ")"; font-size: 0.85em; color: var(--color-muted); }
+}
