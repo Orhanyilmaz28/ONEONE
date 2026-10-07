@@ -6,7 +6,7 @@ import path from "node:path";
  *
  * Umgebungsvariablen:
  * - BREVO_API_KEY  oder  RESEND_API_KEY
- * - MAIL_FROM      Absender, z. B. "EXSTASE <hallo@exstase-energy.de>" (Domain muss beim Anbieter bestätigt sein)
+ * - MAIL_FROM      Absender, z. B. "EXSTASE <hello@exstase.com>" (Domain muss beim Anbieter bestätigt sein)
  * - MAIL_REPLY_TO  optional: Antworten gehen dorthin (Standard: E-Mail aus den Firmendaten)
  *
  * Ohne Schlüssel (lokal): E-Mails landen als HTML-Datei in .data/outbox – zum Ansehen statt Versenden.
@@ -32,7 +32,7 @@ export function mailReady() {
   return p === "outbox" || ((p === "brevo" || p === "resend") && Boolean(parseFrom()));
 }
 
-/** "EXSTASE <hallo@exstase-energy.de>" → { name, email } */
+/** "EXSTASE <hello@exstase.com>" → { name, email } */
 export function parseFrom(raw = process.env.MAIL_FROM ?? ""): { name: string; email: string } | null {
   const s = raw.trim();
   const m = /^(.*)<\s*([^<>\s]+@[^<>\s]+)\s*>$/.exec(s);
