@@ -5,6 +5,7 @@ import { Accordion } from "@/components/accordion";
 import { DropDivider, DropIcon } from "@/components/logo";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductCard } from "@/components/product-card";
+import { PackShowcase } from "@/components/pack-showcase";
 import { ProductGallery } from "@/components/product-gallery";
 import { catalog, getCollection, getProduct, getRelated, isAvailable, priceRange } from "@/lib/catalog";
 import { SITE_URL, formatPrice } from "@/lib/format";
@@ -202,6 +203,7 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </div>
 
+      <PackShowcase product={product} />
       <DropDivider className="pt-6" />
       <ProductReviews handle={product.handle} reviews={reviews} sold={sold} title={product.title} />
       <div className="-mx-4 sm:-mx-6">

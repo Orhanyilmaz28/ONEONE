@@ -413,3 +413,15 @@ body::after {
   color: var(--color-ink);
 }
 .admin-light :focus-visible { outline-color: var(--color-ink); }
+
+/* Packungs-Überblick: Dosen fallen beim Scrollen nacheinander ein (ohne Scroll-Animation sofort sichtbar) */
+@keyframes tray-can { from { opacity: 0; transform: translateY(-70px) rotate(-8deg) scale(0.88); } to { opacity: 1; transform: none; } }
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .tray-can {
+      animation: tray-can cubic-bezier(0.22, 1, 0.36, 1) both;
+      animation-timeline: view();
+      animation-range: entry calc(var(--i) * 1.2%) entry calc(55% + var(--i) * 1.2%);
+    }
+  }
+}
