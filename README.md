@@ -3,6 +3,8 @@
 Eigenständiger Online-Shop mit Dashboard auf Basis von **Next.js 16** (App Router, React 19), **Tailwind CSS 4**, **Motion** und **Stripe Checkout**.
 Betreiberin: exstase Großhandel GmbH, Straelen. Keine monatlichen Shop-Gebühren, keine Theme-Grenzen – der komplette Code gehört dir.
 
+Live-Adresse (Vercel): https://exstaseshop.vercel.app
+
 ## Anleitungen (für Einsteiger:innen)
 
 | Anleitung | Für wen / wofür |
