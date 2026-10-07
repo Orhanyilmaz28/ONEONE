@@ -425,3 +425,8 @@ body::after {
     }
   }
 }
+
+/* Handy: Hilfe-Button nicht über dem Kaufbereich der Produktseite */
+@media (max-width: 639px) {
+  body:has(#kaufen) .help-btn { display: none; }
+}

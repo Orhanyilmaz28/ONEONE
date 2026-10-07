@@ -35,7 +35,7 @@ export default async function Page() {
         Abgabe der Bestellung angezeigt (siehe <Link href="/versand">Versand & Lieferung</Link>).
       </p>
       <p>
-        Für Einweg-Getränkeverpackungen wird zusätzlich ein Pfand von 0,25 € je Dose erhoben. Das Pfand ist im Preis nicht enthalten und wird vor Abgabe der
+        Für Einweg-Getränkeverpackungen wird zusätzlich ein Pfand von 0,25 € je Dose bzw. Flasche erhoben. Das Pfand ist im Preis nicht enthalten und wird vor Abgabe der
         Bestellung gesondert ausgewiesen.
       </p>
       <h2>§ 4 Zahlung</h2>

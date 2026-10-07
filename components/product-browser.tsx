@@ -117,7 +117,7 @@ function BrowserView({
               ))}
             </nav>
             <div className="flex w-full items-center gap-2 sm:w-auto">
-              <label className="flex flex-1 items-center gap-2 rounded-full border border-line bg-card px-4 py-2 focus-within:border-ink sm:w-56 sm:flex-none">
+              <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full border border-line bg-card px-4 py-2 focus-within:border-ink sm:w-56 sm:flex-none">
                 <SearchIcon className="size-4 text-muted" />
                 <input
                   aria-label="Produkte filtern"
@@ -132,7 +132,7 @@ function BrowserView({
               </label>
               <select
                 aria-label="Sortieren"
-                className="rounded-full border border-line bg-card px-4 py-2 text-sm transition hover:border-ink"
+                className="min-w-0 max-w-[45%] shrink-0 rounded-full border border-line bg-card px-4 py-2 text-sm transition hover:border-ink sm:max-w-none"
                 onChange={(e) => update("sort", e.target.value === "beliebt" ? null : e.target.value)}
                 value={sort}
               >

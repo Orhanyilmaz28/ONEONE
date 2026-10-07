@@ -60,7 +60,7 @@ export function ProductCard({
   const hoverMedia = video ?? product.images[1] ?? product.images[0];
 
   return (
-    <article className={`group relative ${reveal ? "sd-up" : ""} ${className}`}>
+    <article className={`group relative flex h-full flex-col ${reveal ? "sd-up" : ""} ${className}`}>
       <div
         className="relative overflow-hidden rounded-[1.75rem] bg-cream"
         data-tilt="4"
@@ -152,8 +152,8 @@ export function ProductCard({
         ) : null}
       </div>
 
-      <div className="mt-4 px-1">
-        <div className="flex items-start justify-between gap-3">
+      <div className="mt-4 flex flex-1 flex-col px-1">
+        <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-0.5">
           <h3 className="t-h3">
             <Link href={`/products/${product.handle}`}>{product.title}</Link>
           </h3>
@@ -165,17 +165,18 @@ export function ProductCard({
         </div>
         {product.subtitle ? <p className="t-small mt-0.5 text-muted">{product.subtitle}</p> : null}
         {perUnit > 1 && !product.onRequest ? (
-          <p className="t-small mt-1 font-medium">
-            {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro Dose · zzgl. Pfand
+          <p className="mt-1 font-medium text-[13px] leading-snug sm:text-sm">
+            {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"} · zzgl. Pfand
           </p>
         ) : null}
+        <div aria-hidden className="min-h-3 flex-1" />
         {product.onRequest ? (
-          <Link className="anim-shine relative mt-3 inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${product.handle}`}>
+          <Link className="anim-shine relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${product.handle}`}>
             Anfragen
           </Link>
         ) : single ? (
           <button
-            className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent font-bold text-black text-sm transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
+            className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent font-bold text-black text-sm transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
             data-quick-add
             disabled={!single.available}
             onClick={() => add(product.handle, single.id)}
@@ -184,7 +185,7 @@ export function ProductCard({
             {single.available ? "Jetzt kaufen" : "Ausverkauft"}
           </button>
         ) : (
-          <Link className="mt-3 inline-flex h-11 w-full items-center justify-center rounded-full border border-line font-medium text-sm transition hover:border-accent hover:text-accent" href={`/products/${product.handle}`}>
+          <Link className="inline-flex h-11 w-full items-center justify-center rounded-full border border-line font-medium text-sm transition hover:border-accent hover:text-accent" href={`/products/${product.handle}`}>
             Auswählen
           </Link>
         )}

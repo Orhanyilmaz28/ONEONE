@@ -59,7 +59,7 @@ export type TrustItem = { icon: IconName | "de"; title: string; text?: string };
 export const TRUST: TrustItem[] = [
   { icon: "de", title: "Händler aus Deutschland", text: "Aus Deutschland · NRW" },
   { icon: "versand", title: "Versand aus Deutschland", text: "In 1–3 Werktagen bei dir" },
-  { icon: "nachhaltig", title: "Fairer Pfandpreis", text: "0,25 € je Dose, separat ausgewiesen" },
+  { icon: "nachhaltig", title: "Fairer Pfandpreis", text: "0,25 € je Dose/Flasche, separat ausgewiesen" },
   { icon: "antibakteriell", title: "Sicher bezahlen", text: "PayPal, Klarna, Karte – SSL-verschlüsselt" },
 ];
 
@@ -104,7 +104,7 @@ export function TopBar() {
   const items: BarItem[] = [
     { icon: "de", label: "Händler aus Deutschland" },
     { icon: "versand", label: "Versand aus Deutschland" },
-    { icon: "nachhaltig", label: "0,25 € Pfand je Dose" },
+    { icon: "nachhaltig", label: "0,25 € Pfand je Dose/Flasche" },
     { icon: "saugstark", label: freeLabel ?? "Versand in 1–3 Werktagen" },
     { icon: "antibakteriell", label: "Sicher bezahlen" },
   ];

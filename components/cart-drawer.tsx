@@ -218,7 +218,7 @@ export function CartDrawer() {
                 </div>
                 {deposit > 0 ? (
                   <div className="flex items-baseline justify-between text-sm">
-                    <span className="text-muted">Einwegpfand (0,25 € je Dose)</span>
+                    <span className="text-muted">Einwegpfand (0,25 € je Dose/Flasche)</span>
                     <span>{formatPrice(deposit)}</span>
                   </div>
                 ) : null}

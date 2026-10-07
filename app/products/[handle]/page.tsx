@@ -185,7 +185,7 @@ export default async function ProductPage({ params }: Props) {
                   title: "Versand & Lieferung",
                   content: (
                     <p>
-                      Versand aus Deutschland innerhalb von 1–3 Werktagen. {shippingNote} Pfand: 0,25 € je Dose, wird an der Kasse separat berechnet.{" "}
+                      Versand aus Deutschland innerhalb von 1–3 Werktagen. {shippingNote} Pfand: 0,25 € je Dose/Flasche, wird an der Kasse separat berechnet.{" "}
                       <Link className="underline" href="/versand">
                         Mehr erfahren
                       </Link>

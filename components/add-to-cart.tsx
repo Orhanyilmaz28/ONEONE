@@ -55,7 +55,7 @@ export function AddToCart({ product }: { product: Product }) {
       {variant && cansOf(variant) > 1 ? (
         <p className="-mt-6 flex flex-wrap items-center gap-2 text-sm">
           <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{cansOf(variant)} Dosen</span>
-          <span className="font-medium">{formatPrice(Math.round(variant.price / cansOf(variant)))} pro Dose</span>
+          <span className="font-medium">{formatPrice(Math.round(variant.price / cansOf(variant)))} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"}</span>
           <span className="text-muted">+ {formatPrice(depositFor(variant, 1))} Pfand</span>
         </p>
       ) : null}
@@ -170,7 +170,7 @@ export function AddToCart({ product }: { product: Product }) {
         </li>
         <li className="flex items-center gap-2.5">
           <FeatureIcon className="size-5" draw={false} name="nachhaltig" />
-          Pfand 0,25 € je Dose
+          Pfand 0,25 € je Dose/Flasche
         </li>
       </ul>
     </div>

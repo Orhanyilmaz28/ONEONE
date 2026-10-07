@@ -76,7 +76,7 @@ export async function POST(request: Request) {
       price_data: {
         currency: "eur",
         unit_amount: DEPOSIT_PER_CAN,
-        product_data: { name: "Einwegpfand", description: "0,25 € je Dose", metadata: { handle: "pfand" } },
+        product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", metadata: { handle: "pfand" } },
       },
     });
   }

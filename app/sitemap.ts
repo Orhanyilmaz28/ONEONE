@@ -5,7 +5,7 @@ import { SITE_URL } from "@/lib/format";
 /** Sitemap für Google & Co. – ausgeblendete Produkte erscheinen nicht */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const abs = (path: string) => (path.startsWith("http") ? path : `${SITE_URL}${path}`);
-  const shopPages = ["", "/products", "/kontakt", "/versand"];
+  const shopPages = ["", "/products", "/palette", "/kontakt", "/versand"];
   const legalPages = ["/widerruf", "/impressum", "/datenschutz", "/agb"];
   return [
     ...shopPages.map((p) => ({ url: abs(p), changeFrequency: "weekly" as const, priority: p ? 0.6 : 1 })),
