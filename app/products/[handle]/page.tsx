@@ -6,6 +6,7 @@ import { DropDivider, DropIcon } from "@/components/logo";
 import { AddToCart } from "@/components/add-to-cart";
 import { ProductCard } from "@/components/product-card";
 import { PackShowcase } from "@/components/pack-showcase";
+import { PaletteRequest } from "@/components/palette-request";
 import { ProductGallery } from "@/components/product-gallery";
 import { catalog, getCollection, getProduct, getRelated, isAvailable, priceRange } from "@/lib/catalog";
 import { SITE_URL, formatPrice } from "@/lib/format";
@@ -83,14 +84,19 @@ export default async function ProductPage({ params }: Props) {
           })),
         }
       : {}),
-    offers: {
-      "@type": "AggregateOffer",
-      priceCurrency: "EUR",
-      lowPrice: (min / 100).toFixed(2),
-      highPrice: (max / 100).toFixed(2),
-      availability: isAvailable(product) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      url: `${SITE_URL}/products/${product.handle}`,
-    },
+    // Paletten gibt es nur auf Anfrage – ohne Preisangabe in den strukturierten Daten
+    ...(product.onRequest
+      ? {}
+      : {
+          offers: {
+            "@type": "AggregateOffer",
+            priceCurrency: "EUR",
+            lowPrice: (min / 100).toFixed(2),
+            highPrice: (max / 100).toFixed(2),
+            availability: isAvailable(product) ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            url: `${SITE_URL}/products/${product.handle}`,
+          },
+        }),
   };
 
   return (
@@ -157,7 +163,7 @@ export default async function ProductPage({ params }: Props) {
             <SalesToday handle={product.handle} />
           </div>
           <div className="anim-rise mt-8 scroll-mt-28" id="kaufen" style={{ animationDelay: "0.3s" }}>
-            <AddToCart product={product} />
+            {product.onRequest ? <PaletteRequest product={product} /> : <AddToCart product={product} />}
           </div>
           <div className="mt-10">
             <Accordion
@@ -209,7 +215,7 @@ export default async function ProductPage({ params }: Props) {
       <div className="-mx-4 sm:-mx-6">
         <Faq />
       </div>
-      <StickyBuy product={product} />
+      {product.onRequest ? null : <StickyBuy product={product} />}
 
       {related.length > 0 ? (
         <section className="mt-16 lg:mt-20">

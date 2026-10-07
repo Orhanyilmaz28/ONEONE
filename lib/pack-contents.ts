@@ -1,14 +1,27 @@
-/** Inhalt der Mixpakete: Sorte (Produkt-Handle) und Anzahl Trays (je 24 Dosen) – es werden nur komplette Trays verkauft */
-export const TRAY_SIZE = 24;
-export const PACK_CONTENTS: Record<string, [handle: string, trays: number][]> = {
-  "mix-fruchtig": [["classic", 1], ["tropical", 1], ["kiwi-lemon", 1], ["watermelon", 1]],
-  "mix-sweet-cool": [["white-peach", 1], ["ice-bonbon", 1], ["blueberry-coconut", 1], ["watermelon", 1]],
-  "mix-sauer-frisch": [["lime", 1], ["kiwi-lemon", 1], ["classic", 1], ["zero", 1]],
-  "mix-kick-chill": [["classic", 1], ["tropical", 1], ["ice-coffee-latte", 1], ["ice-coffee-cappuccino", 1]],
-  "mix-ice-coffee": [["ice-coffee-latte", 1], ["ice-coffee-cappuccino", 1]],
-  "mix-xtea": [["xtea-peach", 1], ["xtea-lemon", 1], ["xtea-watermelon", 1]],
-  "mix-alle-trays": [["classic", 1], ["tropical", 1], ["kiwi-lemon", 1], ["watermelon", 1], ["white-peach", 1], ["ice-bonbon", 1], ["lime", 1], ["blueberry-coconut", 1], ["zero", 1]],
+/** Dosen bzw. Flaschen je Tray (Energy, Coffee, Tea: 24 Dosen; Wasser: 12 Flaschen) */
+export const trayCans = (handle: string) => (handle.startsWith("wasser") ? 12 : 24);
+
+/** Sortenfarben (Kacheln, Glow) */
+export const SORT_COLORS: Record<string, string> = {
+  classic: "#a8e652",
+  tropical: "#1fb6ff",
+  "kiwi-lemon": "#ffd400",
+  watermelon: "#ff2d95",
+  "white-peach": "#ffb4a2",
+  "ice-bonbon": "#7fd4ff",
+  lime: "#c6f03c",
+  "blueberry-coconut": "#8c6cff",
+  zero: "#e9f5dc",
+  "ice-coffee-latte": "#e3c9a3",
+  "ice-coffee-cappuccino": "#c69c6d",
+  "xtea-peach": "#ffa36c",
+  "xtea-lemon": "#ffe14d",
+  "xtea-watermelon": "#ff5c8a",
+  "wasser-still": "#ff6fb5",
+  "wasser-medium": "#4caf50",
+  "wasser-classic": "#42a5f5",
 };
+
 export const SORT_NAMES: Record<string, string> = {
   classic: "Classic",
   tropical: "Tropical",
@@ -24,4 +37,8 @@ export const SORT_NAMES: Record<string, string> = {
   "xtea-peach": "X-Tea Peach",
   "xtea-lemon": "X-Tea Lemon",
   "xtea-watermelon": "X-Tea Watermelon",
+
+  "wasser-still": "Aqua x Still",
+  "wasser-medium": "Aqua x Medium",
+  "wasser-classic": "Aqua x Classic",
 };

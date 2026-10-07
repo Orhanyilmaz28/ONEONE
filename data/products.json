@@ -33,8 +33,8 @@
     {
       "handle": "mixpakete",
       "title": "Mixpakete",
-      "description": "Mehrere Sorten, mehrere Trays – jeweils komplette 24er Trays.",
-      "image": "/dosen-foto/mix-alle-trays.webp"
+      "description": "Von 2 Trays bis zur ganzen Palette – je größer, desto günstiger.",
+      "image": "/dosen-foto/mix-energy-24.webp"
     },
     {
       "handle": "zero",
@@ -909,9 +909,9 @@
     },
     {
       "handle": "mix-fruchtig",
-      "title": "Fruchtig-Mix",
-      "subtitle": "4 Trays · Classic, Tropical, Kiwi & Lemon, Watermelon",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Classic, Tropical, Kiwi & Lemon, Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (4 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Fruchtig-Mix · 4 Trays",
+      "subtitle": "Classic, Tropical, Kiwi & Lemon, Watermelon",
+      "descriptionHtml": "<p>Classic, Tropical, Kiwi & Lemon, Watermelon. Du bekommst <strong>4 ganze Trays</strong> – zusammen 96 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (72,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -936,30 +936,49 @@
       ],
       "variants": [
         {
-          "id": "mix-fruchtig-4trays",
+          "id": "mix-fruchtig-v",
           "title": "4 Trays · 96 Dosen",
-          "price": 6690,
+          "price": 6700,
+          "compareAtPrice": 7200,
           "available": true,
           "options": {
             "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 96,
-          "compareAtPrice": 7200
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
         "4 Trays · 96 Dosen",
-        "7 % günstiger als einzeln"
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 96,
-      "createdAt": "2026-10-07T14:00:00.000Z"
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ],
+        [
+          "watermelon",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:59:00.000Z"
     },
     {
       "handle": "mix-sweet-cool",
-      "title": "Sweet & Cool Mix",
-      "subtitle": "4 Trays · White Peach, Ice Bonbon, Blueberry Coconut, Watermelon",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: White Peach, Ice Bonbon, Blueberry Coconut, Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (4 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Sweet & Cool Mix · 4 Trays",
+      "subtitle": "White Peach, Ice Bonbon, Blueberry Coconut, Watermelon",
+      "descriptionHtml": "<p>White Peach, Ice Bonbon, Blueberry Coconut, Watermelon. Du bekommst <strong>4 ganze Trays</strong> – zusammen 96 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (72,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -984,30 +1003,49 @@
       ],
       "variants": [
         {
-          "id": "mix-sweet-cool-4trays",
+          "id": "mix-sweet-cool-v",
           "title": "4 Trays · 96 Dosen",
-          "price": 6690,
+          "price": 6700,
+          "compareAtPrice": 7200,
           "available": true,
           "options": {
             "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 96,
-          "compareAtPrice": 7200
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
         "4 Trays · 96 Dosen",
-        "7 % günstiger als einzeln"
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 96,
-      "createdAt": "2026-10-07T13:50:00.000Z"
+      "contents": [
+        [
+          "white-peach",
+          1
+        ],
+        [
+          "ice-bonbon",
+          1
+        ],
+        [
+          "blueberry-coconut",
+          1
+        ],
+        [
+          "watermelon",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:58:00.000Z"
     },
     {
       "handle": "mix-sauer-frisch",
-      "title": "Sauer & Frisch Mix",
-      "subtitle": "4 Trays · Lime, Kiwi & Lemon, Classic, Zero",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Lime, Kiwi & Lemon, Classic, Zero – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (4 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Sauer & Frisch Mix · 4 Trays",
+      "subtitle": "Lime, Kiwi & Lemon, Classic, Zero",
+      "descriptionHtml": "<p>Lime, Kiwi & Lemon, Classic, Zero. Du bekommst <strong>4 ganze Trays</strong> – zusammen 96 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (72,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1032,30 +1070,49 @@
       ],
       "variants": [
         {
-          "id": "mix-sauer-frisch-4trays",
+          "id": "mix-sauer-frisch-v",
           "title": "4 Trays · 96 Dosen",
-          "price": 6690,
+          "price": 6700,
+          "compareAtPrice": 7200,
           "available": true,
           "options": {
             "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 96,
-          "compareAtPrice": 7200
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
         "4 Trays · 96 Dosen",
-        "7 % günstiger als einzeln"
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 96,
-      "createdAt": "2026-10-07T13:40:00.000Z"
+      "contents": [
+        [
+          "lime",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ],
+        [
+          "classic",
+          1
+        ],
+        [
+          "zero",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:57:00.000Z"
     },
     {
       "handle": "mix-kick-chill",
-      "title": "Kick & Chill Mix",
-      "subtitle": "4 Trays · Energy und Ice Coffee im Mix",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Energy und Ice Coffee im Mix – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (4 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "title": "Kick & Chill Mix · 4 Trays",
+      "subtitle": "Classic, Tropical, Ice Coffee Latte, Ice Coffee Cappuccino",
+      "descriptionHtml": "<p>Classic, Tropical, Ice Coffee Latte, Ice Coffee Cappuccino. Du bekommst <strong>4 ganze Trays</strong> – zusammen 96 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (72,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1080,32 +1137,51 @@
       ],
       "variants": [
         {
-          "id": "mix-kick-chill-4trays",
+          "id": "mix-kick-chill-v",
           "title": "4 Trays · 96 Dosen",
-          "price": 6690,
+          "price": 6700,
+          "compareAtPrice": 7200,
           "available": true,
           "options": {
             "Packung": "4 Trays · 96 Dosen"
           },
-          "cans": 96,
-          "compareAtPrice": 7200
+          "cans": 96
         }
       ],
       "featured": false,
       "highlights": [
         "4 Trays · 96 Dosen",
-        "7 % günstiger als einzeln"
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 96,
-      "createdAt": "2026-10-07T13:20:00.000Z"
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "ice-coffee-latte",
+          1
+        ],
+        [
+          "ice-coffee-cappuccino",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:56:00.000Z"
     },
     {
-      "handle": "mix-ice-coffee",
-      "title": "Ice Coffee Mix",
-      "subtitle": "2 Trays · Latte und Cappuccino",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Latte und Cappuccino – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>3 %</strong> gegenüber dem Einzelkauf der Trays (2 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "handle": "mix-energy-3",
+      "title": "Energy-Mix · 3 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>3 ganze Trays</strong> – zusammen 72 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>5 %</strong> gegenüber dem Einzelkauf der Trays (54,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
-      "productType": "Ice Coffee",
+      "productType": "Energy Drink",
       "tags": [
         "mixpakete"
       ],
@@ -1114,56 +1190,8 @@
       ],
       "images": [
         {
-          "src": "/dosen-foto/mix-ice-coffee.webp",
-          "alt": "Ice Coffee Mix – 2 Trays"
-        }
-      ],
-      "options": [
-        {
-          "name": "Packung",
-          "values": [
-            "2 Trays · 48 Dosen"
-          ]
-        }
-      ],
-      "variants": [
-        {
-          "id": "mix-ice-coffee-2trays",
-          "title": "2 Trays · 48 Dosen",
-          "price": 3490,
-          "available": true,
-          "options": {
-            "Packung": "2 Trays · 48 Dosen"
-          },
-          "cans": 48,
-          "compareAtPrice": 3600
-        }
-      ],
-      "featured": false,
-      "highlights": [
-        "2 Trays · 48 Dosen",
-        "3 % günstiger als einzeln"
-      ],
-      "packSize": 48,
-      "createdAt": "2026-10-07T13:10:00.000Z"
-    },
-    {
-      "handle": "mix-xtea",
-      "title": "X-Tea Mix",
-      "subtitle": "3 Trays · Peach, Lemon und Watermelon",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Peach, Lemon und Watermelon – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>5 %</strong> gegenüber dem Einzelkauf der Trays (3 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray X-Tea Peach (24 Dosen)</li>\n<li>1 Tray X-Tea Lemon (24 Dosen)</li>\n<li>1 Tray X-Tea Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
-      "vendor": "EXSTASE Energy",
-      "productType": "Ice Tea",
-      "tags": [
-        "mixpakete"
-      ],
-      "collections": [
-        "mixpakete"
-      ],
-      "images": [
-        {
-          "src": "/dosen-foto/mix-xtea.webp",
-          "alt": "X-Tea Mix – 3 Trays"
+          "src": "/dosen-foto/mix-energy-3.webp",
+          "alt": "Energy-Mix – 3 Trays"
         }
       ],
       "options": [
@@ -1176,30 +1204,45 @@
       ],
       "variants": [
         {
-          "id": "mix-xtea-3trays",
+          "id": "mix-energy-3-v",
           "title": "3 Trays · 72 Dosen",
           "price": 5130,
-          "available": false,
+          "compareAtPrice": 5400,
+          "available": true,
           "options": {
             "Packung": "3 Trays · 72 Dosen"
           },
-          "cans": 72,
-          "compareAtPrice": 5400
+          "cans": 72
         }
       ],
       "featured": false,
       "highlights": [
         "3 Trays · 72 Dosen",
-        "5 % günstiger als einzeln"
+        "5 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 72,
-      "createdAt": "2026-10-07T13:00:00.000Z"
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:55:00.000Z"
     },
     {
-      "handle": "mix-alle-trays",
-      "title": "Alle-Trays-Mix",
-      "subtitle": "9 Trays · Alle 9 Energy-Sorten, je 1 Tray",
-      "descriptionHtml": "<p>Mehrere Trays zum Probieren: Alle 9 Energy-Sorten, je 1 Tray – jeweils ein ganzes 24er Tray pro Sorte. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (9 × 18,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "handle": "mix-energy-6",
+      "title": "Energy-Mix · 6 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>6 ganze Trays</strong> – zusammen 144 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (108,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
       "vendor": "EXSTASE Energy",
       "productType": "Energy Drink",
       "tags": [
@@ -1210,8 +1253,83 @@
       ],
       "images": [
         {
-          "src": "/dosen-foto/mix-alle-trays.webp",
-          "alt": "Alle-Trays-Mix – 9 Trays"
+          "src": "/dosen-foto/mix-energy-6.webp",
+          "alt": "Energy-Mix – 6 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6 Trays · 144 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-energy-6-v",
+          "title": "6 Trays · 144 Dosen",
+          "price": 9830,
+          "compareAtPrice": 10800,
+          "available": true,
+          "options": {
+            "Packung": "6 Trays · 144 Dosen"
+          },
+          "cans": 144
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "6 Trays · 144 Dosen",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 144,
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ],
+        [
+          "watermelon",
+          1
+        ],
+        [
+          "white-peach",
+          1
+        ],
+        [
+          "ice-bonbon",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:54:00.000Z"
+    },
+    {
+      "handle": "mix-energy-9",
+      "title": "Energy-Mix · 9 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>9 ganze Trays</strong> – zusammen 216 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>10 %</strong> gegenüber dem Einzelkauf der Trays (162,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-energy-9.webp",
+          "alt": "Energy-Mix – 9 Trays"
         }
       ],
       "options": [
@@ -1224,24 +1342,1758 @@
       ],
       "variants": [
         {
-          "id": "mix-alle-trays-9trays",
+          "id": "mix-energy-9-v",
           "title": "9 Trays · 216 Dosen",
-          "price": 14250,
+          "price": 14580,
+          "compareAtPrice": 16200,
           "available": true,
           "options": {
             "Packung": "9 Trays · 216 Dosen"
           },
-          "cans": 216,
-          "compareAtPrice": 16200
+          "cans": 216
         }
       ],
       "featured": false,
       "highlights": [
         "9 Trays · 216 Dosen",
-        "12 % günstiger als einzeln"
+        "10 % günstiger als einzeln",
+        "Nur ganze Trays"
       ],
       "packSize": 216,
-      "createdAt": "2026-10-08T12:00:00.000Z"
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ],
+        [
+          "watermelon",
+          1
+        ],
+        [
+          "white-peach",
+          1
+        ],
+        [
+          "ice-bonbon",
+          1
+        ],
+        [
+          "lime",
+          1
+        ],
+        [
+          "blueberry-coconut",
+          1
+        ],
+        [
+          "zero",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:53:00.000Z"
+    },
+    {
+      "handle": "mix-energy-12",
+      "title": "Energy-Mix · 12 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>12 ganze Trays</strong> – zusammen 288 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (216,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Classic (48 Dosen)</li>\n<li>2 Trays Tropical (48 Dosen)</li>\n<li>2 Trays Kiwi & Lemon (48 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray White Peach (24 Dosen)</li>\n<li>1 Tray Ice Bonbon (24 Dosen)</li>\n<li>1 Tray Lime (24 Dosen)</li>\n<li>1 Tray Blueberry Coconut (24 Dosen)</li>\n<li>1 Tray Zero (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-energy-12.webp",
+          "alt": "Energy-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 288 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-energy-12-v",
+          "title": "12 Trays · 288 Dosen",
+          "price": 19010,
+          "compareAtPrice": 21600,
+          "available": true,
+          "options": {
+            "Packung": "12 Trays · 288 Dosen"
+          },
+          "cans": 288
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 288 Dosen",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 288,
+      "contents": [
+        [
+          "classic",
+          2
+        ],
+        [
+          "tropical",
+          2
+        ],
+        [
+          "kiwi-lemon",
+          2
+        ],
+        [
+          "watermelon",
+          1
+        ],
+        [
+          "white-peach",
+          1
+        ],
+        [
+          "ice-bonbon",
+          1
+        ],
+        [
+          "lime",
+          1
+        ],
+        [
+          "blueberry-coconut",
+          1
+        ],
+        [
+          "zero",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:52:00.000Z"
+    },
+    {
+      "handle": "mix-energy-18",
+      "title": "Energy-Mix · 18 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>18 ganze Trays</strong> – zusammen 432 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>13 %</strong> gegenüber dem Einzelkauf der Trays (324,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Classic (48 Dosen)</li>\n<li>2 Trays Tropical (48 Dosen)</li>\n<li>2 Trays Kiwi & Lemon (48 Dosen)</li>\n<li>2 Trays Watermelon (48 Dosen)</li>\n<li>2 Trays White Peach (48 Dosen)</li>\n<li>2 Trays Ice Bonbon (48 Dosen)</li>\n<li>2 Trays Lime (48 Dosen)</li>\n<li>2 Trays Blueberry Coconut (48 Dosen)</li>\n<li>2 Trays Zero (48 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-energy-18.webp",
+          "alt": "Energy-Mix – 18 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "18 Trays · 432 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-energy-18-v",
+          "title": "18 Trays · 432 Dosen",
+          "price": 28190,
+          "compareAtPrice": 32400,
+          "available": true,
+          "options": {
+            "Packung": "18 Trays · 432 Dosen"
+          },
+          "cans": 432
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "18 Trays · 432 Dosen",
+        "13 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 432,
+      "contents": [
+        [
+          "classic",
+          2
+        ],
+        [
+          "tropical",
+          2
+        ],
+        [
+          "kiwi-lemon",
+          2
+        ],
+        [
+          "watermelon",
+          2
+        ],
+        [
+          "white-peach",
+          2
+        ],
+        [
+          "ice-bonbon",
+          2
+        ],
+        [
+          "lime",
+          2
+        ],
+        [
+          "blueberry-coconut",
+          2
+        ],
+        [
+          "zero",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:51:00.000Z"
+    },
+    {
+      "handle": "mix-energy-24",
+      "title": "Energy-Mix · 24 Trays",
+      "subtitle": "Alle Energy-Sorten – von fruchtig bis sauer",
+      "descriptionHtml": "<p>Alle Energy-Sorten – von fruchtig bis sauer. Du bekommst <strong>24 ganze Trays</strong> – zusammen 576 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>15 %</strong> gegenüber dem Einzelkauf der Trays (432,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>3 Trays Classic (72 Dosen)</li>\n<li>3 Trays Tropical (72 Dosen)</li>\n<li>3 Trays Kiwi & Lemon (72 Dosen)</li>\n<li>3 Trays Watermelon (72 Dosen)</li>\n<li>3 Trays White Peach (72 Dosen)</li>\n<li>3 Trays Ice Bonbon (72 Dosen)</li>\n<li>2 Trays Lime (48 Dosen)</li>\n<li>2 Trays Blueberry Coconut (48 Dosen)</li>\n<li>2 Trays Zero (48 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-energy-24.webp",
+          "alt": "Energy-Mix – 24 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "24 Trays · 576 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-energy-24-v",
+          "title": "24 Trays · 576 Dosen",
+          "price": 36720,
+          "compareAtPrice": 43200,
+          "available": true,
+          "options": {
+            "Packung": "24 Trays · 576 Dosen"
+          },
+          "cans": 576
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "24 Trays · 576 Dosen",
+        "15 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 576,
+      "contents": [
+        [
+          "classic",
+          3
+        ],
+        [
+          "tropical",
+          3
+        ],
+        [
+          "kiwi-lemon",
+          3
+        ],
+        [
+          "watermelon",
+          3
+        ],
+        [
+          "white-peach",
+          3
+        ],
+        [
+          "ice-bonbon",
+          3
+        ],
+        [
+          "lime",
+          2
+        ],
+        [
+          "blueberry-coconut",
+          2
+        ],
+        [
+          "zero",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:50:00.000Z"
+    },
+    {
+      "handle": "mix-coffee-2",
+      "title": "Ice-Coffee-Mix · 2 Trays",
+      "subtitle": "Latte und Cappuccino, eiskalt und cremig",
+      "descriptionHtml": "<p>Latte und Cappuccino, eiskalt und cremig. Du bekommst <strong>2 ganze Trays</strong> – zusammen 48 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>3 %</strong> gegenüber dem Einzelkauf der Trays (36,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-coffee-2.webp",
+          "alt": "Ice-Coffee-Mix – 2 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "2 Trays · 48 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-coffee-2-v",
+          "title": "2 Trays · 48 Dosen",
+          "price": 3490,
+          "compareAtPrice": 3600,
+          "available": true,
+          "options": {
+            "Packung": "2 Trays · 48 Dosen"
+          },
+          "cans": 48
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "2 Trays · 48 Dosen",
+        "3 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 48,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          1
+        ],
+        [
+          "ice-coffee-cappuccino",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:49:00.000Z"
+    },
+    {
+      "handle": "mix-coffee-4",
+      "title": "Ice-Coffee-Mix · 4 Trays",
+      "subtitle": "Latte und Cappuccino, eiskalt und cremig",
+      "descriptionHtml": "<p>Latte und Cappuccino, eiskalt und cremig. Du bekommst <strong>4 ganze Trays</strong> – zusammen 96 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (72,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Ice Coffee Latte (48 Dosen)</li>\n<li>2 Trays Ice Coffee Cappuccino (48 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-coffee-4.webp",
+          "alt": "Ice-Coffee-Mix – 4 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "4 Trays · 96 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-coffee-4-v",
+          "title": "4 Trays · 96 Dosen",
+          "price": 6700,
+          "compareAtPrice": 7200,
+          "available": true,
+          "options": {
+            "Packung": "4 Trays · 96 Dosen"
+          },
+          "cans": 96
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "4 Trays · 96 Dosen",
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 96,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          2
+        ],
+        [
+          "ice-coffee-cappuccino",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:48:00.000Z"
+    },
+    {
+      "handle": "mix-coffee-6",
+      "title": "Ice-Coffee-Mix · 6 Trays",
+      "subtitle": "Latte und Cappuccino, eiskalt und cremig",
+      "descriptionHtml": "<p>Latte und Cappuccino, eiskalt und cremig. Du bekommst <strong>6 ganze Trays</strong> – zusammen 144 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (108,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>3 Trays Ice Coffee Latte (72 Dosen)</li>\n<li>3 Trays Ice Coffee Cappuccino (72 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-coffee-6.webp",
+          "alt": "Ice-Coffee-Mix – 6 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6 Trays · 144 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-coffee-6-v",
+          "title": "6 Trays · 144 Dosen",
+          "price": 9830,
+          "compareAtPrice": 10800,
+          "available": true,
+          "options": {
+            "Packung": "6 Trays · 144 Dosen"
+          },
+          "cans": 144
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "6 Trays · 144 Dosen",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 144,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          3
+        ],
+        [
+          "ice-coffee-cappuccino",
+          3
+        ]
+      ],
+      "createdAt": "2026-10-08T11:47:00.000Z"
+    },
+    {
+      "handle": "mix-coffee-12",
+      "title": "Ice-Coffee-Mix · 12 Trays",
+      "subtitle": "Latte und Cappuccino, eiskalt und cremig",
+      "descriptionHtml": "<p>Latte und Cappuccino, eiskalt und cremig. Du bekommst <strong>12 ganze Trays</strong> – zusammen 288 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (216,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>6 Trays Ice Coffee Latte (144 Dosen)</li>\n<li>6 Trays Ice Coffee Cappuccino (144 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-coffee-12.webp",
+          "alt": "Ice-Coffee-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 288 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-coffee-12-v",
+          "title": "12 Trays · 288 Dosen",
+          "price": 19010,
+          "compareAtPrice": 21600,
+          "available": true,
+          "options": {
+            "Packung": "12 Trays · 288 Dosen"
+          },
+          "cans": 288
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 288 Dosen",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 288,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          6
+        ],
+        [
+          "ice-coffee-cappuccino",
+          6
+        ]
+      ],
+      "createdAt": "2026-10-08T11:46:00.000Z"
+    },
+    {
+      "handle": "mix-coffee-24",
+      "title": "Ice-Coffee-Mix · 24 Trays",
+      "subtitle": "Latte und Cappuccino, eiskalt und cremig",
+      "descriptionHtml": "<p>Latte und Cappuccino, eiskalt und cremig. Du bekommst <strong>24 ganze Trays</strong> – zusammen 576 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>15 %</strong> gegenüber dem Einzelkauf der Trays (432,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>12 Trays Ice Coffee Latte (288 Dosen)</li>\n<li>12 Trays Ice Coffee Cappuccino (288 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-coffee-24.webp",
+          "alt": "Ice-Coffee-Mix – 24 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "24 Trays · 576 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-coffee-24-v",
+          "title": "24 Trays · 576 Dosen",
+          "price": 36720,
+          "compareAtPrice": 43200,
+          "available": true,
+          "options": {
+            "Packung": "24 Trays · 576 Dosen"
+          },
+          "cans": 576
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "24 Trays · 576 Dosen",
+        "15 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 576,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          12
+        ],
+        [
+          "ice-coffee-cappuccino",
+          12
+        ]
+      ],
+      "createdAt": "2026-10-08T11:45:00.000Z"
+    },
+    {
+      "handle": "mix-aqua-3",
+      "title": "Aqua-Mix · 3 Trays",
+      "subtitle": "Still, Medium und Classic",
+      "descriptionHtml": "<p>Still, Medium und Classic. Du bekommst <strong>3 ganze Trays</strong> – zusammen 36 Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>5 %</strong> gegenüber dem Einzelkauf der Trays (19,80 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Aqua x Still (12 Flaschen)</li>\n<li>1 Tray Aqua x Medium (12 Flaschen)</li>\n<li>1 Tray Aqua x Classic (12 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mineralwasser",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-aqua-3.webp",
+          "alt": "Aqua-Mix – 3 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "3 Trays · 36 Flaschen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-aqua-3-v",
+          "title": "3 Trays · 36 Flaschen",
+          "price": 1880,
+          "compareAtPrice": 1980,
+          "available": true,
+          "options": {
+            "Packung": "3 Trays · 36 Flaschen"
+          },
+          "cans": 36
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "3 Trays · 36 Stück",
+        "5 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 36,
+      "contents": [
+        [
+          "wasser-still",
+          1
+        ],
+        [
+          "wasser-medium",
+          1
+        ],
+        [
+          "wasser-classic",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:44:00.000Z"
+    },
+    {
+      "handle": "mix-aqua-6",
+      "title": "Aqua-Mix · 6 Trays",
+      "subtitle": "Still, Medium und Classic",
+      "descriptionHtml": "<p>Still, Medium und Classic. Du bekommst <strong>6 ganze Trays</strong> – zusammen 72 Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (39,60 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Aqua x Still (24 Flaschen)</li>\n<li>2 Trays Aqua x Medium (24 Flaschen)</li>\n<li>2 Trays Aqua x Classic (24 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mineralwasser",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-aqua-6.webp",
+          "alt": "Aqua-Mix – 6 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6 Trays · 72 Flaschen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-aqua-6-v",
+          "title": "6 Trays · 72 Flaschen",
+          "price": 3600,
+          "compareAtPrice": 3960,
+          "available": true,
+          "options": {
+            "Packung": "6 Trays · 72 Flaschen"
+          },
+          "cans": 72
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "6 Trays · 72 Stück",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 72,
+      "contents": [
+        [
+          "wasser-still",
+          2
+        ],
+        [
+          "wasser-medium",
+          2
+        ],
+        [
+          "wasser-classic",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:43:00.000Z"
+    },
+    {
+      "handle": "mix-aqua-12",
+      "title": "Aqua-Mix · 12 Trays",
+      "subtitle": "Still, Medium und Classic",
+      "descriptionHtml": "<p>Still, Medium und Classic. Du bekommst <strong>12 ganze Trays</strong> – zusammen 144 Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (79,20 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>4 Trays Aqua x Still (48 Flaschen)</li>\n<li>4 Trays Aqua x Medium (48 Flaschen)</li>\n<li>4 Trays Aqua x Classic (48 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mineralwasser",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-aqua-12.webp",
+          "alt": "Aqua-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 144 Flaschen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-aqua-12-v",
+          "title": "12 Trays · 144 Flaschen",
+          "price": 6970,
+          "compareAtPrice": 7920,
+          "available": true,
+          "options": {
+            "Packung": "12 Trays · 144 Flaschen"
+          },
+          "cans": 144
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 144 Stück",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 144,
+      "contents": [
+        [
+          "wasser-still",
+          4
+        ],
+        [
+          "wasser-medium",
+          4
+        ],
+        [
+          "wasser-classic",
+          4
+        ]
+      ],
+      "createdAt": "2026-10-08T11:42:00.000Z"
+    },
+    {
+      "handle": "mix-aqua-24",
+      "title": "Aqua-Mix · 24 Trays",
+      "subtitle": "Still, Medium und Classic",
+      "descriptionHtml": "<p>Still, Medium und Classic. Du bekommst <strong>24 ganze Trays</strong> – zusammen 288 Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>15 %</strong> gegenüber dem Einzelkauf der Trays (158,40 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>8 Trays Aqua x Still (96 Flaschen)</li>\n<li>8 Trays Aqua x Medium (96 Flaschen)</li>\n<li>8 Trays Aqua x Classic (96 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mineralwasser",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-aqua-24.webp",
+          "alt": "Aqua-Mix – 24 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "24 Trays · 288 Flaschen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-aqua-24-v",
+          "title": "24 Trays · 288 Flaschen",
+          "price": 13460,
+          "compareAtPrice": 15840,
+          "available": true,
+          "options": {
+            "Packung": "24 Trays · 288 Flaschen"
+          },
+          "cans": 288
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "24 Trays · 288 Stück",
+        "15 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 288,
+      "contents": [
+        [
+          "wasser-still",
+          8
+        ],
+        [
+          "wasser-medium",
+          8
+        ],
+        [
+          "wasser-classic",
+          8
+        ]
+      ],
+      "createdAt": "2026-10-08T11:41:00.000Z"
+    },
+    {
+      "handle": "mix-tea-3",
+      "title": "X-Tea-Mix · 3 Trays",
+      "subtitle": "Peach, Lemon und Watermelon",
+      "descriptionHtml": "<p>Peach, Lemon und Watermelon. Du bekommst <strong>3 ganze Trays</strong> – zusammen 72 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>5 %</strong> gegenüber dem Einzelkauf der Trays (54,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray X-Tea Peach (24 Dosen)</li>\n<li>1 Tray X-Tea Lemon (24 Dosen)</li>\n<li>1 Tray X-Tea Watermelon (24 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Tea",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-tea-3.webp",
+          "alt": "X-Tea-Mix – 3 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "3 Trays · 72 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-tea-3-v",
+          "title": "3 Trays · 72 Dosen",
+          "price": 5130,
+          "compareAtPrice": 5400,
+          "available": false,
+          "options": {
+            "Packung": "3 Trays · 72 Dosen"
+          },
+          "cans": 72
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "3 Trays · 72 Dosen",
+        "5 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 72,
+      "contents": [
+        [
+          "xtea-peach",
+          1
+        ],
+        [
+          "xtea-lemon",
+          1
+        ],
+        [
+          "xtea-watermelon",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:40:00.000Z"
+    },
+    {
+      "handle": "mix-tea-6",
+      "title": "X-Tea-Mix · 6 Trays",
+      "subtitle": "Peach, Lemon und Watermelon",
+      "descriptionHtml": "<p>Peach, Lemon und Watermelon. Du bekommst <strong>6 ganze Trays</strong> – zusammen 144 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (108,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays X-Tea Peach (48 Dosen)</li>\n<li>2 Trays X-Tea Lemon (48 Dosen)</li>\n<li>2 Trays X-Tea Watermelon (48 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Tea",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-tea-6.webp",
+          "alt": "X-Tea-Mix – 6 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6 Trays · 144 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-tea-6-v",
+          "title": "6 Trays · 144 Dosen",
+          "price": 9830,
+          "compareAtPrice": 10800,
+          "available": false,
+          "options": {
+            "Packung": "6 Trays · 144 Dosen"
+          },
+          "cans": 144
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "6 Trays · 144 Dosen",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 144,
+      "contents": [
+        [
+          "xtea-peach",
+          2
+        ],
+        [
+          "xtea-lemon",
+          2
+        ],
+        [
+          "xtea-watermelon",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:39:00.000Z"
+    },
+    {
+      "handle": "mix-tea-12",
+      "title": "X-Tea-Mix · 12 Trays",
+      "subtitle": "Peach, Lemon und Watermelon",
+      "descriptionHtml": "<p>Peach, Lemon und Watermelon. Du bekommst <strong>12 ganze Trays</strong> – zusammen 288 Dosen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (216,00 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>4 Trays X-Tea Peach (96 Dosen)</li>\n<li>4 Trays X-Tea Lemon (96 Dosen)</li>\n<li>4 Trays X-Tea Watermelon (96 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Tea",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-tea-12.webp",
+          "alt": "X-Tea-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 288 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-tea-12-v",
+          "title": "12 Trays · 288 Dosen",
+          "price": 19010,
+          "compareAtPrice": 21600,
+          "available": false,
+          "options": {
+            "Packung": "12 Trays · 288 Dosen"
+          },
+          "cans": 288
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 288 Dosen",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 288,
+      "contents": [
+        [
+          "xtea-peach",
+          4
+        ],
+        [
+          "xtea-lemon",
+          4
+        ],
+        [
+          "xtea-watermelon",
+          4
+        ]
+      ],
+      "createdAt": "2026-10-08T11:38:00.000Z"
+    },
+    {
+      "handle": "mix-chill-4",
+      "title": "Chill-Mix · 4 Trays",
+      "subtitle": "Ice Coffee und Wasser – kühl, klar, cremig",
+      "descriptionHtml": "<p>Ice Coffee und Wasser – kühl, klar, cremig. Du bekommst <strong>4 ganze Trays</strong> – zusammen 72 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>7 %</strong> gegenüber dem Einzelkauf der Trays (49,20 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Aqua x Classic (12 Flaschen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n<li>1 Tray Aqua x Still (12 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-chill-4.webp",
+          "alt": "Chill-Mix – 4 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "4 Trays · 72 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-chill-4-v",
+          "title": "4 Trays · 72 Dosen",
+          "price": 4580,
+          "compareAtPrice": 4920,
+          "available": true,
+          "options": {
+            "Packung": "4 Trays · 72 Dosen"
+          },
+          "cans": 72
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "4 Trays · 72 Stück",
+        "7 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 72,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          1
+        ],
+        [
+          "wasser-classic",
+          1
+        ],
+        [
+          "ice-coffee-cappuccino",
+          1
+        ],
+        [
+          "wasser-still",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:37:00.000Z"
+    },
+    {
+      "handle": "mix-chill-8",
+      "title": "Chill-Mix · 8 Trays",
+      "subtitle": "Ice Coffee und Wasser – kühl, klar, cremig",
+      "descriptionHtml": "<p>Ice Coffee und Wasser – kühl, klar, cremig. Du bekommst <strong>8 ganze Trays</strong> – zusammen 144 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (98,40 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Ice Coffee Latte (48 Dosen)</li>\n<li>2 Trays Aqua x Classic (24 Flaschen)</li>\n<li>2 Trays Ice Coffee Cappuccino (48 Dosen)</li>\n<li>1 Tray Aqua x Still (12 Flaschen)</li>\n<li>1 Tray Aqua x Medium (12 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-chill-8.webp",
+          "alt": "Chill-Mix – 8 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "8 Trays · 144 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-chill-8-v",
+          "title": "8 Trays · 144 Dosen",
+          "price": 8950,
+          "compareAtPrice": 9840,
+          "available": true,
+          "options": {
+            "Packung": "8 Trays · 144 Dosen"
+          },
+          "cans": 144
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "8 Trays · 144 Stück",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 144,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          2
+        ],
+        [
+          "wasser-classic",
+          2
+        ],
+        [
+          "ice-coffee-cappuccino",
+          2
+        ],
+        [
+          "wasser-still",
+          1
+        ],
+        [
+          "wasser-medium",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:36:00.000Z"
+    },
+    {
+      "handle": "mix-chill-12",
+      "title": "Chill-Mix · 12 Trays",
+      "subtitle": "Ice Coffee und Wasser – kühl, klar, cremig",
+      "descriptionHtml": "<p>Ice Coffee und Wasser – kühl, klar, cremig. Du bekommst <strong>12 ganze Trays</strong> – zusammen 204 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (136,20 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>3 Trays Ice Coffee Latte (72 Dosen)</li>\n<li>3 Trays Aqua x Classic (36 Flaschen)</li>\n<li>2 Trays Ice Coffee Cappuccino (48 Dosen)</li>\n<li>2 Trays Aqua x Still (24 Flaschen)</li>\n<li>2 Trays Aqua x Medium (24 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Ice Coffee",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-chill-12.webp",
+          "alt": "Chill-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 204 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-chill-12-v",
+          "title": "12 Trays · 204 Dosen",
+          "price": 11990,
+          "compareAtPrice": 13620,
+          "available": true,
+          "options": {
+            "Packung": "12 Trays · 204 Dosen"
+          },
+          "cans": 204
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 204 Stück",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 204,
+      "contents": [
+        [
+          "ice-coffee-latte",
+          3
+        ],
+        [
+          "wasser-classic",
+          3
+        ],
+        [
+          "ice-coffee-cappuccino",
+          2
+        ],
+        [
+          "wasser-still",
+          2
+        ],
+        [
+          "wasser-medium",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:35:00.000Z"
+    },
+    {
+      "handle": "mix-komplett-6",
+      "title": "Komplett-Mix · 6 Trays",
+      "subtitle": "Energy, Ice Coffee und Wasser in einem Paket",
+      "descriptionHtml": "<p>Energy, Ice Coffee und Wasser in einem Paket. Du bekommst <strong>6 ganze Trays</strong> – zusammen 120 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>9 %</strong> gegenüber dem Einzelkauf der Trays (85,20 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>1 Tray Classic (24 Dosen)</li>\n<li>1 Tray Ice Coffee Latte (24 Dosen)</li>\n<li>1 Tray Aqua x Classic (12 Flaschen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n<li>1 Tray Aqua x Still (12 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-komplett-6.webp",
+          "alt": "Komplett-Mix – 6 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "6 Trays · 120 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-komplett-6-v",
+          "title": "6 Trays · 120 Dosen",
+          "price": 7750,
+          "compareAtPrice": 8520,
+          "available": true,
+          "options": {
+            "Packung": "6 Trays · 120 Dosen"
+          },
+          "cans": 120
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "6 Trays · 120 Stück",
+        "9 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 120,
+      "contents": [
+        [
+          "classic",
+          1
+        ],
+        [
+          "ice-coffee-latte",
+          1
+        ],
+        [
+          "wasser-classic",
+          1
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "ice-coffee-cappuccino",
+          1
+        ],
+        [
+          "wasser-still",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:34:00.000Z"
+    },
+    {
+      "handle": "mix-komplett-12",
+      "title": "Komplett-Mix · 12 Trays",
+      "subtitle": "Energy, Ice Coffee und Wasser in einem Paket",
+      "descriptionHtml": "<p>Energy, Ice Coffee und Wasser in einem Paket. Du bekommst <strong>12 ganze Trays</strong> – zusammen 240 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>12 %</strong> gegenüber dem Einzelkauf der Trays (170,40 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>2 Trays Classic (48 Dosen)</li>\n<li>2 Trays Ice Coffee Latte (48 Dosen)</li>\n<li>2 Trays Aqua x Classic (24 Flaschen)</li>\n<li>1 Tray Tropical (24 Dosen)</li>\n<li>1 Tray Ice Coffee Cappuccino (24 Dosen)</li>\n<li>1 Tray Aqua x Still (12 Flaschen)</li>\n<li>1 Tray Kiwi & Lemon (24 Dosen)</li>\n<li>1 Tray Watermelon (24 Dosen)</li>\n<li>1 Tray Aqua x Medium (12 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-komplett-12.webp",
+          "alt": "Komplett-Mix – 12 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "12 Trays · 240 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-komplett-12-v",
+          "title": "12 Trays · 240 Dosen",
+          "price": 15000,
+          "compareAtPrice": 17040,
+          "available": true,
+          "options": {
+            "Packung": "12 Trays · 240 Dosen"
+          },
+          "cans": 240
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "12 Trays · 240 Stück",
+        "12 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 240,
+      "contents": [
+        [
+          "classic",
+          2
+        ],
+        [
+          "ice-coffee-latte",
+          2
+        ],
+        [
+          "wasser-classic",
+          2
+        ],
+        [
+          "tropical",
+          1
+        ],
+        [
+          "ice-coffee-cappuccino",
+          1
+        ],
+        [
+          "wasser-still",
+          1
+        ],
+        [
+          "kiwi-lemon",
+          1
+        ],
+        [
+          "watermelon",
+          1
+        ],
+        [
+          "wasser-medium",
+          1
+        ]
+      ],
+      "createdAt": "2026-10-08T11:33:00.000Z"
+    },
+    {
+      "handle": "mix-komplett-24",
+      "title": "Komplett-Mix · 24 Trays",
+      "subtitle": "Energy, Ice Coffee und Wasser in einem Paket",
+      "descriptionHtml": "<p>Energy, Ice Coffee und Wasser in einem Paket. Du bekommst <strong>24 ganze Trays</strong> – zusammen 480 Dosen und Flaschen. Verkauft werden nur komplette Trays, keine Einzeldosen. Im Paket sparst du <strong>15 %</strong> gegenüber dem Einzelkauf der Trays (340,80 €).</p>\n<h3>Inhalt</h3>\n<ul>\n<li>3 Trays Classic (72 Dosen)</li>\n<li>3 Trays Ice Coffee Latte (72 Dosen)</li>\n<li>3 Trays Aqua x Classic (36 Flaschen)</li>\n<li>3 Trays Tropical (72 Dosen)</li>\n<li>3 Trays Ice Coffee Cappuccino (72 Dosen)</li>\n<li>3 Trays Aqua x Still (36 Flaschen)</li>\n<li>2 Trays Kiwi & Lemon (48 Dosen)</li>\n<li>2 Trays Watermelon (48 Dosen)</li>\n<li>2 Trays Aqua x Medium (24 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/mix-komplett-24.webp",
+          "alt": "Komplett-Mix – 24 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "24 Trays · 480 Dosen"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "mix-komplett-24-v",
+          "title": "24 Trays · 480 Dosen",
+          "price": 28970,
+          "compareAtPrice": 34080,
+          "available": true,
+          "options": {
+            "Packung": "24 Trays · 480 Dosen"
+          },
+          "cans": 480
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "24 Trays · 480 Stück",
+        "15 % günstiger als einzeln",
+        "Nur ganze Trays"
+      ],
+      "packSize": 480,
+      "contents": [
+        [
+          "classic",
+          3
+        ],
+        [
+          "ice-coffee-latte",
+          3
+        ],
+        [
+          "wasser-classic",
+          3
+        ],
+        [
+          "tropical",
+          3
+        ],
+        [
+          "ice-coffee-cappuccino",
+          3
+        ],
+        [
+          "wasser-still",
+          3
+        ],
+        [
+          "kiwi-lemon",
+          2
+        ],
+        [
+          "watermelon",
+          2
+        ],
+        [
+          "wasser-medium",
+          2
+        ]
+      ],
+      "createdAt": "2026-10-08T11:32:00.000Z"
+    },
+    {
+      "handle": "palette-energy",
+      "title": "Energy-Palette · 120 Trays",
+      "subtitle": "Alle 9 Energy-Sorten auf einer Palette · 2.880 Dosen",
+      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Alle 9 Energy-Sorten auf einer Palette: 120 Trays, zusammen 2.880 Dosen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>14 Trays Classic (336 Dosen)</li>\n<li>14 Trays Tropical (336 Dosen)</li>\n<li>14 Trays Kiwi & Lemon (336 Dosen)</li>\n<li>13 Trays Watermelon (312 Dosen)</li>\n<li>13 Trays White Peach (312 Dosen)</li>\n<li>13 Trays Ice Bonbon (312 Dosen)</li>\n<li>13 Trays Lime (312 Dosen)</li>\n<li>13 Trays Blueberry Coconut (312 Dosen)</li>\n<li>13 Trays Zero (312 Dosen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete",
+        "palette"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/palette-energy.webp",
+          "alt": "Energy-Palette – 120 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "Palette · 120 Trays"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "palette-energy-v",
+          "title": "Palette · 120 Trays",
+          "price": 216000,
+          "available": true,
+          "options": {
+            "Packung": "Palette · 120 Trays"
+          },
+          "cans": 2880
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "120 Trays",
+        "2.880 Dosen",
+        "Preis auf Anfrage"
+      ],
+      "packSize": 2880,
+      "contents": [
+        [
+          "classic",
+          14
+        ],
+        [
+          "tropical",
+          14
+        ],
+        [
+          "kiwi-lemon",
+          14
+        ],
+        [
+          "watermelon",
+          13
+        ],
+        [
+          "white-peach",
+          13
+        ],
+        [
+          "ice-bonbon",
+          13
+        ],
+        [
+          "lime",
+          13
+        ],
+        [
+          "blueberry-coconut",
+          13
+        ],
+        [
+          "zero",
+          13
+        ]
+      ],
+      "onRequest": true,
+      "createdAt": "2026-10-09T12:00:00.000Z"
+    },
+    {
+      "handle": "palette-mix",
+      "title": "Mix-Palette · 120 Trays",
+      "subtitle": "Energy, Ice Coffee und Wasser gemischt · 2.400 Dosen/Flaschen",
+      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Energy, Ice Coffee und Wasser gemischt: 120 Trays, zusammen 2.400 Dosen und Flaschen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>14 Trays Classic (336 Dosen)</li>\n<li>14 Trays Ice Coffee Latte (336 Dosen)</li>\n<li>14 Trays Aqua x Classic (168 Flaschen)</li>\n<li>13 Trays Tropical (312 Dosen)</li>\n<li>13 Trays Ice Coffee Cappuccino (312 Dosen)</li>\n<li>13 Trays Aqua x Still (156 Flaschen)</li>\n<li>13 Trays Kiwi & Lemon (312 Dosen)</li>\n<li>13 Trays Watermelon (312 Dosen)</li>\n<li>13 Trays Aqua x Medium (156 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Energy Drink",
+      "tags": [
+        "mixpakete",
+        "palette"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/palette-mix.webp",
+          "alt": "Mix-Palette – 120 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "Palette · 120 Trays"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "palette-mix-v",
+          "title": "Palette · 120 Trays",
+          "price": 170400,
+          "available": true,
+          "options": {
+            "Packung": "Palette · 120 Trays"
+          },
+          "cans": 2400
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "120 Trays",
+        "2.400 Stück",
+        "Preis auf Anfrage"
+      ],
+      "packSize": 2400,
+      "contents": [
+        [
+          "classic",
+          14
+        ],
+        [
+          "ice-coffee-latte",
+          14
+        ],
+        [
+          "wasser-classic",
+          14
+        ],
+        [
+          "tropical",
+          13
+        ],
+        [
+          "ice-coffee-cappuccino",
+          13
+        ],
+        [
+          "wasser-still",
+          13
+        ],
+        [
+          "kiwi-lemon",
+          13
+        ],
+        [
+          "watermelon",
+          13
+        ],
+        [
+          "wasser-medium",
+          13
+        ]
+      ],
+      "onRequest": true,
+      "createdAt": "2026-10-09T12:00:00.000Z"
+    },
+    {
+      "handle": "palette-aqua",
+      "title": "Aqua-Palette · 80 Trays",
+      "subtitle": "Still, Medium und Classic · 960 Dosen/Flaschen",
+      "descriptionHtml": "<p><strong>Die ganze Palette.</strong> Still, Medium und Classic: 80 Trays, zusammen 960 Dosen und Flaschen – für Händler, Gastronomie, Kioske und Events.</p>\n<p>Paletten verkaufen wir nicht im Warenkorb, sondern auf Anfrage: Du schickst uns deine Wunschmenge, wir melden uns mit deinem Händlerpreis und der Lieferung per Spedition. Die Registrierung als Händler folgt in Kürze.</p>\n<h3>Inhalt</h3>\n<ul>\n<li>27 Trays Aqua x Still (324 Flaschen)</li>\n<li>27 Trays Aqua x Medium (324 Flaschen)</li>\n<li>26 Trays Aqua x Classic (312 Flaschen)</li>\n</ul>\n<h3>Pfand</h3>\n<p>Auf jede Dose und Flasche kommt <strong>0,25 € Einwegpfand</strong>. Es wird an der Kasse separat ausgewiesen und ist im Preis nicht enthalten.</p>",
+      "vendor": "EXSTASE Energy",
+      "productType": "Mineralwasser",
+      "tags": [
+        "mixpakete",
+        "palette"
+      ],
+      "collections": [
+        "mixpakete"
+      ],
+      "images": [
+        {
+          "src": "/dosen-foto/palette-aqua.webp",
+          "alt": "Aqua-Palette – 80 Trays"
+        }
+      ],
+      "options": [
+        {
+          "name": "Packung",
+          "values": [
+            "Palette · 80 Trays"
+          ]
+        }
+      ],
+      "variants": [
+        {
+          "id": "palette-aqua-v",
+          "title": "Palette · 80 Trays",
+          "price": 52800,
+          "available": true,
+          "options": {
+            "Packung": "Palette · 80 Trays"
+          },
+          "cans": 960
+        }
+      ],
+      "featured": false,
+      "highlights": [
+        "80 Trays",
+        "960 Stück",
+        "Preis auf Anfrage"
+      ],
+      "packSize": 960,
+      "contents": [
+        [
+          "wasser-still",
+          27
+        ],
+        [
+          "wasser-medium",
+          27
+        ],
+        [
+          "wasser-classic",
+          26
+        ]
+      ],
+      "onRequest": true,
+      "createdAt": "2026-10-09T12:00:00.000Z"
     }
   ]
 }

@@ -38,6 +38,9 @@ export async function POST(request: Request) {
     if (!match) {
       return Response.json({ error: "Ein Produkt ist nicht mehr verfügbar." }, { status: 400 });
     }
+    if (match.product.onRequest) {
+      return Response.json({ error: `„${match.product.title}“ gibt es nur auf Anfrage.` }, { status: 409 });
+    }
     if (!match.variant.available) {
       return Response.json({ error: `„${match.product.title}“ ist ausverkauft.` }, { status: 409 });
     }

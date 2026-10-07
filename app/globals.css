@@ -421,7 +421,7 @@ body::after {
     .tray-can {
       animation: tray-can cubic-bezier(0.22, 1, 0.36, 1) both;
       animation-timeline: view();
-      animation-range: entry calc(var(--i) * 1.2%) entry calc(55% + var(--i) * 1.2%);
+      animation-range: entry min(calc(var(--i) * 1.2%), 45%) entry min(calc(55% + var(--i) * 1.2%), 100%);
     }
   }
 }

@@ -4,6 +4,7 @@ import type { Product } from "@/lib/types";
 import { ArrowIcon } from "../icons";
 import { Newsletter } from "../newsletter";
 import { FeatureIcon, type IconName } from "../feature-icons";
+import { MixLadder } from "../mix-ladder";
 import { ProductCard } from "../product-card";
 import { ReviewCard, ReviewDisclosure } from "../reviews";
 import { formatAverage, Stars } from "../stars";
@@ -92,6 +93,7 @@ export function MixPakete({ products }: { products: Product[] }) {
         intro="Mehrere Sorten, mehrere Trays – je größer das Paket, desto mehr sparst du."
         title="Alles probieren, Geld sparen"
       />
+      <MixLadder />
       <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
         {products.map((p) => (
           <ProductCard key={p.handle} product={p} />

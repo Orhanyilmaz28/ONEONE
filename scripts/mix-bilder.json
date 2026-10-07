@@ -1,0 +1,215 @@
+{
+  "mix-fruchtig": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon"
+  ],
+  "mix-sweet-cool": [
+    "white-peach",
+    "ice-bonbon",
+    "blueberry-coconut",
+    "watermelon"
+  ],
+  "mix-sauer-frisch": [
+    "lime",
+    "kiwi-lemon",
+    "classic",
+    "zero"
+  ],
+  "mix-kick-chill": [
+    "classic",
+    "tropical",
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-energy-3": [
+    "classic",
+    "tropical",
+    "kiwi-lemon"
+  ],
+  "mix-energy-6": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon"
+  ],
+  "mix-energy-9": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon",
+    "lime",
+    "blueberry-coconut",
+    "zero"
+  ],
+  "mix-energy-12": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon",
+    "lime",
+    "blueberry-coconut",
+    "zero"
+  ],
+  "mix-energy-18": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon",
+    "lime",
+    "blueberry-coconut",
+    "zero"
+  ],
+  "mix-energy-24": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon",
+    "lime",
+    "blueberry-coconut",
+    "zero"
+  ],
+  "mix-coffee-2": [
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-coffee-4": [
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-coffee-6": [
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-coffee-12": [
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-coffee-24": [
+    "ice-coffee-latte",
+    "ice-coffee-cappuccino"
+  ],
+  "mix-aqua-3": [
+    "wasser-still",
+    "wasser-medium",
+    "wasser-classic"
+  ],
+  "mix-aqua-6": [
+    "wasser-still",
+    "wasser-medium",
+    "wasser-classic"
+  ],
+  "mix-aqua-12": [
+    "wasser-still",
+    "wasser-medium",
+    "wasser-classic"
+  ],
+  "mix-aqua-24": [
+    "wasser-still",
+    "wasser-medium",
+    "wasser-classic"
+  ],
+  "mix-tea-3": [
+    "xtea-peach",
+    "xtea-lemon",
+    "xtea-watermelon"
+  ],
+  "mix-tea-6": [
+    "xtea-peach",
+    "xtea-lemon",
+    "xtea-watermelon"
+  ],
+  "mix-tea-12": [
+    "xtea-peach",
+    "xtea-lemon",
+    "xtea-watermelon"
+  ],
+  "mix-chill-4": [
+    "ice-coffee-latte",
+    "wasser-classic",
+    "ice-coffee-cappuccino",
+    "wasser-still"
+  ],
+  "mix-chill-8": [
+    "ice-coffee-latte",
+    "wasser-classic",
+    "ice-coffee-cappuccino",
+    "wasser-still",
+    "wasser-medium"
+  ],
+  "mix-chill-12": [
+    "ice-coffee-latte",
+    "wasser-classic",
+    "ice-coffee-cappuccino",
+    "wasser-still",
+    "wasser-medium"
+  ],
+  "mix-komplett-6": [
+    "classic",
+    "ice-coffee-latte",
+    "wasser-classic",
+    "tropical",
+    "ice-coffee-cappuccino",
+    "wasser-still"
+  ],
+  "mix-komplett-12": [
+    "classic",
+    "ice-coffee-latte",
+    "wasser-classic",
+    "tropical",
+    "ice-coffee-cappuccino",
+    "wasser-still",
+    "kiwi-lemon",
+    "watermelon",
+    "wasser-medium"
+  ],
+  "mix-komplett-24": [
+    "classic",
+    "ice-coffee-latte",
+    "wasser-classic",
+    "tropical",
+    "ice-coffee-cappuccino",
+    "wasser-still",
+    "kiwi-lemon",
+    "watermelon",
+    "wasser-medium"
+  ],
+  "palette-energy": [
+    "classic",
+    "tropical",
+    "kiwi-lemon",
+    "watermelon",
+    "white-peach",
+    "ice-bonbon",
+    "lime",
+    "blueberry-coconut",
+    "zero"
+  ],
+  "palette-mix": [
+    "classic",
+    "ice-coffee-latte",
+    "wasser-classic",
+    "tropical",
+    "ice-coffee-cappuccino",
+    "wasser-still",
+    "kiwi-lemon",
+    "watermelon",
+    "wasser-medium"
+  ],
+  "palette-aqua": [
+    "wasser-still",
+    "wasser-medium",
+    "wasser-classic"
+  ]
+}

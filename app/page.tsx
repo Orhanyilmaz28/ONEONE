@@ -9,7 +9,8 @@ export default async function Home() {
   const products = await getProducts();
   // Erst alle einzelnen Produkte, danach die Mixpakete in eigenem Abschnitt
   const singles = products.filter((p) => !isMixProduct(p));
-  const mixes = products.filter(isMixProduct);
+  // Auf der Startseite die ersten acht Mixpakete – alle Größen bis zur Palette stehen unter „Mixpakete“
+  const mixes = products.filter(isMixProduct).slice(0, 8);
 
   return (
     <>

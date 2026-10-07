@@ -65,15 +65,8 @@ for (const [handle, [file, color]] of Object.entries(items)) {
     .toFile(path.join(OUT, `${handle}-trio.webp`));
 }
 // ── Mixpakete: mehrere Sorten nebeneinander, Glow in den Sortenfarben ──
-const mixes = {
-  "mix-fruchtig": ["classic", "tropical", "kiwi-lemon", "watermelon"],
-  "mix-sweet-cool": ["white-peach", "ice-bonbon", "blueberry-coconut", "watermelon"],
-  "mix-sauer-frisch": ["lime", "kiwi-lemon", "classic", "zero"],
-  "mix-alle-trays": ["classic", "tropical", "kiwi-lemon", "watermelon", "white-peach", "ice-bonbon", "lime", "blueberry-coconut", "zero"],
-  "mix-xtea": ["xtea-peach", "xtea-lemon", "xtea-watermelon"],
-  "mix-ice-coffee": ["ice-coffee-latte", "ice-coffee-cappuccino"],
-  "mix-kick-chill": ["classic", "tropical", "ice-coffee-latte", "ice-coffee-cappuccino"],
-};
+// Bildliste kommt aus scripts/make-mixpakete.mjs
+const mixes = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, "mix-bilder.json"), "utf8"));
 
 function mixBackground(colors) {
   const stops = colors

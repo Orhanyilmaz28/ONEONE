@@ -43,6 +43,10 @@ export type Product = {
   videos?: { src: string; poster: string; title?: string; type?: AiMediaType }[];
   /** Anzahl Teile im Paket (1 = Einzelteil) */
   packSize?: number;
+  /** Mixpaket: Sorten (Produkt-Handle) und Anzahl Trays – es werden nur ganze Trays verkauft */
+  contents?: [handle: string, trays: number][];
+  /** Palette: kein Direktkauf, nur „Anfragen“ (später Händler-Registrierung) */
+  onRequest?: boolean;
   /** Zutaten, Allergene & Nährwerte (Pflichtangabe beim Fernabsatz von Lebensmitteln, LMIV) – im Dashboard pflegbar */
   material?: string;
 };

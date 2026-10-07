@@ -121,7 +121,8 @@ export function ProductCard({
         </Link>
 
         <div className="pointer-events-none absolute top-3 left-3 flex gap-1.5">
-          {pack > 1 ? <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{pack} Dosen</span> : null}
+          {product.onRequest ? <span className="rounded-full bg-[linear-gradient(135deg,#a8e652,#ffd400)] px-3 py-1 font-black text-black text-xs uppercase tracking-wide">Palette</span> : null}
+          {pack > 1 ? <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{pack.toLocaleString("de-DE")} {product.productType === "Mineralwasser" ? "Flaschen" : "Dosen"}</span> : null}
           {onSale && saving ? <span className="rounded-full bg-[linear-gradient(135deg,#b5e86a,#ffe566)] px-3 py-1 font-medium text-black text-xs">−{saving} %</span> : null}
           {colorOption ? <ColorDots colors={colorOption.values} /> : null}
           {available ? null : <span className="rounded-full bg-card/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
@@ -156,15 +157,23 @@ export function ProductCard({
           <h3 className="t-h3">
             <Link href={`/products/${product.handle}`}>{product.title}</Link>
           </h3>
-          <Price className="shrink-0 pt-0.5 text-[15px]" compareAtPrice={cheapest?.compareAtPrice} from={new Set(prices).size > 1} price={min} />
+          {product.onRequest ? (
+            <span className="shrink-0 pt-0.5 font-bold text-[13px] text-accent uppercase tracking-wide">Auf Anfrage</span>
+          ) : (
+            <Price className="shrink-0 pt-0.5 text-[15px]" compareAtPrice={cheapest?.compareAtPrice} from={new Set(prices).size > 1} price={min} />
+          )}
         </div>
         {product.subtitle ? <p className="t-small mt-0.5 text-muted">{product.subtitle}</p> : null}
-        {perUnit > 1 ? (
+        {perUnit > 1 && !product.onRequest ? (
           <p className="t-small mt-1 font-medium">
             {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro Dose · zzgl. Pfand
           </p>
         ) : null}
-        {single ? (
+        {product.onRequest ? (
+          <Link className="anim-shine relative mt-3 inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${product.handle}`}>
+            Anfragen
+          </Link>
+        ) : single ? (
           <button
             className="mt-3 inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-accent font-bold text-black text-sm transition hover:bg-accent-dark disabled:cursor-not-allowed disabled:bg-line disabled:text-muted"
             data-quick-add
