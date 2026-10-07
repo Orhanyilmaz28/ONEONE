@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
+import Form from "next/form";
 import Link from "next/link";
 import { DealerTabs } from "@/components/admin/dealer-tabs";
-import { Badge, Card, EmptyState, PageHeader, Stat, btnDanger, btnSecondary, formatDateTime } from "@/components/admin/ui";
+import { Badge, Card, EmptyState, PageHeader, Stat, btn, btnDanger, btnSecondary, formatDateTime, input } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { type DealerStatus, getDealers } from "@/lib/dealer-store";
 import { SITE_URL } from "@/lib/format";
@@ -11,10 +12,20 @@ export const metadata: Metadata = { title: "Händler" };
 
 const TONE: Record<DealerStatus, "amber" | "green" | "red"> = { neu: "amber", freigegeben: "green", abgelehnt: "red" };
 
-export default async function HaendlerAdminPage() {
+type SearchParams = Promise<Record<string, string | string[] | undefined>>;
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
+
+export default async function HaendlerAdminPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin();
-  const dealers = await getDealers();
-  const count = (s: DealerStatus) => dealers.filter((d) => d.status === s).length;
+  const sp = await searchParams;
+  const q = first(sp.q).trim().toLowerCase().slice(0, 100);
+  const status = ["neu", "freigegeben", "abgelehnt"].includes(first(sp.status)) ? first(sp.status) : "";
+  const all = await getDealers();
+  // Suche in Firma, Name, E-Mail, Ort, PLZ, Telefon, USt-IdNr. und Branche
+  const dealers = all.filter(
+    (d) => (!status || d.status === status) && (!q || [d.company, d.contact, d.email, d.city, d.zip, d.phone, d.vatId, d.branch].some((v) => v.toLowerCase().includes(q))),
+  );
+  const count = (s: DealerStatus) => all.filter((d) => d.status === s).length;
   return (
     <>
       <PageHeader description="Anfragen von /haendler. Prüfe die Angaben, melde dich bei den Interessierten und setze den Status." title="Händler" />
@@ -24,7 +35,29 @@ export default async function HaendlerAdminPage() {
         <Stat label="Freigegeben" value={count("freigegeben")} />
         <Stat label="Abgelehnt" value={count("abgelehnt")} />
       </div>
-      {dealers.length === 0 ? (
+      <Form action="/admin/haendler" className="mb-6 flex flex-wrap items-center gap-2">
+        <input aria-label="Händler suchen" className={`${input} max-w-sm`} defaultValue={q} name="q" placeholder="Suchen: Firma, Name, E-Mail, Ort, PLZ …" type="search" />
+        <select aria-label="Status" className={`${input} w-auto`} defaultValue={status} name="status">
+          <option value="">Alle Status</option>
+          <option value="neu">Neu</option>
+          <option value="freigegeben">Freigegeben</option>
+          <option value="abgelehnt">Abgelehnt</option>
+        </select>
+        <button className={btn} type="submit">
+          Suchen
+        </button>
+        {q || status ? (
+          <Link className={btnSecondary} href="/admin/haendler">
+            Zurücksetzen
+          </Link>
+        ) : null}
+        <span className="ml-auto text-[14px] text-muted">
+          {dealers.length} von {all.length}
+        </span>
+      </Form>
+      {all.length > 0 && dealers.length === 0 ? (
+        <EmptyState title="Nichts gefunden">Zu dieser Suche gibt es keinen Händler. Prüf die Schreibweise oder setze die Suche zurück.</EmptyState>
+      ) : dealers.length === 0 ? (
         <EmptyState title="Noch keine Anfragen">Sobald sich jemand unter /haendler registriert, erscheint die Anfrage hier.</EmptyState>
       ) : (
         <div className="grid gap-4">
