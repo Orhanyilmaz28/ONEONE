@@ -91,15 +91,15 @@ export function PackShowcase({ product }: { product: Product }) {
                 </ul>
               ) : (
                 // Das ganze Tray als ein Bild statt einzelner Dosen
-                <div className="tray-can relative mx-auto max-w-3xl" style={{ "--i": 0 } as React.CSSProperties}>
+                <div className="tray-can relative mx-auto max-w-2xl" style={{ "--i": 0 } as React.CSSProperties}>
                   <Image
                     alt={`${per}er Tray ${product.title}`}
                     className="h-auto w-full object-contain [filter:drop-shadow(0_24px_24px_rgba(0,0,0,0.55))]"
-                    height={600}
+                    height={586}
                     loading="lazy"
-                    sizes="(min-width: 768px) 768px, 100vw"
+                    sizes="(min-width: 768px) 672px, 100vw"
                     src={`/dosen-foto/tray/${h}.webp`}
-                    width={900}
+                    width={800}
                   />
                 </div>
               )}
