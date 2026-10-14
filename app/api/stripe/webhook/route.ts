@@ -1,12 +1,13 @@
 import type Stripe from "stripe";
 import { revalidatePath } from "next/cache";
-import { sendOrderMails } from "@/lib/order-mails";
+import { sendOrderMails, sendPaymentFailedMail } from "@/lib/order-mails";
 import { getStripe } from "@/lib/stripe";
 
 /**
  * Stripe meldet hier bezahlte Bestellungen (auch Zahlarten, die erst später bestätigt werden, z. B. Klarna/SEPA).
- * In Stripe → Entwickler → Webhooks: Endpunkt https://www.exstase-energy.de/api/stripe/webhook mit den Ereignissen
- * checkout.session.completed und checkout.session.async_payment_succeeded; das Signatur-Geheimnis (whsec_…) als STRIPE_WEBHOOK_SECRET eintragen.
+ * In Stripe → Entwickler → Webhooks: Endpunkt <NEXT_PUBLIC_SITE_URL>/api/stripe/webhook (genau die Shop-Adresse, ohne Weiterleitung –
+ * Stripe folgt keinen Weiterleitungen) mit den Ereignissen checkout.session.completed, checkout.session.async_payment_succeeded
+ * und checkout.session.async_payment_failed; das Signatur-Geheimnis (whsec_…) als STRIPE_WEBHOOK_SECRET eintragen.
  */
 export async function POST(request: Request) {
   const stripe = getStripe();
@@ -34,6 +35,18 @@ export async function POST(request: Request) {
       }
       revalidatePath("/admin", "layout");
     }
+  }
+  // Lastschrift o. Ä. nachträglich fehlgeschlagen → Shop informieren (nicht versenden)
+  if (event.type === "checkout.session.async_payment_failed") {
+    const session = event.data.object as Stripe.Checkout.Session;
+    console.warn("[webhook] Zahlung fehlgeschlagen", session.id);
+    try {
+      await sendPaymentFailedMail(session.id);
+    } catch (error) {
+      console.error("[webhook] Hinweis-E-Mail fehlgeschlagen", error);
+      return Response.json({ error: "Später erneut versuchen" }, { status: 500 });
+    }
+    revalidatePath("/admin", "layout");
   }
   return Response.json({ received: true });
 }

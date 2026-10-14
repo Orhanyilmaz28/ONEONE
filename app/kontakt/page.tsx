@@ -3,7 +3,7 @@ import { ImportedLegalPage, LegalPage, companyView, isMissing } from "@/componen
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Kontakt" };
+export const metadata: Metadata = { title: "Kontakt", alternates: { canonical: "/kontakt" } };
 
 /** „+49 2834 123456“ → „tel:+492834123456“ */
 function telHref(phone: string) {

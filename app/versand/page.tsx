@@ -5,7 +5,7 @@ import { formatPrice } from "@/lib/format";
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Versand & Lieferung" };
+export const metadata: Metadata = { title: "Versand & Lieferung", alternates: { canonical: "/versand" } };
 
 export default async function Page() {
   const imported = getImportedPage("versand");

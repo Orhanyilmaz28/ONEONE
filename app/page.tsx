@@ -1,9 +1,13 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/home/hero";
 import { DropDivider } from "@/components/logo";
 import { Bestsellers, Faq, MixPakete, HomeReviews, NewsletterCta, Promises } from "@/components/home/sections";
 import { TrustStrip } from "@/components/trust";
 import { getProducts } from "@/lib/catalog";
 import { isMixProduct } from "@/lib/format";
+
+// Canonical je Seite (nicht im Root-Layout – sonst erben alle Seiten „/“)
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   const products = await getProducts();

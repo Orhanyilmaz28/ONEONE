@@ -7,6 +7,7 @@ import { getSettings } from "@/lib/settings";
 export const metadata: Metadata = {
   title: "Palette anfragen",
   description: "EXSTASE Paletten für Händler, Gastronomie und Events – Preis auf Anfrage, Lieferung per Spedition.",
+  alternates: { canonical: "/palette" },
 };
 
 type Props = { searchParams: Promise<{ produkt?: string }> };

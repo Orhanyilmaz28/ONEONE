@@ -5,6 +5,7 @@ import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 import { getStripe } from "@/lib/stripe";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { getAccountsConfig } from "@/lib/customers";
+import { LIMITS, TOO_MANY, allowAttempt, clientIp } from "@/lib/rate-limit";
 
 type Body = { lines?: { variantId?: unknown; quantity?: unknown }[] };
 
@@ -21,6 +22,8 @@ export async function POST(request: Request) {
       { status: 503 }
     );
   }
+
+  if (!(await allowAttempt("checkout", clientIp(request.headers), LIMITS.checkout))) return Response.json({ error: TOO_MANY }, { status: 429 });
 
   const body = (await request.json().catch(() => ({}))) as Body;
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];

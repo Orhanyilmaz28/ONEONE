@@ -476,7 +476,7 @@ Damit kommt die Bestellbestätigung auch dann, wenn jemand nach dem Bezahlen die
 
 1. Stripe → **Entwickler** (englisch: *Developers*) → **Webhooks** → **Endpunkt hinzufügen**.
 2. **Endpunkt-URL:** `https://www.exstase-energy.de/api/stripe/webhook`
-3. **Ereignisse auswählen:** `checkout.session.completed` und `checkout.session.async_payment_succeeded` → **Endpunkt hinzufügen**.
+3. **Ereignisse auswählen:** `checkout.session.completed`, `checkout.session.async_payment_succeeded` und `checkout.session.async_payment_failed` → **Endpunkt hinzufügen**.
 4. Beim neuen Endpunkt unter **Signaturgeheimnis** auf **Anzeigen** klicken → Wert kopieren (beginnt mit `whsec_`).
 5. In Vercel die Variable `STRIPE_WEBHOOK_SECRET` mit diesem Wert anlegen → **Redeploy**.
 
