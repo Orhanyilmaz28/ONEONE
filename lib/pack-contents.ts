@@ -42,3 +42,53 @@ export const SORT_NAMES: Record<string, string> = {
   "wasser-medium": "Aqua x Medium",
   "wasser-classic": "Aqua x Classic",
 };
+
+/**
+ * Füllmenge je Dose/Flasche in ml – für den Grundpreis (Preis pro Liter, Pflicht nach § 4 PAngV).
+ * X-Tea fehlt bewusst, bis die Füllmenge feststeht (dann wird dort kein Grundpreis angezeigt).
+ */
+export const UNIT_ML: Record<string, number> = {
+  classic: 250,
+  tropical: 250,
+  "kiwi-lemon": 250,
+  watermelon: 250,
+  "white-peach": 250,
+  "ice-bonbon": 250,
+  lime: 250,
+  "blueberry-coconut": 250,
+  zero: 250,
+  "ice-coffee-latte": 250,
+  "ice-coffee-cappuccino": 250,
+  "wasser-still": 500,
+  "wasser-medium": 500,
+  "wasser-classic": 500,
+};
+
+type PricedProduct = { handle: string; subtitle?: string; contents?: [handle: string, trays: number][] };
+type PricedVariant = { price: number; title: string; cans?: number };
+
+/** Gesamtinhalt einer Packung in Litern – null, wenn die Füllmenge einer Sorte unbekannt ist */
+export function litresOf(product: PricedProduct, variant: PricedVariant): number | null {
+  if (product.contents?.length) {
+    let ml = 0;
+    for (const [h, trays] of product.contents) {
+      if (!UNIT_ML[h]) return null;
+      ml += trays * trayCans(h) * UNIT_ML[h];
+    }
+    return ml / 1000;
+  }
+  // Einzelprodukt: Füllmenge aus der Liste oder aus dem Untertitel („… · 250 ml“, z. B. bei im Dashboard angelegten Produkten)
+  const fromSubtitle = Number(product.subtitle?.match(/(\d{2,4})\s*ml\b/i)?.[1]);
+  const ml = UNIT_ML[product.handle] ?? (fromSubtitle || 0);
+  if (!ml) return null;
+  const m = variant.title.match(/(\d+)\s*(?:er\b|dosen|flaschen|stück)/i);
+  const units = variant.cans && variant.cans > 0 ? variant.cans : m ? Math.max(1, Number(m[1])) : 1;
+  return (units * ml) / 1000;
+}
+
+/** Grundpreis als Text, z. B. „3,00 €/l“ (ohne Pfand) – null, wenn die Füllmenge unbekannt ist */
+export function unitPriceLabel(product: PricedProduct, variant: PricedVariant): string | null {
+  const litres = litresOf(product, variant);
+  if (!litres) return null;
+  return `${(variant.price / litres / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })}/l`;
+}
