@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { HOMEPAGE_URL } from "@/lib/format";
 import { useShopData } from "@/lib/shop-data";
 import type { Collection } from "@/lib/types";
 import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
@@ -50,8 +51,11 @@ export function Header({
 
   const nav = [
     { href: "/products", label: "Shop" },
-    ...collections.slice(0, 5).map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
+    ...collections.slice(0, 4).map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
+    { href: "/konfigurator", label: "Mix-Konfigurator" },
     { href: "/#faq", label: "FAQ" },
+    // Website der Marke – auf dem Desktop erst bei breitem Fenster, im Handy-Menü immer
+    { href: HOMEPAGE_URL, label: "Homepage", wide: true },
   ];
 
   return (

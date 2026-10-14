@@ -31,5 +31,8 @@ export function depositFor(variant: { cans?: number; title: string }, quantity: 
   return cansOf(variant) * quantity * DEPOSIT_PER_CAN;
 }
 
-/** Mixpaket (mehrere Trays) – steht in Listen immer hinter den einzelnen Produkten */
-export const isMixProduct = (p: { collections: string[] }) => p.collections.includes("mixpakete");
+/** Nur auf Anfrage (Paletten) – steht in Listen immer hinter den einzelnen Produkten */
+export const isRequestOnly = (p: { onRequest?: boolean }) => Boolean(p.onRequest);
+
+/** Homepage der Marke (jetzt die Vercel-Vorschau, später die eigene Domain) – über NEXT_PUBLIC_HOMEPAGE_URL umstellbar */
+export const HOMEPAGE_URL = (process.env.NEXT_PUBLIC_HOMEPAGE_URL || "https://exstase-animiert.vercel.app").replace(/\/$/, "");

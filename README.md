@@ -52,6 +52,7 @@ Alle Variablen mit Erklärung stehen in **[.env.example](.env.example)**. Kurzfa
 | --- | --- | --- |
 | `ADMIN_PASSWORD` | ja | Passwort fürs Dashboard (mind. 8 Zeichen) |
 | `NEXT_PUBLIC_SITE_URL` | online ja | Öffentliche Adresse, z. B. `https://exstase-energy.de` (Stripe-Rücksprung, Sitemap, Open Graph). Wird beim Build eingesetzt → nach Änderung neu bauen. |
+| `NEXT_PUBLIC_HOMEPAGE_URL` | nein | Homepage der Marke für den Link in Kopf- und Fußzeile. Standard: `https://exstase-animiert.vercel.app`, später z. B. `https://exstase.com`. Wird beim Build eingesetzt → nach Änderung neu bauen. |
 | `STRIPE_SECRET_KEY` | zum Verkaufen | `sk_test_…` oder `sk_live_…`. Fehlt er → Demo-Modus. |
 | `KV_REST_API_URL` + `KV_REST_API_TOKEN` (oder `UPSTASH_REDIS_REST_URL` + `_TOKEN`) | online ja | Upstash Redis. Setzt Vercel automatisch beim Verbinden unter *Storage*. Lokal nicht nötig. |
 | `NEWSLETTER_WEBHOOK_URL` | nein | Jede Newsletter-Anmeldung zusätzlich per POST weiterleiten |

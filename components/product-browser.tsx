@@ -4,7 +4,7 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useMemo, useRef } from "react";
-import { isMixProduct } from "@/lib/format";
+import { isRequestOnly } from "@/lib/format";
 import type { Collection, Product } from "@/lib/types";
 import { CloseIcon, SearchIcon } from "./icons";
 import { ProductCard } from "./product-card";
@@ -90,8 +90,8 @@ function BrowserView({
           list.sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
         }
     }
-    // Erst alle einzelnen Produkte, dann die Mixpakete (Reihenfolge innerhalb bleibt erhalten)
-    return list.sort((a, b) => Number(isMixProduct(a)) - Number(isMixProduct(b)));
+    // Erst alle einzelnen Produkte, dann die Paletten auf Anfrage (Reihenfolge innerhalb bleibt erhalten)
+    return list.sort((a, b) => Number(isRequestOnly(a)) - Number(isRequestOnly(b)));
   }, [products, q, sort, onlyAvailable]);
 
   function resetFilters() {
