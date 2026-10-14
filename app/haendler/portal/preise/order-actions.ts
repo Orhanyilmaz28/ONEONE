@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { getProducts } from "@/lib/catalog";
 import { toOrderRow } from "@/lib/dealer-catalog";
 import { getCurrentDealer } from "@/lib/dealer-auth";
-import { calcDealerOrder, cleanQty } from "@/lib/dealer-order-calc";
+import { PALLET_MIN_TRAYS, calcDealerOrder, cleanQty } from "@/lib/dealer-order-calc";
 import { DealerOrderLimitError, createDealerOrder } from "@/lib/dealer-orders";
 import { dealerRows } from "@/lib/dealer-rows";
 import { mailReady, sendMail } from "@/lib/mail";
@@ -62,6 +62,7 @@ export async function placeDealerOrderAction(input: PlaceOrderInput): Promise<Pl
     return { ok: false, error: `Diese Artikel sind gerade nicht bestellbar: ${names}. Bitte entferne sie aus der Bestellung.` };
   }
   const calc = calcDealerOrder(orderRows, qty, settings.shipping);
+  if (calc.blocked.length) return { ok: false, error: `${calc.blocked.join(", ")} gibt es nur ab Palette (${PALLET_MIN_TRAYS} Trays gesamt, auch gemischt).` };
   if (!calc.lines.length) return { ok: false, error: "Bitte wähle mindestens 1 Tray aus." };
   if (calc.gross !== input.expectedGross) return { ok: false, error: "Die Preise haben sich gerade geändert. Bitte lade die Seite neu und prüfe die Bestellung." };
 

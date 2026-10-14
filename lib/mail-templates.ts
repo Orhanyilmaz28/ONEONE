@@ -2,6 +2,7 @@ import { carrierLabel, normalizeTracking, trackingUrl } from "@/app/admin/(panel
 import { formatPrice, SITE_URL } from "./format";
 import type { DealerOrder } from "./dealer-orders";
 import { TIER_LABELS } from "./dealer-order-calc";
+import { formatCan } from "./dealer-pricing";
 import type { Order } from "./orders";
 import { RETURN_COST_SENTENCE, type Settings } from "./settings-defaults";
 
@@ -311,7 +312,7 @@ function dealerTable(o: DealerOrder) {
   const lines = c.lines
     .map(
       (l) => `<tr>
-        <td style="padding:10px 0;border-bottom:1px solid ${C.line};vertical-align:top">${l.trays} × ${esc(l.title)}<br><span style="color:${C.muted};font-size:13px">${l.units.toLocaleString("de-DE")} Stück · ${formatPrice(l.perTray)} je Tray (${TIER_LABELS[l.tier]})</span></td>
+        <td style="padding:10px 0;border-bottom:1px solid ${C.line};vertical-align:top">${l.trays} × ${esc(l.title)}<br><span style="color:${C.muted};font-size:13px">${l.units.toLocaleString("de-DE")} Stück · ${l.canPrice ? `${formatCan(l.canPrice)}/Dose · ` : ""}${formatPrice(l.perTray)} je Tray (${TIER_LABELS[l.tier]})</span></td>
         <td style="padding:10px 0;border-bottom:1px solid ${C.line};text-align:right;white-space:nowrap;vertical-align:top">${formatPrice(l.total)}</td>
       </tr>`,
     )
@@ -330,7 +331,7 @@ function dealerTable(o: DealerOrder) {
 function dealerText(o: DealerOrder) {
   const c = o.calc;
   return [
-    ...c.lines.map((l) => `${l.trays} × ${l.title} (${l.units} Stück, ${formatPrice(l.perTray)} je Tray, ${TIER_LABELS[l.tier]}) – ${formatPrice(l.total)}`),
+    ...c.lines.map((l) => `${l.trays} × ${l.title} (${l.units} Stück, ${l.canPrice ? `${formatCan(l.canPrice)}/Dose, ` : ""}${formatPrice(l.perTray)} je Tray, ${TIER_LABELS[l.tier]}) – ${formatPrice(l.total)}`),
     "",
     `Warenwert netto: ${formatPrice(c.goodsNet)}`,
     `Pfand: ${formatPrice(c.depositNet)}`,

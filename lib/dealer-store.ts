@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { hashPassword, verifyPassword } from "./customers";
-import type { PriceSet } from "./dealer-pricing";
+import type { CanPrices } from "./dealer-pricing";
 import { KEYS, getJSON, updateJSON } from "./store";
 
 /** Händler-Anfragen von /haendler (nur auf dem Server verwenden). Die Freigabe erfolgt im Dashboard unter „Händler“. */
@@ -26,8 +26,10 @@ export type Dealer = {
   approvedAt?: string;
   /** Händlerstufe (Prozent-Nachlass auf die Basispreise) */
   tierId?: string;
-  /** Individuelle Preise dieses Händlers (Vorrang vor Stufe), je Produkt-Handle */
-  customPrices?: Record<string, PriceSet>;
+  /** Eigene Dosenpreise dieses Händlers je Preisgruppe (Vorrang vor der Stufe) */
+  customCanPrices?: Record<string, CanPrices>;
+  /** Veraltet (Preise je Tray je Artikel) – wird nicht mehr verwendet */
+  customPrices?: unknown;
   /** Zugang: erst nach Freigabe – Händler:in legt über den Link selbst ein Passwort fest */
   activationToken?: string;
   activationExpires?: string;
@@ -178,13 +180,15 @@ export async function deleteDealer(id: string): Promise<boolean> {
 }
 
 /** Stufe und individuelle Preise eines Händlers speichern */
-export async function setDealerPricing(id: string, tierId: string | undefined, customPrices: Record<string, PriceSet>): Promise<boolean> {
+export async function setDealerPricing(id: string, tierId: string | undefined, customCanPrices: Record<string, CanPrices>): Promise<boolean> {
   let found = false;
   await updateJSON<Dealer[]>(KEYS.dealers, [], (list) =>
     (Array.isArray(list) ? list : []).map((d) => {
       if (d.id !== id) return d;
       found = true;
-      return { ...d, tierId, customPrices };
+      // alte Preise je Tray dabei entfernen
+      const { customPrices: _old, ...rest } = d;
+      return { ...rest, tierId, customCanPrices };
     }),
   );
   return found;

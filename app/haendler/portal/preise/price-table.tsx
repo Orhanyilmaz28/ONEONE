@@ -6,7 +6,8 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { PdfLink, Sheet } from "@/components/dealer-dialog";
 import { MinusIcon, PlusIcon } from "@/components/icons";
 import { type DealerPriceCell, type DealerRow, toOrderRow } from "@/lib/dealer-catalog";
-import { MAX_TRAYS_PER_LINE, PALLET_MIN_TRAYS, type PriceTier, TIER_LABELS, calcDealerOrder, cleanQty } from "@/lib/dealer-order-calc";
+import { MAX_TRAYS_PER_LINE, PALLET_MIN_TRAYS, TIER_LABELS, calcDealerOrder, cleanQty, nextCheaper } from "@/lib/dealer-order-calc";
+import { STEPS, formatCan } from "@/lib/dealer-pricing";
 import { formatPrice as euro } from "@/lib/format";
 import { type PlaceOrderInput, placeDealerOrderAction } from "./order-actions";
 
@@ -41,7 +42,7 @@ export function PriceTable({
   const visibleGroups = groups.filter((g) => shown.some((r) => r.group === g.key));
   const orderRows = useMemo(() => rows.map(toOrderRow), [rows]);
   const calc = useMemo(() => calcDealerOrder(orderRows, qty, shipping), [orderRows, qty, shipping]);
-  const activeTier = useMemo(() => Object.fromEntries(calc.lines.map((l) => [l.handle, l.tier])) as Record<string, PriceTier>, [calc]);
+  const activeTier = useMemo(() => Object.fromEntries(calc.lines.map((l) => [l.handle, l.tier])) as Record<string, string>, [calc]);
 
   // Mengen im Browser merken (nur Komfort – zählt nichts, der Server rechnet beim Bestellen neu)
   useEffect(() => {
@@ -84,7 +85,7 @@ export function PriceTable({
       </div>
 
       <p className="mt-6 text-muted text-sm">
-        Menge je Sorte in Trays wählen und unten auf <b className="text-ink">Bestellen</b> tippen. Der Staffelpreis richtet sich nach der Gesamtmenge deiner Bestellung (Sorten gemischt), ab {PALLET_MIN_TRAYS} Trays gilt der Palettenpreis. Bezahlung auf Rechnung.
+        Preise je Dose netto. Menge je Sorte in Trays wählen und unten auf <b className="text-ink">Bestellen</b> tippen. Die Staffel gilt pro Sorte (ab 1, 2, 4, 8, 10 Trays); ab {PALLET_MIN_TRAYS} Trays gesamt – auch gemischt – gilt für alle Sorten der Palettenpreis. Bezahlung auf Rechnung.
       </p>
 
       {visibleGroups.length === 0 ? <p className="mt-10 text-muted">Keine Artikel gefunden.</p> : null}
@@ -92,13 +93,15 @@ export function PriceTable({
         <section className="mt-10" key={g.key}>
           <h2 className="t-h3 mb-4">{g.title}</h2>
           <div className="overflow-x-auto rounded-[1.5rem] border border-line bg-card">
-            <table className="w-full text-left text-sm sm:min-w-[620px]">
+            <table className="w-full text-left text-sm sm:min-w-[760px]">
               <thead className="border-line border-b text-muted text-xs uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3 font-medium">Artikel</th>
-                  <th className="hidden px-3 py-3 text-right font-medium sm:table-cell">1 Tray</th>
-                  <th className="hidden px-3 py-3 text-right font-medium sm:table-cell">ab 2 Trays (je Tray)</th>
-                  <th className="hidden px-3 py-3 text-right font-medium sm:table-cell">Palette</th>
+                  {STEPS.map((s) => (
+                    <th className="hidden px-2 py-3 text-right font-medium sm:table-cell" key={s.key}>
+                      {s.key === "pal" ? "Palette" : s.key === "s1" ? "1 Tray" : `${s.min} Trays`}
+                    </th>
+                  ))}
                   <th className="px-4 py-3 text-right font-medium">Pass</th>
                 </tr>
               </thead>
@@ -131,15 +134,19 @@ export function PriceTable({
                                 </Link>
                               ) : (
                                 <span className="mt-1 flex flex-wrap gap-1 text-[11px] sm:hidden">
-                                  {(["t1", "t2", "pal"] as const).map((k) => (
-                                    <span className={`rounded-md px-1.5 py-0.5 tabular-nums ${tier === k ? "bg-accent font-bold text-black" : "bg-white/5 text-muted"}`} key={k}>
-                                      {k === "t1" ? "1 Tray" : k === "t2" ? "ab 2" : "Palette"} {r[k].value ? euro(r[k].value) : "folgt"}
+                                  {STEPS.filter((s) => r.steps[s.key].value).map((s) => (
+                                    <span className={`rounded-md px-1.5 py-0.5 tabular-nums ${tier === s.key ? "bg-accent font-bold text-black" : "bg-white/5 text-muted"}`} key={s.key}>
+                                      {s.short} · {formatCan(r.steps[s.key].value as number)}
                                     </span>
                                   ))}
+                                  {STEPS.every((s) => !r.steps[s.key].value) ? <span className="text-muted">Preise folgen</span> : null}
                                 </span>
                               )}
                               {orderable ? (
-                                <Stepper label={r.title} onChange={(v) => set(r.handle, v)} value={n} />
+                                <>
+                                  <Stepper label={r.title} onChange={(v) => set(r.handle, v)} value={n} />
+                                  <RowHint can={toOrderRow(r).can} n={n} total={calc.trays} />
+                                </>
                               ) : !r.lkw && !r.available ? (
                                 <span className="mt-1 block text-muted text-xs">Derzeit nicht lieferbar</span>
                               ) : null}
@@ -147,7 +154,7 @@ export function PriceTable({
                           </span>
                         </td>
                         {r.lkw ? (
-                          <td className="hidden px-3 py-3 text-right sm:table-cell" colSpan={3}>
+                          <td className="hidden px-3 py-3 text-right sm:table-cell" colSpan={STEPS.length}>
                             <span className="block font-bold text-accent">Nur per LKW auf Anfrage</span>
                             <Link className="text-muted text-xs underline-offset-4 hover:text-accent hover:underline" href={`/palette?produkt=${r.group === "wasser" ? "wasser" : "ice-tea"}&sorte=${r.handle}&lkw=1`}>
                               LKW-Ladung anfragen →
@@ -155,15 +162,11 @@ export function PriceTable({
                           </td>
                         ) : (
                           <>
-                            <td className="hidden px-3 py-3 text-right sm:table-cell">
-                              <Cell active={tier === "t1"} cell={r.t1} sub={r.t1.value ? `${euro(Math.round(r.t1.value / r.perTray))} je Stück` : undefined} />
-                            </td>
-                            <td className="hidden px-3 py-3 text-right sm:table-cell">
-                              <Cell active={tier === "t2"} cell={r.t2} sub={r.t2.value ? `${euro(Math.round(r.t2.value / r.perTray))} je Stück` : undefined} />
-                            </td>
-                            <td className="hidden px-3 py-3 text-right sm:table-cell">
-                              <Cell active={tier === "pal"} cell={r.pal} sub={r.pal.value && r.trays ? `${r.trays} Trays · ${euro(Math.round(r.pal.value / r.trays))} je Tray` : undefined} />
-                            </td>
+                            {STEPS.map((s) => (
+                              <td className="hidden px-2 py-3 text-right sm:table-cell" key={s.key}>
+                                <Cell active={tier === s.key} cell={r.steps[s.key]} perTray={r.perTray} />
+                              </td>
+                            ))}
                           </>
                         )}
                         <td className="px-4 py-3 text-right">
@@ -192,8 +195,12 @@ export function PriceTable({
               <p className="font-bold">
                 {calc.trays} {calc.trays === 1 ? "Tray" : "Trays"} · {euro(calc.goodsNet)} <span className="font-normal text-muted text-sm">netto</span>
               </p>
-              <p className="text-muted text-xs">
-                {calc.pallet ? "Palettenpreis aktiv · Lieferung per Spedition" : calc.trays === 1 ? "Ab 2 Trays gilt der Staffelpreis" : `Noch ${calc.toPallet} Trays bis zum Palettenpreis`}
+              <p className={`text-xs ${calc.blocked.length ? "text-amber-300" : "text-muted"}`}>
+                {calc.blocked.length
+                  ? `${calc.blocked.join(", ")}: nur ab Palette – noch ${calc.toPallet} Trays`
+                  : calc.pallet
+                    ? "Palettenpreis aktiv · Lieferung per Spedition"
+                    : `Noch ${calc.toPallet} Trays bis zum Palettenpreis`}
               </p>
               <div aria-hidden className="mt-1.5 h-1 overflow-hidden rounded-full bg-white/10">
                 <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${Math.min(100, (calc.trays / PALLET_MIN_TRAYS) * 100)}%` }} />
@@ -202,7 +209,7 @@ export function PriceTable({
             <button className="text-muted text-sm underline-offset-4 hover:text-ink hover:underline" onClick={() => setQty({})} type="button">
               Leeren
             </button>
-            <button className="anim-shine relative inline-flex h-12 items-center overflow-hidden rounded-full bg-accent px-7 font-bold text-black transition hover:bg-accent-dark" onClick={() => setSheet(true)} type="button">
+            <button className="anim-shine relative inline-flex h-12 items-center overflow-hidden rounded-full bg-accent px-7 font-bold text-black transition hover:bg-accent-dark disabled:opacity-40" disabled={calc.blocked.length > 0 || !calc.lines.length} onClick={() => setSheet(true)} type="button">
               Bestellen
             </button>
           </div>
@@ -244,14 +251,28 @@ function Stepper({ value, onChange, label }: { value: number; onChange: (n: numb
   );
 }
 
-function Cell({ cell, sub, active }: { cell: DealerPriceCell; sub?: string; active?: boolean }) {
-  if (!cell.value) return <span className="text-muted">Preis folgt</span>;
+/** Dosenpreis einer Mengenstufe (darunter der Tray-Preis) */
+function Cell({ cell, perTray, active }: { cell: DealerPriceCell; perTray: number; active?: boolean }) {
+  if (!cell.value) return <span className="text-muted">–</span>;
   return (
     <span className={`inline-block rounded-xl px-2 py-1 transition ${active ? "bg-accent/15 ring-1 ring-accent" : ""}`}>
-      <span className={`block font-bold tabular-nums ${active ? "text-accent" : ""}`}>{euro(cell.value)}</span>
-      {sub ? <span className="block text-muted text-xs tabular-nums">{sub}</span> : null}
+      <span className={`block font-bold tabular-nums ${active ? "text-accent" : ""}`}>{formatCan(cell.value)}</span>
+      <span className="block text-[11px] text-muted tabular-nums">{euro(Math.round(cell.value * perTray))}/Tray</span>
     </span>
   );
+}
+
+/** Hinweis unter der Menge: nächste günstigere Stufe bzw. „nur ab Palette“ */
+function RowHint({ can, n, total }: { can: ReturnType<typeof toOrderRow>["can"]; n: number; total: number }) {
+  const onlyPallet = !STEPS.some((s) => s.key !== "pal" && can[s.key]);
+  if (onlyPallet && total < PALLET_MIN_TRAYS) return <span className="mt-1 block text-[11px] text-amber-300">Nur ab Palette ({PALLET_MIN_TRAYS} Trays gesamt, auch gemischt)</span>;
+  if (!n) return null;
+  const next = nextCheaper(can, n, total);
+  return next ? (
+    <span className="mt-1 block text-[11px] text-accent">
+      Noch {next.missing} {next.missing === 1 ? "Tray" : "Trays"} → {formatCan(next.canPrice)}/Dose
+    </span>
+  ) : null;
 }
 
 const field = "h-11 w-full rounded-xl border border-line bg-card px-3 text-sm outline-none transition focus:border-accent";
@@ -324,7 +345,8 @@ function OrderSheet({ calc, qty, address, onClose, onDone }: { calc: ReturnType<
                 <span>
                   <b>{l.trays} ×</b> {l.title}
                   <span className="block text-muted text-xs">
-                    {l.units.toLocaleString("de-DE")} Stück · {euro(l.perTray)} je Tray · {TIER_LABELS[l.tier]}
+                    {l.units.toLocaleString("de-DE")} Stück · {l.canPrice ? `${formatCan(l.canPrice)}/Dose · ` : ""}
+                    {euro(l.perTray)} je Tray · {TIER_LABELS[l.tier]}
                   </span>
                 </span>
                 <span className="shrink-0 tabular-nums">{euro(l.total)}</span>

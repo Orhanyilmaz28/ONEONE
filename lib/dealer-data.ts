@@ -1,20 +1,29 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { BUNDLED_PASSES } from "./bundled-passes";
-import { DEFAULT_TIERS, type PriceSet, type Tier } from "./dealer-pricing";
+import { type CanPrices, DEFAULT_PRICING, type DealerPricing, DEFAULT_TIERS, STEP_KEYS, type Tier } from "./dealer-pricing";
 import { KEYS, deleteBinary, getBinary, getJSON, putBinary, updateJSON } from "./store";
 
-/** Basispreise (netto), Händlerstufen und Artikelpässe (PDF) – nur im Händlerbereich sichtbar */
-export type DealerPrices = Record<string, PriceSet>;
+/** Dosenpreise (netto) in Preisgruppen, Händlerstufen und Artikelpässe (PDF) – nur im Händlerbereich sichtbar */
 
-export const getDealerPrices = async (): Promise<DealerPrices> => {
-  const raw = await getJSON<Record<string, PriceSet & { net?: number }>>(KEYS.dealerPrices, {});
-  // ältere Einträge hatten nur „net“ (= Preis für 1 Tray)
-  return Object.fromEntries(Object.entries(raw).map(([k, v]) => [k, { t1: v.t1 ?? v.net, t2: v.t2, pal: v.pal }]));
+const cleanPrices = (p: unknown): CanPrices =>
+  Object.fromEntries(STEP_KEYS.flatMap((k) => {
+    const v = (p as Record<string, unknown> | undefined)?.[k];
+    return typeof v === "number" && v > 0 ? [[k, v]] : [];
+  }));
+
+/** Preisgruppen und Zuordnung; ältere Speicherstände (Preise je Tray) werden ignoriert → Konditionen laut Flyer */
+export const getBasePricing = async (): Promise<DealerPricing> => {
+  const raw = await getJSON<Partial<DealerPricing> | null>(KEYS.dealerPrices, null);
+  if (!raw || !Array.isArray(raw.groups)) return DEFAULT_PRICING;
+  return {
+    groups: raw.groups.filter((g) => g && typeof g.id === "string" && typeof g.name === "string").map((g) => ({ id: g.id, name: g.name, prices: cleanPrices(g.prices) })),
+    assign: raw.assign && typeof raw.assign === "object" ? Object.fromEntries(Object.entries(raw.assign).filter(([, v]) => typeof v === "string")) : {},
+  };
 };
 
-export async function setDealerPrices(change: (current: DealerPrices) => DealerPrices) {
-  await updateJSON<DealerPrices>(KEYS.dealerPrices, {}, change);
+export async function saveBasePricing(next: DealerPricing) {
+  await updateJSON<unknown>(KEYS.dealerPrices, null, () => next);
 }
 
 /** Händlerstufen; ohne eigene Einträge gibt es „Standard“ mit 0 % */

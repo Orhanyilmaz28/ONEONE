@@ -1,5 +1,6 @@
 import { cansOf, formatPrice } from "./format";
 import type { OrderRow } from "./dealer-order-calc";
+import { type CanPrices, STEP_KEYS, type StepKey } from "./dealer-pricing";
 import type { Product } from "./types";
 
 /** Reihenfolge und Namen der Bereiche in Preisliste und Artikelpässen */
@@ -22,9 +23,10 @@ export type DealerRow = {
   perTray: number;
   /** Trays je Palette laut Artikelpass (nur wenn bekannt) */
   trays?: number;
-  t1: DealerPriceCell;
-  t2: DealerPriceCell;
-  pal: DealerPriceCell;
+  /** Dosenpreise (Cent, netto) je Mengenstufe – nach Stufe bzw. individuell */
+  steps: Record<StepKey, DealerPriceCell>;
+  /** Name der Preisgruppe (z. B. „Classic“) */
+  priceGroup?: string;
   pass: boolean;
   /** Art.-Nr. und EAN aus dem Artikelpass */
   artNr?: string;
@@ -37,10 +39,8 @@ export type DealerRow = {
 
 /** Zeile der Preisliste → Zeile für die Bestellberechnung */
 export function toOrderRow(r: DealerRow): OrderRow {
-  const t1 = r.t1.value;
-  const t2 = r.t2.value;
-  const pal = r.pal.value;
-  return { handle: r.handle, title: r.title, perTray: r.perTray, palletTrays: r.trays, t1, t2, pal, orderable: r.available && !r.lkw && Boolean(t1 || t2) };
+  const can: CanPrices = Object.fromEntries(STEP_KEYS.flatMap((k) => (r.steps[k].value ? [[k, r.steps[k].value]] : [])));
+  return { handle: r.handle, title: r.title, perTray: r.perTray, can, orderable: r.available && !r.lkw && Object.keys(can).length > 0 };
 }
 
 /** Trays je Euro-Palette laut Artikelpass: Energy und Ice Coffee 120 (24 × 250 ml), Wasser 126 (12 × 500 ml); X-Tea noch ohne Pass */

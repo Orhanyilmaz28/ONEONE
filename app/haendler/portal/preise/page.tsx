@@ -32,7 +32,7 @@ export default async function PricesPage({ searchParams }: Props) {
         <h1 className="t-h1">Preisliste &amp; Bestellen</h1>
         <TierBadge name={tierName} />
       </div>
-      <p className="t-lead mt-3 max-w-2xl">Deine Händlerpreise je Artikel: 1 Tray, ab 2 Trays (Preis je Tray) und ganze Palette. Alle Preise netto – zuzüglich gesetzlicher MwSt. und 0,25 € Einwegpfand je Dose bzw. Flasche.</p>
+      <p className="t-lead mt-3 max-w-2xl">Deine Händlerpreise je Dose – je mehr Trays einer Sorte, desto günstiger. Alle Preise netto, zuzüglich 19 % MwSt. und 0,25 € Pfand je Dose bzw. Flasche (ebenfalls zzgl. MwSt.). LKW-Preise auf Anfrage.</p>
       {initialQty ? <p className="mt-4 rounded-2xl border border-accent/40 bg-accent/10 px-4 py-3 text-sm">Die Mengen aus Bestellung {again?.number} sind eingetragen – prüfen und unten auf „Bestellen“ tippen.</p> : null}
       <PriceTable
         address={{ company: dealer.company, contact: dealer.contact, street: dealer.street, zip: dealer.zip, city: dealer.city }}

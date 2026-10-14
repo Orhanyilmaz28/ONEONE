@@ -1,20 +1,21 @@
 import { type DealerRow, DEALER_GROUPS, dealerUnit, palletTrays } from "./dealer-catalog";
-import { getDealerPasses, getDealerPrices, getTiers } from "./dealer-data";
+import { getBasePricing, getDealerPasses, getTiers } from "./dealer-data";
 import { type Dealer } from "./dealer-store";
-import { effectivePrice } from "./dealer-pricing";
+import { effectiveCanPrices, groupOf } from "./dealer-pricing";
 import { cansOf } from "./format";
 import { lkwOnly } from "./lkw";
 import { PRODUCT_SPECS } from "./product-specs";
 import type { Product } from "./types";
 
-/** Preisliste für einen Händler: nur einzelne Artikel, drei Preise (1 Tray, ab 2 Trays, Palette) nach Stufe und individuellen Preisen */
+/** Preisliste für einen Händler: Dosenpreise je Mengenstufe aus der Preisgruppe des Artikels, nach Stufe und eigenen Preisen */
 export async function dealerRows(dealer: Dealer, products: Product[]): Promise<{ rows: DealerRow[]; tierName: string }> {
-  const [base, tiers, passes] = await Promise.all([getDealerPrices(), getTiers(), getDealerPasses()]);
+  const [pricing, tiers, passes] = await Promise.all([getBasePricing(), getTiers(), getDealerPasses()]);
   const tier = tiers.find((t) => t.id === dealer.tierId) ?? tiers[0];
   const rows: DealerRow[] = products.flatMap((p) => {
     const g = DEALER_GROUPS.find((x) => x.test(p));
     if (!g) return [];
-    const custom = dealer.customPrices?.[p.handle];
+    const lkw = lkwOnly(p);
+    const group = lkw ? undefined : groupOf(p, pricing);
     return [
       {
         handle: p.handle,
@@ -24,13 +25,12 @@ export async function dealerRows(dealer: Dealer, products: Product[]): Promise<{
         unit: dealerUnit(p),
         perTray: p.variants[0] ? cansOf(p.variants[0]) : 1,
         trays: palletTrays(p),
-        t1: effectivePrice("t1", base[p.handle], tier, custom),
-        t2: effectivePrice("t2", base[p.handle], tier, custom),
-        pal: effectivePrice("pal", base[p.handle], tier, custom),
+        steps: effectiveCanPrices(group?.prices, tier, group ? dealer.customCanPrices?.[group.id] : undefined),
+        priceGroup: group?.name,
         pass: Boolean(passes[p.handle]),
         artNr: PRODUCT_SPECS[p.handle]?.artNr,
         gtin: PRODUCT_SPECS[p.handle]?.gtin,
-        lkw: lkwOnly(p),
+        lkw,
         available: p.variants.some((v) => v.available),
       },
     ];

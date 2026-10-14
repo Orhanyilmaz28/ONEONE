@@ -5,6 +5,7 @@ import { Badge, EmptyState, PageHeader, btn, formatDateTime, formatDay, input } 
 import { requireAdmin } from "@/lib/admin-auth";
 import { TIER_LABELS } from "@/lib/dealer-order-calc";
 import { DEALER_ORDER_STATUS, type DealerOrderStatus, getDealerOrders } from "@/lib/dealer-orders";
+import { formatCan } from "@/lib/dealer-pricing";
 import { formatPrice } from "@/lib/format";
 import { mailReady } from "@/lib/mail";
 
@@ -69,7 +70,8 @@ export default async function DealerOrdersAdminPage({ searchParams }: { searchPa
                             <td className="py-2">
                               <b>{l.trays} ×</b> {l.title}
                               <span className="block text-[12px] text-muted">
-                                {l.units.toLocaleString("de-DE")} Stück · {formatPrice(l.perTray)} je Tray netto · {TIER_LABELS[l.tier]}
+                                {l.units.toLocaleString("de-DE")} Stück · {l.canPrice ? `${formatCan(l.canPrice)}/Dose · ` : ""}
+                                {formatPrice(l.perTray)} je Tray netto · {TIER_LABELS[l.tier]}
                               </span>
                             </td>
                             <td className="py-2 text-right tabular-nums">{formatPrice(l.total)}</td>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
 import { TIER_LABELS } from "@/lib/dealer-order-calc";
 import { type DealerOrderStatus, getDealerOrdersOf } from "@/lib/dealer-orders";
+import { formatCan } from "@/lib/dealer-pricing";
 import { formatPrice as euro } from "@/lib/format";
 
 export const metadata = { title: "Meine Bestellungen" };
@@ -52,6 +53,7 @@ export default async function DealerOrdersPage() {
                           <span>
                             <b>{l.trays} ×</b> {l.title}
                             <span className="block text-muted text-xs">
+                              {l.canPrice ? `${formatCan(l.canPrice)}/Dose · ` : ""}
                               {euro(l.perTray)} je Tray · {TIER_LABELS[l.tier]}
                             </span>
                           </span>

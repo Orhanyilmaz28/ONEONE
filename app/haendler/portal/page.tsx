@@ -11,7 +11,7 @@ export default async function PortalHome() {
   const dealer = await requireDealer();
   const [products, passes, orders] = await Promise.all([getProducts(), getDealerPasses(), getDealerOrdersOf(dealer.id)]);
   const { rows, tierName } = await dealerRows(dealer, products);
-  const priced = rows.filter((r) => r.t1.value).length;
+  const priced = rows.filter((r) => Object.values(r.steps).some((c) => c.value)).length;
   const singles = products;
   const passCount = Object.keys(passes).filter((k) => k !== "katalog").length;
   const since = dealer.approvedAt ? new Date(dealer.approvedAt).toLocaleDateString("de-DE", { month: "long", year: "numeric" }) : null;
