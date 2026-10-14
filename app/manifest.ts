@@ -23,7 +23,7 @@ export default function manifest(): MetadataRoute.Manifest {
     shortcuts: [
       { name: "Alle Produkte", short_name: "Shop", url: "/products" },
       { name: "Energy Drinks", url: "/collections/energy" },
-      { name: "Zero", url: "/collections/zero" },
+      { name: "Mix-Konfigurator", short_name: "Mix", url: "/mix" },
       { name: "Kontakt & Hilfe", short_name: "Hilfe", url: "/kontakt" },
     ],
   };

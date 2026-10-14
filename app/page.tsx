@@ -1,23 +1,18 @@
 import { Hero } from "@/components/home/hero";
 import { DropDivider } from "@/components/logo";
-import { Bestsellers, Faq, MixPakete, HomeReviews, NewsletterCta, Promises } from "@/components/home/sections";
+import { Bestsellers, Faq, HomeReviews, MixTeaser, NewsletterCta, Promises } from "@/components/home/sections";
 import { TrustStrip } from "@/components/trust";
 import { getProducts } from "@/lib/catalog";
-import { isMixProduct } from "@/lib/format";
 
 export default async function Home() {
   const products = await getProducts();
-  // Erst alle einzelnen Produkte, danach die Mixpakete in eigenem Abschnitt
-  const singles = products.filter((p) => !isMixProduct(p));
-  // Auf der Startseite die ersten acht Mixpakete – alle Größen bis zur Palette stehen unter „Mixpakete“
-  const mixes = products.filter(isMixProduct).slice(0, 8);
 
   return (
     <>
       <Hero products={products} />
       <TrustStrip />
-      <Bestsellers products={singles} />
-      <MixPakete products={mixes} />
+      <Bestsellers products={products} />
+      <MixTeaser />
       <DropDivider className="pt-4" />
       <Promises />
       <HomeReviews />

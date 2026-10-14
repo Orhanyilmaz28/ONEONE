@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   title: { default: `${brand.name} – ${brand.tagline}`, template: `%s · ${brand.name}` },
   description: brand.description ?? brand.tagline,
   applicationName: "EXSTASE",
-  keywords: ["EXSTASE Energy", "Energy Drink", "Energy Drink online kaufen", "Energy Drink Zero", "Energy Drink Dose 250 ml"],
+  keywords: ["EXSTASE Energy", "Energy Drink", "Energy Drink online kaufen", "Energy Drink Tray", "Energy Drink Dose 250 ml"],
   alternates: { canonical: "/" },
   appleWebApp: { capable: true, title: "EXSTASE", statusBarStyle: "black-translucent" },
   openGraph: { type: "website", locale: "de_DE", siteName: brand.name },

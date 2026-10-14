@@ -4,13 +4,13 @@ import type { Product } from "@/lib/types";
 import { ArrowIcon } from "../icons";
 import { Newsletter } from "../newsletter";
 import { FeatureIcon, type IconName } from "../feature-icons";
-import { MixLadder } from "../mix-ladder";
 import { ProductCard } from "../product-card";
 import { ReviewCard, ReviewDisclosure } from "../reviews";
 import { formatAverage, Stars } from "../stars";
 import { getCustomers, summarize } from "@/lib/reviews";
 import { getBaseProducts } from "@/lib/catalog";
 import { getPublicReviews } from "@/lib/review-store";
+import { MIX_TIERS } from "@/lib/mix";
 
 const Drop = ({ className = "size-4" }: { className?: string }) => (
   <svg aria-hidden className={className} viewBox="0 0 12 16">
@@ -75,29 +75,27 @@ export function Bestsellers({ products }: { products: Product[] }) {
   );
 }
 
-/* ───────── Mixpakete (hinter den einzelnen Produkten) ───────── */
-export function MixPakete({ products }: { products: Product[] }) {
-  if (!products.length) return null;
+/* ───────── Mix-Konfigurator (Hinweis auf der Startseite) ───────── */
+export function MixTeaser() {
   return (
-    <Section id="mixpakete">
-      <SectionTitle
-        action={
-          <Link className="group inline-flex items-center gap-2 font-medium" href="/collections/mixpakete">
-            Alle Mixpakete
-            <span className="transition-transform group-hover:translate-x-1">
-              <ArrowIcon />
-            </span>
+    <Section id="mix">
+      <div className="sd-up grid gap-8 rounded-[1.75rem] border border-line bg-card p-6 sm:p-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
+        <div>
+          <p className="t-eyebrow">Mix-Konfigurator</p>
+          <h2 className="t-h2 mt-3">Stell dir deinen Mix zusammen</h2>
+          <p className="t-lead mt-4 max-w-md">Wähle deine Sorten Tray für Tray. Ab 2 verschiedenen Sorten gibt es Mix-Rabatt – je mehr Trays, desto mehr.</p>
+          <Link className="mt-6 inline-flex h-12 items-center gap-2 rounded-full bg-accent px-7 font-bold text-black transition hover:bg-accent-dark" href="/mix">
+            Mix zusammenstellen <ArrowIcon />
           </Link>
-        }
-        eyebrow="Mixpakete"
-        intro="Mehrere Sorten, mehrere Trays – je größer das Paket, desto mehr sparst du."
-        title="Alles probieren, Geld sparen"
-      />
-      <MixLadder />
-      <div className="grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 lg:grid-cols-4">
-        {products.map((p) => (
-          <ProductCard key={p.handle} product={p} />
-        ))}
+        </div>
+        <ul className="grid grid-cols-4 gap-2 text-center">
+          {MIX_TIERS.map((t) => (
+            <li className="rounded-2xl border border-line px-2 py-3" key={t.min}>
+              <span className="block font-bold text-accent">−{t.pct} %</span>
+              <span className="block text-muted text-xs">ab {t.min} Trays</span>
+            </li>
+          ))}
+        </ul>
       </div>
     </Section>
   );
@@ -131,10 +129,10 @@ export function Promises() {
 
 /* ───────── FAQ ───────── */
 const FAQ = [
-  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut und Zero (ohne Zucker). Dazu X-Tea Ice Tea (Watermelon, Peach, Lemon), Ice Coffee (Latte, Cappuccino) und Aqua x Mineralwasser (Still, Medium, Classic). In den Mixpaketen bekommst du mehrere Sorten zusammen – jeweils als ganze Trays."],
-  ["Gibt es einzelne Dosen?", "Nein, wir verkaufen nur komplette Trays (24 Dosen, beim Wasser 12 Flaschen). Wer mehrere Sorten möchte, nimmt ein Mixpaket aus mehreren Trays."],
+  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut. Dazu X-Tea Ice Tea (Watermelon, Peach, Lemon), Ice Coffee (Latte, Cappuccino) und Aqua x Mineralwasser (Still, Medium, Classic). Im Mix-Konfigurator stellst du dir mehrere Sorten zusammen – jeweils als ganze Trays."],
+  ["Gibt es einzelne Dosen?", "Nein, wir verkaufen nur komplette Trays (24 Dosen, beim Wasser 12 Flaschen). Wer mehrere Sorten möchte, stellt sich im Mix-Konfigurator einen Mix aus mehreren Trays zusammen – ab 2 Sorten mit Mix-Rabatt."],
   ["Wie viel Koffein ist enthalten?", "Die genauen Angaben stehen auf der Dose und auf der jeweiligen Produktseite. EXSTASE hat einen erhöhten Koffeingehalt – für Kinder, schwangere und stillende Frauen nicht empfohlen."],
-  ["Was bedeutet „Zero“?", "Zero ist die Variante ohne Zucker. Der volle EXSTASE-Geschmack, aber ohne Zucker."],
+  ["Wie funktioniert der Mix-Rabatt?", "Sobald mindestens 2 verschiedene Sorten im Warenkorb sind, gibt es Rabatt auf alle Trays – je mehr Trays, desto mehr: ab 2 Trays 3 %, ab 3 Trays 5 %, ab 4 Trays 7 %, ab 6 Trays 9 %, ab 9 Trays 10 %, ab 12 Trays 12 %, ab 18 Trays 13 % und ab 24 Trays 15 %."],
   ["Gibt es Pfand?", "Ja. Auf jede Dose und Flasche kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],
   ["Wie lange dauert der Versand?", "In Deutschland in der Regel 1–3 Werktage. Ab dem im Warenkorb angezeigten Warenwert ist der Versand kostenlos."],
   ["Kann ich Dosen zurückgeben?", "Ungeöffnete Ware kannst du innerhalb der gesetzlichen Widerrufsfrist zurücksenden. Details stehen in der Widerrufsbelehrung."],

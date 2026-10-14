@@ -11,7 +11,6 @@ const COLORS: Record<string, string> = {
   "ice-bonbon": "#7fd4ff",
   lime: "#c6f03c",
   "blueberry-coconut": "#8c6cff",
-  zero: "#e9f5dc",
   "ice-coffee-latte": "#e3c9a3",
   "ice-coffee-cappuccino": "#c69c6d",
 };

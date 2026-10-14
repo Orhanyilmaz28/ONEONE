@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PaletteForm } from "./palette-form";
-import { getProducts } from "@/lib/catalog";
 import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
@@ -13,8 +12,15 @@ type Props = { searchParams: Promise<{ produkt?: string }> };
 
 export default async function PalettePage({ searchParams }: Props) {
   const { produkt } = await searchParams;
-  const [products, settings] = await Promise.all([getProducts(), getSettings()]);
-  const paletten = products.filter((p) => p.onRequest).map((p) => ({ handle: p.handle, title: p.title }));
+  const settings = await getSettings();
+  // Palettenarten für die Anfrage (keine Produkte im Shop – nur Anfrageformular)
+  const paletten = [
+    { handle: "energy", title: "Energy-Palette (108 Trays, Sorten nach Wunsch)" },
+    { handle: "ice-coffee", title: "Ice-Coffee-Palette (108 Trays)" },
+    { handle: "ice-tea", title: "X-Tea-Palette (108 Trays)" },
+    { handle: "misch", title: "Mischpalette (Energy, Ice Coffee, Ice Tea)" },
+    { handle: "wasser", title: "Aqua-x-Palette (Wasser)" },
+  ];
   const facts = [
     ["108", "Trays je Palette", "Energy-Palette: 2.592 Dosen"],
     ["1", "Anfrage, ein Angebot", "Händlerpreis nach Menge und Region"],

@@ -163,7 +163,7 @@ function BrowserView({
         {visible.length === 0 ? (
           <div className="py-24 text-center">
             <p className="t-h2">Nichts gefunden</p>
-            <p className="mt-3 text-muted">Versuch es mit einem anderen Begriff – z. B. „Classic“, „Zero“ oder „12er“.</p>
+            <p className="mt-3 text-muted">Versuch es mit einem anderen Begriff – z. B. „Classic“, „Lime“ oder „Tray“.</p>
             <button
               className="mt-5 inline-flex items-center gap-2 rounded-full border border-line bg-card px-5 py-2.5 text-sm transition hover:border-ink"
               onClick={resetFilters}

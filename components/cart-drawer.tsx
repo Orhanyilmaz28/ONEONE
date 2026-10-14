@@ -12,15 +12,19 @@ import { ProductImage } from "./product-image";
 import { shippingRules } from "./trust";
 
 export function CartDrawer() {
-  const { lines, subtotal, isOpen, close, setQuantity, count } = useCart();
+  const { lines, subtotal, isOpen, close, setQuantity, setLine, count, mix } = useCart();
+  const { products } = useShopData();
+  // Sorten, die man im Warenkorb noch dazunehmen kann (verfügbar und noch nicht drin)
+  const addable = products.filter((p) => p.variants.length === 1 && p.variants[0].available && !p.onRequest && !lines.some((l) => l.handle === p.handle));
+  const net = subtotal - mix.discount;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Versandkosten aus den Einstellungen im Dashboard
   const shipping = shippingRules(useShopData().settings.shipping);
   const freeFrom = shipping.freeFrom;
   const deposit = lines.reduce((n, l) => n + depositFor(l.variant, l.quantity), 0);
-  const remaining = freeFrom ? Math.max(0, freeFrom - subtotal) : 0;
-  const progress = freeFrom ? Math.min(1, subtotal / freeFrom) : 1;
+  const remaining = freeFrom ? Math.max(0, freeFrom - net) : 0;
+  const progress = freeFrom ? Math.min(1, net / freeFrom) : 1;
 
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -208,6 +212,39 @@ export function CartDrawer() {
                   </AnimatePresence>
                 </ul>
               )}
+              {lines.length > 0 ? (
+                <section aria-label="Mix zusammenstellen" className="mt-2 rounded-2xl border border-line p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-medium text-sm">Mix zusammenstellen</p>
+                    <Link className="text-accent text-xs underline-offset-4 hover:underline" href="/mix" onClick={close}>
+                      Mix-Konfigurator
+                    </Link>
+                  </div>
+                  <p className="mt-1 text-muted text-xs">
+                    {mix.sorts < 2
+                      ? "Nimm eine zweite Sorte dazu – ab 2 Trays gemischt gibt es 3 % Mix-Rabatt."
+                      : mix.next
+                        ? `Noch ${mix.next.missing} ${mix.next.missing === 1 ? "Tray" : "Trays"} bis ${mix.next.pct} % Mix-Rabatt.`
+                        : `Höchster Mix-Rabatt erreicht: ${mix.pct} %.`}
+                  </p>
+                  {addable.length ? (
+                    <ul className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
+                      {addable.map((p) => (
+                        <li key={p.handle}>
+                          <button
+                            aria-label={`1 Tray ${p.title} hinzufügen`}
+                            className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line px-3 py-1.5 text-xs transition hover:border-accent hover:text-accent"
+                            onClick={() => setLine(p.handle, p.variants[0].id, 1)}
+                            type="button"
+                          >
+                            <PlusIcon className="size-3" /> {p.title}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : null}
+                </section>
+              ) : null}
             </div>
 
             {lines.length > 0 ? (
@@ -216,6 +253,14 @@ export function CartDrawer() {
                   <span className="text-muted">Zwischensumme</span>
                   <span className="t-h3">{formatPrice(subtotal)}</span>
                 </div>
+                {mix.discount > 0 ? (
+                  <div className="flex items-baseline justify-between text-sm">
+                    <span className="text-accent">
+                      Mix-Rabatt ({mix.pct} %, {mix.sorts} Sorten · {mix.trays} Trays)
+                    </span>
+                    <span className="text-accent">−{formatPrice(mix.discount)}</span>
+                  </div>
+                ) : null}
                 {deposit > 0 ? (
                   <div className="flex items-baseline justify-between text-sm">
                     <span className="text-muted">Einwegpfand (0,25 € je Dose/Flasche)</span>

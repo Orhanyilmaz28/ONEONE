@@ -11,6 +11,7 @@ import {
   useState,
 } from "react";
 import { useShopData } from "./shop-data";
+import { type MixResult, mixDiscount } from "./mix";
 import type { CartLine, Product, Variant } from "./types";
 
 const STORAGE_KEY = "shop-cart-v2";
@@ -19,6 +20,7 @@ type Action =
   | { type: "hydrate"; lines: CartLine[] }
   | { type: "add"; line: CartLine }
   | { type: "set"; variantId: string; quantity: number }
+  | { type: "put"; line: CartLine }
   | { type: "clear" };
 
 function reducer(state: CartLine[], action: Action): CartLine[] {
@@ -44,6 +46,12 @@ function reducer(state: CartLine[], action: Action): CartLine[] {
               ? { ...l, quantity: Math.min(99, action.quantity) }
               : l
           );
+    case "put": {
+      // Menge direkt setzen und Zeile anlegen, falls sie fehlt (Mix-Konfigurator)
+      const q = Math.max(0, Math.min(99, action.line.quantity));
+      if (!state.some((l) => l.variantId === action.line.variantId)) return q > 0 ? [...state, { ...action.line, quantity: q }] : state;
+      return q === 0 ? state.filter((l) => l.variantId !== action.line.variantId) : state.map((l) => (l.variantId === action.line.variantId ? { ...l, quantity: q } : l));
+    }
     case "clear":
       return [];
     default:
@@ -62,6 +70,10 @@ type CartContextValue = {
   close: () => void;
   add: (handle: string, variantId: string, quantity?: number) => void;
   setQuantity: (variantId: string, quantity: number) => void;
+  /** Menge setzen, Zeile bei Bedarf anlegen – ohne den Warenkorb zu öffnen (Mix-Konfigurator) */
+  setLine: (handle: string, variantId: string, quantity: number) => void;
+  /** Mix-Rabatt (ab 2 Sorten, nach Tray-Anzahl) */
+  mix: MixResult;
   clear: () => void;
 };
 
@@ -117,6 +129,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "set", variantId, quantity });
   }, []);
 
+  const setLine = useCallback((handle: string, variantId: string, quantity: number) => {
+    dispatch({ type: "put", line: { handle, variantId, quantity } });
+  }, []);
+
   const value = useMemo<CartContextValue>(
     () => ({
       lines,
@@ -127,9 +143,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
       close: () => setOpen(false),
       add,
       setQuantity,
+      setLine,
+      mix: mixDiscount(lines.map((l) => ({ handle: l.handle, quantity: l.quantity, price: l.variant.price }))),
       clear: () => dispatch({ type: "clear" }),
     }),
-    [lines, isOpen, add, setQuantity]
+    [lines, isOpen, add, setQuantity, setLine]
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

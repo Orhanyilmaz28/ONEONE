@@ -252,7 +252,7 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
       {visible.length === 0 ? (
         <EmptyState action={{ href: BASE, label: "Alle Produkte zeigen" }} title="Keine passenden Produkte">
           {q
-            ? "Versuch es mit einem anderen Suchbegriff, z. B. „Classic“ oder „Zero“."
+            ? "Versuch es mit einem anderen Suchbegriff, z. B. „Classic“ oder „Lime“."
             : filter === "ausverkauft"
               ? "Super – gerade ist nichts ausverkauft."
               : filter === "ausgeblendet"

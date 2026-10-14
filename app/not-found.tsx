@@ -27,7 +27,7 @@ export default function NotFound() {
         <label className="sr-only" htmlFor="nf-suche">
           Produkte durchsuchen
         </label>
-        <input className="h-10 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted" id="nf-suche" name="q" placeholder="z. B. Classic oder Zero" type="search" />
+        <input className="h-10 min-w-0 flex-1 bg-transparent outline-none placeholder:text-muted" id="nf-suche" name="q" placeholder="z. B. Classic oder Lime" type="search" />
         <button className="inline-flex h-10 shrink-0 items-center rounded-full bg-accent px-5 font-medium text-sm text-black transition hover:bg-accent-dark" type="submit">
           Suchen
         </button>
