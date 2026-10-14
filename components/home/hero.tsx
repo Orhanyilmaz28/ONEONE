@@ -11,8 +11,13 @@ const COLORS: Record<string, string> = {
   "ice-bonbon": "#7fd4ff",
   lime: "#c6f03c",
   "blueberry-coconut": "#8c6cff",
+  "dragonfruit-lychee": "#e0407f",
+  cactus: "#4caf50",
   "ice-coffee-latte": "#e3c9a3",
   "ice-coffee-cappuccino": "#c69c6d",
+  "ice-coffee-caramel": "#e8892b",
+  "ice-coffee-espresso": "#a0623d",
+  "ice-coffee-vanille": "#f0d28a",
 };
 
 /** Startbild: wechselt automatisch durch die Sorten (Energy und Ice Coffee, freigestellte Dosen) */
