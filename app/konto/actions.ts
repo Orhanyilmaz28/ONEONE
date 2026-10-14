@@ -1,5 +1,6 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { accountAccess, endCustomerSession, getCurrentCustomer, safeNext, startCustomerSession } from "@/lib/customer-auth";
 import {
@@ -21,6 +22,7 @@ import {
 import { SITE_URL } from "@/lib/format";
 import { sendMail } from "@/lib/mail";
 import { passwordResetMail } from "@/lib/mail-templates";
+import { LIMITS, TOO_MANY, allowAttempt, clientIp } from "@/lib/rate-limit";
 import { getSettings } from "@/lib/settings";
 import { StoreUnavailableError } from "@/lib/store";
 
@@ -72,6 +74,7 @@ export async function register(_prev: FormState, form: FormData): Promise<FormSt
   if (!consent) fieldErrors.consent = "Bitte bestätige, dass du die Datenschutzerklärung gelesen hast.";
   const values = { name, email };
   if (Object.keys(fieldErrors).length) return { fieldErrors, values };
+  if (!(await allowAttempt("customer-signup", clientIp(await headers()), LIMITS.customerSignup))) return { error: TOO_MANY, values };
 
   let customer;
   try {
@@ -193,6 +196,9 @@ export async function requestPasswordReset(_prev: FormState, form: FormData): Pr
   if (!(await allowed())) return { error: OFF };
   const email = normalizeEmail(str(form, "email", 200));
   if (!EMAIL.test(email)) return { fieldErrors: { email: "Bitte gib eine gültige E-Mail-Adresse an." }, values: { email } };
+  // Bremse: je IP und je Adresse – damit niemand ein fremdes Postfach mit Reset-Mails flutet
+  const ipOk = await allowAttempt("password-reset", clientIp(await headers()), LIMITS.passwordReset);
+  if (!ipOk || !(await allowAttempt("password-reset-mail", email, LIMITS.passwordResetEmail))) return { error: TOO_MANY, values: { email } };
   const done: FormState = {
     message: `Wenn es ein Konto mit ${email} gibt, ist jetzt eine E-Mail mit einem Link unterwegs. Schau auch im Spam-Ordner nach. Der Link ist 60 Minuten gültig.`,
     at: Date.now(),

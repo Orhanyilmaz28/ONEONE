@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { BRANCHES, DealerLimitError, VOLUMES, addDealer } from "@/lib/dealer-store";
 import { mailReady, sendMail } from "@/lib/mail";
+import { LIMITS, TOO_MANY, allowAttempt, clientIp } from "@/lib/rate-limit";
 import { getSettings } from "@/lib/settings";
 import { StoreUnavailableError, deleteBinary, putBinary } from "@/lib/store";
 
@@ -12,7 +13,8 @@ const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
  * Händler-Registrierung (Anfrage). Wird gespeichert (Dashboard → Händler) und – wenn der E-Mail-Versand eingerichtet ist –
  * per E-Mail an den Shop und als Eingangsbestätigung an die Anfragenden geschickt.
  */
-const MAX_PROOF = 5 * 1024 * 1024;
+// Vercel nimmt höchstens ca. 4,5 MB pro Anfrage an – Datei plus Formular müssen darunter bleiben
+const MAX_PROOF = 4 * 1024 * 1024;
 
 /** Dateityp an den ersten Bytes erkennen (nicht dem Namen oder Browser vertrauen) */
 function sniff(buf: Buffer): { type: string; ext: string } | null {
@@ -23,12 +25,12 @@ function sniff(buf: Buffer): { type: string; ext: string } | null {
 }
 
 /**
- * Händler-Registrierung (Anfrage) mit Gewerbenachweis (PDF, JPG oder PNG bis 5 MB).
+ * Händler-Registrierung (Anfrage) mit Gewerbenachweis (PDF, JPG oder PNG bis 4 MB).
  * Wird gespeichert (Dashboard → Händler) und – wenn der E-Mail-Versand eingerichtet ist –
  * per E-Mail an den Shop und als Eingangsbestätigung an die Anfragenden geschickt.
  */
 export async function POST(request: Request) {
-  if (Number(request.headers.get("content-length") ?? 0) > MAX_PROOF + 100_000) return Response.json({ error: "Die Datei ist zu groß (höchstens 5 MB)." }, { status: 413 });
+  if (Number(request.headers.get("content-length") ?? 0) > MAX_PROOF + 100_000) return Response.json({ error: "Die Datei ist zu groß (höchstens 4 MB)." }, { status: 413 });
   let form: FormData;
   try {
     form = await request.formData();
@@ -60,10 +62,12 @@ export async function POST(request: Request) {
   if (!(BRANCHES as readonly string[]).includes(d.branch) || !(VOLUMES as readonly string[]).includes(d.volume)) return Response.json({ error: "Ungültige Auswahl." }, { status: 400 });
   if (body.consent !== true) return Response.json({ error: "Bitte stimme der Datenschutzerklärung zu.", fields: ["consent"] }, { status: 400 });
 
+  if (!(await allowAttempt("dealer-signup", clientIp(request.headers), LIMITS.dealerSignup))) return Response.json({ error: TOO_MANY }, { status: 429 });
+
   // Gewerbenachweis prüfen
   const file = form.get("proof");
   if (!(file instanceof File) || file.size === 0) return Response.json({ error: "Bitte lade deinen Gewerbenachweis hoch.", fields: ["proof"] }, { status: 400 });
-  if (file.size > MAX_PROOF) return Response.json({ error: "Die Datei ist zu groß (höchstens 5 MB).", fields: ["proof"] }, { status: 413 });
+  if (file.size > MAX_PROOF) return Response.json({ error: "Die Datei ist zu groß (höchstens 4 MB).", fields: ["proof"] }, { status: 413 });
   const buf = Buffer.from(await file.arrayBuffer());
   const kind = sniff(buf);
   if (!kind) return Response.json({ error: "Bitte lade den Nachweis als PDF, JPG oder PNG hoch.", fields: ["proof"] }, { status: 400 });

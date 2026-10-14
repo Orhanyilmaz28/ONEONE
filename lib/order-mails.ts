@@ -1,6 +1,6 @@
 import { sendMail } from "./mail";
 import { getMailSettings } from "./mail-settings";
-import { adminNewOrderMail, orderConfirmationMail } from "./mail-templates";
+import { adminNewOrderMail, adminPaymentFailedMail, orderConfirmationMail } from "./mail-templates";
 import { getOrder } from "./orders";
 import { getSettings } from "./settings";
 import { claimOnce, releaseOnce } from "./store";
@@ -39,6 +39,22 @@ export async function sendOrderMails(sessionId: string): Promise<{ customer: boo
     }
   }
   return result;
+}
+
+/** Shop informieren, wenn eine später bestätigte Zahlung (SEPA, Klarna …) doch fehlschlägt – genau einmal pro Bestellung */
+export async function sendPaymentFailedMail(sessionId: string): Promise<boolean> {
+  const order = await getOrder(sessionId).catch(() => null);
+  if (!order) return false;
+  const [settings, mail] = await Promise.all([getSettings(), getMailSettings()]);
+  const adminTo = mail.adminEmail.trim() || (isPlaceholder(settings.company.email) ? "" : settings.company.email.trim());
+  if (!adminTo || !(await claimOnce(`order-mail:failed:${order.id}`))) return false;
+  const res = await sendMail({ to: { email: adminTo }, ...adminPaymentFailedMail(order, settings), tag: "zahlung-fehlgeschlagen" });
+  if (!res.ok) {
+    console.error("[order-mails] Hinweis „Zahlung fehlgeschlagen“ nicht verschickt", order.number, res.error);
+    await releaseOnce(`order-mail:failed:${order.id}`);
+    return false;
+  }
+  return true;
 }
 
 function replyTo(companyEmail: string) {

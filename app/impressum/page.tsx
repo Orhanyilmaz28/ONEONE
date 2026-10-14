@@ -3,7 +3,7 @@ import { ImportedLegalPage, LegalPage, companyView } from "@/components/legal-pa
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Impressum" };
+export const metadata: Metadata = { title: "Impressum", alternates: { canonical: "/impressum" } };
 
 export default async function Page() {
   const imported = getImportedPage("impressum");

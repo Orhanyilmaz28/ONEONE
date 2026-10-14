@@ -3,6 +3,7 @@ import { mailReady, sendMail } from "@/lib/mail";
 import { newsletterConfirmMail } from "@/lib/mail-templates";
 import { addSubscriber, normalizeEmail, normalizeSource, requestSubscription, SubscriberLimitError } from "@/lib/newsletter-store";
 import { forwardToWebhook } from "@/lib/newsletter-forward";
+import { LIMITS, TOO_MANY, allowAttempt, clientIp } from "@/lib/rate-limit";
 import { getSettings } from "@/lib/settings";
 import { StoreUnavailableError } from "@/lib/store";
 
@@ -28,6 +29,7 @@ export async function POST(request: Request) {
 
   const email = normalizeEmail(body.email);
   if (!email) return Response.json({ error: "Ungültige E-Mail-Adresse" }, { status: 400 });
+  if (!(await allowAttempt("newsletter", clientIp(request.headers), LIMITS.newsletter))) return Response.json({ error: TOO_MANY }, { status: 429 });
   const source = normalizeSource(body.source);
 
   // ── Double-Opt-In ──

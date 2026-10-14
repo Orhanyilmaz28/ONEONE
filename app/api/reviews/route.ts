@@ -1,5 +1,6 @@
 import { getBaseProduct } from "@/lib/catalog";
 import { addReview, type NewReview, ReviewLimitError, type StoredReview } from "@/lib/review-store";
+import { LIMITS, TOO_MANY, allowAttempt, clientIp } from "@/lib/rate-limit";
 import { REVIEW_LIMITS } from "@/lib/reviews";
 import { StoreUnavailableError } from "@/lib/store";
 
@@ -67,6 +68,8 @@ export async function POST(request: Request) {
   if (!name) return error("Bitte gib deinen Vornamen an.");
   if (name.length > REVIEW_LIMITS.name) return error(`Der Name darf höchstens ${REVIEW_LIMITS.name} Zeichen lang sein.`);
   if (email.length > REVIEW_LIMITS.email || !EMAIL.test(email)) return error("Bitte gib eine gültige E-Mail-Adresse an.");
+
+  if (!(await allowAttempt("review", clientIp(request.headers), LIMITS.review))) return error(TOO_MANY, 429);
 
   const input: NewReview = {
     product,

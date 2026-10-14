@@ -17,8 +17,8 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
     setState("sending");
     const f = new FormData(e.currentTarget);
     const proof = f.get("proof");
-    if (proof instanceof File && proof.size > 5 * 1024 * 1024) {
-      setError("Die Datei ist zu groß (höchstens 5 MB).");
+    if (proof instanceof File && proof.size > 4 * 1024 * 1024) {
+      setError("Die Datei ist zu groß (höchstens 4 MB).");
       setInvalid(["proof"]);
       setState("idle");
       return;
@@ -118,7 +118,7 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
         <textarea className={`${field} h-28 py-3`} maxLength={1500} name="message" placeholder="z. B. Wunschsorten, Lieferzeiten, Fragen" />
       </label>
       <label className="grid gap-1.5 text-sm sm:col-span-2">
-        Gewerbenachweis * <span className="text-muted">(Gewerbeanmeldung, Handelsregisterauszug oder Ähnliches – PDF, JPG oder PNG, bis 5 MB)</span>
+        Gewerbenachweis * <span className="text-muted">(Gewerbeanmeldung, Handelsregisterauszug oder Ähnliches – PDF, JPG oder PNG, bis 4 MB)</span>
         <input accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" aria-invalid={bad("proof")} className={`${field} h-auto cursor-pointer py-3 file:mr-4 file:rounded-full file:border-0 file:bg-accent file:px-4 file:py-1.5 file:font-bold file:text-black`} name="proof" required type="file" />
       </label>
       {/* Spam-Falle: für Menschen unsichtbar */}

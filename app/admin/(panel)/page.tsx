@@ -156,6 +156,7 @@ export default async function AdminHome() {
   const withoutMaterial = shopProducts.filter((p) => !p.material?.trim());
 
   const mailOk = mailReady() && mailProvider() !== "outbox";
+  const secretsOk = (process.env.ADMIN_SECRET ?? "").length >= 32 && (process.env.SESSION_SECRET ?? "").length >= 32;
   const setup: SetupItem[] = [
     {
       id: "stripe",
@@ -214,6 +215,21 @@ export default async function AdminHome() {
         </>
       ),
       link: store === "redis" ? undefined : { href: GUIDES.online, label: "Schritt für Schritt in der Anleitung „Online stellen“", external: true },
+    },
+    {
+      id: "secrets",
+      title: "Eigene Sicherheitsschlüssel",
+      done: secretsOk,
+      status: secretsOk ? "Gesetzt" : "Empfohlen",
+      explanation:
+        "Mit diesen geheimen Werten werden die Logins (Dashboard, Kundenkonto, Händler) unterschrieben. Fehlen sie, leitet der Shop sie aus dem Dashboard-Passwort ab – das funktioniert, ist aber weniger sicher.",
+      detail: secretsOk ? undefined : `Fehlt oder zu kurz: ${(["ADMIN_SECRET", "SESSION_SECRET"] as const).filter((k) => (process.env[k] ?? "").length < 32).join(", ")}.`,
+      todo: (
+        <>
+          Bei Vercel unter <b>Settings → Environment Variables</b> <Env>ADMIN_SECRET</Env> und <Env>SESSION_SECRET</Env> mit je einer langen Zufallsfolge (mind. 32
+          Zeichen, z. B. aus einem Passwort-Generator) anlegen und neu bereitstellen. Danach müssen sich alle einmal neu anmelden.
+        </>
+      ),
     },
     {
       id: "domain",

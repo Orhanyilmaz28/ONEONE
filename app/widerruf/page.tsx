@@ -3,7 +3,7 @@ import { ImportedLegalPage, LegalPage, WithdrawalForm, WithdrawalInstructions, c
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Widerrufsbelehrung" };
+export const metadata: Metadata = { title: "Widerrufsbelehrung", alternates: { canonical: "/widerruf" } };
 
 export default async function Page() {
   const imported = getImportedPage("widerruf");

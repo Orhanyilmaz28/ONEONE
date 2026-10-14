@@ -4,7 +4,7 @@ import { ImportedLegalPage, LegalPage, companyView } from "@/components/legal-pa
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "AGB" };
+export const metadata: Metadata = { title: "AGB", alternates: { canonical: "/agb" } };
 
 export default async function Page() {
   const imported = getImportedPage("agb");

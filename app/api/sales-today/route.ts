@@ -6,13 +6,23 @@ import { getStripe } from "@/lib/stripe";
  */
 let cache: { at: number; data: Record<string, number> } | null = null;
 
+/** Beginn des heutigen Tages in deutscher Zeit (der Server läuft in UTC – sonst zählt „heute“ erst ab 1 bzw. 2 Uhr) */
+function berlinMidnight(now = new Date()) {
+  const parts = Object.fromEntries(
+    new Intl.DateTimeFormat("en-GB", { timeZone: "Europe/Berlin", hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23" })
+      .formatToParts(now)
+      .map((p) => [p.type, p.value])
+  );
+  const sinceMidnight = (Number(parts.hour) * 3600 + Number(parts.minute) * 60 + Number(parts.second)) * 1000 + now.getMilliseconds();
+  return new Date(now.getTime() - sinceMidnight);
+}
+
 export async function GET() {
   const stripe = getStripe();
   if (!stripe) return Response.json({ products: {} });
-  if (cache && Date.now() - cache.at < 5 * 60_000) return Response.json({ products: cache.data });
+  if (cache && Date.now() - cache.at < 5 * 60_000 && cache.at >= berlinMidnight().getTime()) return Response.json({ products: cache.data });
 
-  const start = new Date();
-  start.setHours(0, 0, 0, 0);
+  const start = berlinMidnight();
   const counts: Record<string, number> = {};
   try {
     for await (const session of stripe.checkout.sessions.list({ created: { gte: Math.floor(start.getTime() / 1000) }, status: "complete", limit: 100 })) {

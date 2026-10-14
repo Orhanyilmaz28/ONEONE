@@ -6,7 +6,7 @@ import { getAccountsConfig } from "@/lib/customers";
 import { mailProvider } from "@/lib/mail";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Datenschutz" };
+export const metadata: Metadata = { title: "Datenschutz", alternates: { canonical: "/datenschutz" } };
 
 /** Externer Link im Rechtstext */
 function Ext({ href }: { href: string }) {

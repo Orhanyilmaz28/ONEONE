@@ -231,6 +231,25 @@ export function adminNewOrderMail(o: Order, settings: Settings): Rendered {
   return { subject, html, text };
 }
 
+/** Info an den Shop: Eine Zahlung, die erst später bestätigt wird (z. B. SEPA-Lastschrift), ist fehlgeschlagen */
+export function adminPaymentFailedMail(o: Order, settings: Settings): Rendered {
+  const c = settings.company;
+  const url = `${SITE_URL}/admin/bestellungen/${encodeURIComponent(o.id)}`;
+  const subject = `Zahlung fehlgeschlagen: ${o.number} · ${formatPrice(o.amountTotal)}`;
+  const html = layout({
+    preheader: `Die Zahlung von ${o.customer.name} ist nicht eingegangen – bitte nicht versenden.`,
+    company: c,
+    body: `
+      ${h1("Zahlung fehlgeschlagen")}
+      ${p(`Die Zahlung für die Bestellung <b>${esc(o.number)}</b> von <b>${esc(o.customer.name)}</b> (${esc(o.customer.email)}) ist nachträglich fehlgeschlagen (z. B. Lastschrift zurückgegeben). <b>Bitte nicht versenden</b>, bis die Kund:in neu bezahlt hat.`)}
+      ${itemsTable(o)}
+      ${button(url, "Im Dashboard öffnen")}
+      ${small("Diese E-Mail bekommst nur du.")}`,
+  });
+  const text = [`Zahlung fehlgeschlagen: ${o.number}`, "", `${o.customer.name} (${o.customer.email})`, "Bitte nicht versenden, bis neu bezahlt wurde.", "", itemsText(o), "", `Im Dashboard: ${url}`].join("\n");
+  return { subject, html, text };
+}
+
 export function newsletterConfirmMail(confirmUrl: string, settings: Settings): Rendered {
   const c = settings.company;
   const subject = "Bitte bestätige deine Newsletter-Anmeldung";

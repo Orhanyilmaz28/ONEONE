@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { ProductBrowser } from "@/components/product-browser";
 import { catalog, getProducts } from "@/lib/catalog";
 
-export const metadata: Metadata = { title: "Alle Produkte" };
+export const metadata: Metadata = { title: "Alle Produkte", alternates: { canonical: "/products" } };
 
 export default async function ProductsPage() {
   return (
