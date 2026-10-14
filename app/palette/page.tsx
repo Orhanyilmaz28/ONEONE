@@ -9,18 +9,18 @@ export const metadata: Metadata = {
   description: "EXSTASE Paletten für Händler, Gastronomie und Events – Preis auf Anfrage, Lieferung per Spedition.",
 };
 
-type Props = { searchParams: Promise<{ produkt?: string; sorte?: string }> };
+type Props = { searchParams: Promise<{ produkt?: string; sorte?: string; lkw?: string }> };
 
 export default async function PalettePage({ searchParams }: Props) {
-  const { produkt, sorte } = await searchParams;
+  const { produkt, sorte, lkw } = await searchParams;
   const [settings, wunsch] = await Promise.all([getSettings(), sorte && /^[a-z0-9-]{1,60}$/.test(sorte) ? getProduct(sorte) : undefined]);
   // Palettenarten für die Anfrage (keine Produkte im Shop – nur Anfrageformular)
   const paletten = [
     { handle: "energy", title: "Energy-Palette (120 Trays, Sorten nach Wunsch)" },
     { handle: "ice-coffee", title: "Ice-Coffee-Palette (120 Trays)" },
-    { handle: "ice-tea", title: "X-Tea – nur als LKW-Ladung" },
+    { handle: "ice-tea", title: "X-Tea-Palette" },
     { handle: "misch", title: "Mischpalette (Energy, Ice Coffee, Ice Tea)" },
-    { handle: "wasser", title: "Aqua x Wasser – nur als LKW-Ladung (126 Trays je Palette)" },
+    { handle: "wasser", title: "Aqua-x-Palette (126 Trays à 12 Flaschen)" },
   ];
   const facts = [
     ["120", "Trays je Palette", "Energy-Palette: 2.880 Dosen"],
@@ -53,7 +53,7 @@ export default async function PalettePage({ searchParams }: Props) {
           Als Händler registrieren
         </Link>
       </header>
-      <PaletteForm email={settings.company.email} note={wunsch ? `Wunschsorte: ${wunsch.title}` : undefined} paletten={paletten} preselect={produkt} />
+      <PaletteForm email={settings.company.email} note={wunsch ? `${lkw ? "LKW-Ladung · " : ""}Wunschsorte: ${wunsch.title}` : undefined} paletten={paletten} preselect={produkt} />
     </div>
   );
 }

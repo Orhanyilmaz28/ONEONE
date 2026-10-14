@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { formatPrice } from "@/lib/format";
-import { MIX_TIERS, type MixResult } from "@/lib/mix";
+import { MIX_MAX as max, MIX_TIERS, type MixResult } from "@/lib/mix";
 import { PlusIcon } from "./icons";
 
 /**
@@ -11,7 +11,6 @@ import { PlusIcon } from "./icons";
  * Zeigt die nächste Stufe, was sie spart, eine Stufenleiste und einen Knopf für +1 Tray.
  */
 export function MixBooster({ mix, sim, addLabel, onAdd }: { mix: MixResult; sim: MixResult; addLabel?: string; onAdd?: () => void }) {
-  const max = MIX_TIERS[MIX_TIERS.length - 1].pct;
   const extra = Math.max(0, sim.discount - mix.discount);
   let title: string;
   let text: string;

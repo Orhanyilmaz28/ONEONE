@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { MixConfigurator } from "./mix-configurator";
 import { catalog, getProducts } from "@/lib/catalog";
+import { MIX_MAX } from "@/lib/mix";
 
 export const metadata: Metadata = {
   title: "Mix-Konfigurator",
-  description: "Stell dir deinen EXSTASE-Mix zusammen – Tray für Tray. Ab 2 Sorten mit Mix-Rabatt bis 15 %.",
+  description: `Stell dir deinen EXSTASE-Mix zusammen – Tray für Tray. Ab 2 Sorten mit Mix-Rabatt bis ${MIX_MAX} %.`,
   alternates: { canonical: "/mix" },
 };
 

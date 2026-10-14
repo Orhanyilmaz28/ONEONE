@@ -80,7 +80,7 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
                       {r.lkw ? (
                         <td className="px-3 py-3 text-right" colSpan={3}>
                           <span className="block font-bold text-accent">Nur per LKW auf Anfrage</span>
-                          <Link className="text-muted text-xs underline-offset-4 hover:text-accent hover:underline" href={`/palette?produkt=${r.group === "wasser" ? "wasser" : "ice-tea"}&sorte=${r.handle}`}>
+                          <Link className="text-muted text-xs underline-offset-4 hover:text-accent hover:underline" href={`/palette?produkt=${r.group === "wasser" ? "wasser" : "ice-tea"}&sorte=${r.handle}&lkw=1`}>
                             LKW-Ladung anfragen →
                           </Link>
                         </td>

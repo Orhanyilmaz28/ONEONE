@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useRef } from "react";
 import { useCart } from "@/lib/cart";
 import { cansOf } from "@/lib/format";
-import { lkwOnly, requestKind } from "@/lib/lkw";
 import { getSold } from "@/lib/reviews";
 import { useRating } from "@/lib/shop-data";
 import { formatAverage, Stars } from "./stars";
@@ -122,11 +121,11 @@ export function ProductCard({
         </Link>
 
         <div className="pointer-events-none absolute top-3 left-3 flex gap-1.5">
-          {product.onRequest ? <span className="rounded-full bg-[linear-gradient(135deg,#a8e652,#ffd400)] px-3 py-1 font-black text-black text-xs uppercase tracking-wide">{lkwOnly(product) ? "Nur per LKW" : "Palette"}</span> : null}
+          {product.onRequest ? <span className="rounded-full bg-[linear-gradient(135deg,#a8e652,#ffd400)] px-3 py-1 font-black text-black text-xs uppercase tracking-wide">Palette</span> : null}
           {pack > 1 ? <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{pack.toLocaleString("de-DE")} {product.productType === "Mineralwasser" ? "Flaschen" : "Dosen"}</span> : null}
           {onSale && saving ? <span className="rounded-full bg-[linear-gradient(135deg,#b5e86a,#ffe566)] px-3 py-1 font-medium text-black text-xs">−{saving} %</span> : null}
           {colorOption ? <ColorDots colors={colorOption.values} /> : null}
-          {available || product.onRequest ? null : <span className="rounded-full bg-card/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
+          {available ? null : <span className="rounded-full bg-card/90 px-3 py-1 text-muted text-xs">Ausverkauft</span>}
         </div>
 
         {available && quickVariants.length > 1 ? (
@@ -172,8 +171,8 @@ export function ProductCard({
         ) : null}
         <div aria-hidden className="min-h-3 flex-1" />
         {product.onRequest ? (
-          <Link className="anim-shine relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${requestKind(product)}&sorte=${product.handle}`}>
-            {lkwOnly(product) ? "LKW-Ladung anfragen" : "Anfragen"}
+          <Link className="anim-shine relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${product.handle}`}>
+            Anfragen
           </Link>
         ) : single ? (
           <button

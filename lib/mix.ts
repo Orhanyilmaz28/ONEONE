@@ -5,14 +5,17 @@
  */
 export const MIX_TIERS = [
   { min: 2, pct: 3 },
-  { min: 3, pct: 5 },
-  { min: 4, pct: 7 },
-  { min: 6, pct: 9 },
-  { min: 9, pct: 10 },
-  { min: 12, pct: 12 },
-  { min: 18, pct: 13 },
-  { min: 24, pct: 15 },
+  { min: 3, pct: 4 },
+  { min: 4, pct: 5 },
+  { min: 6, pct: 6 },
+  { min: 9, pct: 7 },
+  { min: 12, pct: 8 },
+  { min: 18, pct: 9 },
+  { min: 24, pct: 10 },
 ] as const;
+
+/** Höchster Mix-Rabatt in Prozent */
+export const MIX_MAX = MIX_TIERS[MIX_TIERS.length - 1].pct;
 
 export type MixLine = { handle: string; quantity: number; price: number };
 
