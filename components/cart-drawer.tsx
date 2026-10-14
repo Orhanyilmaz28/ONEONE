@@ -1,15 +1,25 @@
 "use client";
 
-import { AnimatePresence, motion } from "motion/react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { depositFor, formatPrice } from "@/lib/format";
+import { MIX_TIERS } from "@/lib/mix";
+import { SORT_COLORS } from "@/lib/pack-contents";
 import { useShopData } from "@/lib/shop-data";
 import { ArrowIcon, CloseIcon, MinusIcon, PlusIcon } from "./icons";
 import { LogoMark } from "./logo";
 import { ProductImage } from "./product-image";
+import { Rolling } from "./rolling";
 import { shippingRules } from "./trust";
+
+/** Sortenfarbe als halbtransparentes rgba (für das kurze Aufleuchten neuer Zeilen) */
+function tint(handle: string, alpha: number) {
+  const hex = (SORT_COLORS[handle] ?? "#a8e652").replace("#", "");
+  const n = Number.parseInt(hex, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
 
 export function CartDrawer() {
   const { lines, subtotal, isOpen, close, setQuantity, setLine, count, mix } = useCart();
@@ -68,7 +78,12 @@ export function CartDrawer() {
     }
   }
 
+  // Fortschritt zur nächsten Mix-Rabattstufe (zählt erst ab 2 Sorten)
+  const prevMin = [...MIX_TIERS].reverse().find((t) => t.min <= mix.trays)?.min ?? 0;
+  const mixProgress = mix.sorts < 2 ? 0 : mix.next ? Math.max(0, Math.min(1, (mix.trays - prevMin) / (mix.next.trays - prevMin))) : 1;
+
   return (
+    <MotionConfig reducedMotion="user">
     <AnimatePresence>
       {isOpen ? (
         <>
@@ -148,12 +163,13 @@ export function CartDrawer() {
                   <AnimatePresence initial={false}>
                     {lines.map((line) => (
                       <motion.li
-                        animate={{ opacity: 1, height: "auto" }}
-                        className="overflow-hidden"
+                        animate={{ opacity: 1, height: "auto", backgroundColor: tint(line.handle, 0) }}
+                        className="-mx-3 overflow-hidden rounded-2xl px-3"
                         exit={{ opacity: 0, height: 0 }}
-                        initial={{ opacity: 0, height: 0 }}
+                        initial={{ opacity: 0, height: 0, backgroundColor: tint(line.handle, 0.22) }}
                         key={line.variantId}
                         layout
+                        transition={{ backgroundColor: { duration: 1.4, ease: "easeOut" }, default: { type: "spring", stiffness: 380, damping: 34 } }}
                       >
                         <div className="flex gap-4 py-4">
                           <Link
@@ -171,8 +187,8 @@ export function CartDrawer() {
                                   <p className="text-muted text-sm">{line.variant.title}</p>
                                 ) : null}
                               </div>
-                              <p className="shrink-0 text-sm">
-                                {formatPrice(line.variant.price * line.quantity)}
+                              <p className="shrink-0 text-sm tabular-nums">
+                                <Rolling cents={line.variant.price * line.quantity} />
                               </p>
                             </div>
                             <div className="mt-auto flex items-center justify-between">
@@ -185,8 +201,12 @@ export function CartDrawer() {
                                 >
                                   <MinusIcon className="size-3.5" />
                                 </button>
-                                <span className="w-6 text-center text-sm tabular-nums">
-                                  {line.quantity}
+                                <span className="relative w-6 overflow-hidden text-center text-sm tabular-nums">
+                                  <AnimatePresence initial={false} mode="popLayout">
+                                    <motion.span animate={{ y: 0, opacity: 1 }} className="inline-block" exit={{ y: -10, opacity: 0 }} initial={{ y: 10, opacity: 0 }} key={line.quantity} transition={{ duration: 0.18 }}>
+                                      {line.quantity}
+                                    </motion.span>
+                                  </AnimatePresence>
                                 </span>
                                 <button
                                   aria-label="Menge erhöhen"
@@ -213,12 +233,23 @@ export function CartDrawer() {
                 </ul>
               )}
               {lines.length > 0 ? (
-                <section aria-label="Mix zusammenstellen" className="mt-2 rounded-2xl border border-line p-4">
-                  <div className="flex items-baseline justify-between gap-3">
+                <section aria-label="Mix zusammenstellen" className="mt-3 rounded-2xl border border-line p-4">
+                  <div className="flex items-center justify-between gap-3">
                     <p className="font-medium text-sm">Mix zusammenstellen</p>
-                    <Link className="text-accent text-xs underline-offset-4 hover:underline" href="/mix" onClick={close}>
-                      Mix-Konfigurator
-                    </Link>
+                    <AnimatePresence initial={false} mode="popLayout">
+                      {mix.pct > 0 ? (
+                        <motion.span
+                          animate={{ scale: [0.6, 1.15, 1], opacity: 1 }}
+                          className="rounded-full bg-accent px-2.5 py-0.5 font-bold text-black text-xs"
+                          exit={{ scale: 0.6, opacity: 0 }}
+                          initial={{ scale: 0.6, opacity: 0 }}
+                          key={mix.pct}
+                          transition={{ duration: 0.45, ease: "easeOut" }}
+                        >
+                          −{mix.pct} %
+                        </motion.span>
+                      ) : null}
+                    </AnimatePresence>
                   </div>
                   <p className="mt-1 text-muted text-xs">
                     {mix.sorts < 2
@@ -227,22 +258,35 @@ export function CartDrawer() {
                         ? `Noch ${mix.next.missing} ${mix.next.missing === 1 ? "Tray" : "Trays"} bis ${mix.next.pct} % Mix-Rabatt.`
                         : `Höchster Mix-Rabatt erreicht: ${mix.pct} %.`}
                   </p>
+                  <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream">
+                    <motion.div animate={{ width: `${mixProgress * 100}%` }} className="h-full rounded-full bg-accent" initial={false} transition={{ type: "spring", stiffness: 160, damping: 24 }} />
+                  </div>
                   {addable.length ? (
-                    <ul className="no-scrollbar mt-3 flex gap-2 overflow-x-auto pb-1">
-                      {addable.map((p) => (
-                        <li key={p.handle}>
-                          <button
-                            aria-label={`1 Tray ${p.title} hinzufügen`}
-                            className="flex items-center gap-1.5 whitespace-nowrap rounded-full border border-line px-3 py-1.5 text-xs transition hover:border-accent hover:text-accent"
-                            onClick={() => setLine(p.handle, p.variants[0].id, 1)}
-                            type="button"
-                          >
-                            <PlusIcon className="size-3" /> {p.title}
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
+                    <motion.ul className="mt-3 grid grid-cols-2 gap-2" layout>
+                      <AnimatePresence initial={false}>
+                        {addable.map((p) => (
+                          <motion.li animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.85 }} initial={{ opacity: 0, scale: 0.85 }} key={p.handle} layout transition={{ duration: 0.2 }}>
+                            <button
+                              aria-label={`1 Tray ${p.title} hinzufügen`}
+                              className="flex w-full items-center gap-2 rounded-xl border border-line p-1.5 pr-2 text-left text-xs transition hover:border-accent"
+                              onClick={() => setLine(p.handle, p.variants[0].id, 1)}
+                              style={{ ["--c" as string]: SORT_COLORS[p.handle] ?? "#a8e652" }}
+                              type="button"
+                            >
+                              <span className="relative size-9 shrink-0 overflow-hidden rounded-lg bg-cream">
+                                <ProductImage product={p} sizes="36px" />
+                              </span>
+                              <span className="min-w-0 flex-1 leading-tight">{p.title}</span>
+                              <PlusIcon className="size-3.5 shrink-0 text-[var(--c)]" />
+                            </button>
+                          </motion.li>
+                        ))}
+                      </AnimatePresence>
+                    </motion.ul>
                   ) : null}
+                  <Link className="mt-3 inline-block text-accent text-xs underline-offset-4 hover:underline" href="/mix" onClick={close}>
+                    Im Mix-Konfigurator öffnen →
+                  </Link>
                 </section>
               ) : null}
             </div>
@@ -251,20 +295,28 @@ export function CartDrawer() {
               <footer className="space-y-4 border-line border-t px-6 py-5">
                 <div className="flex items-baseline justify-between">
                   <span className="text-muted">Zwischensumme</span>
-                  <span className="t-h3">{formatPrice(subtotal)}</span>
+                  <span className="t-h3 tabular-nums">
+                    <Rolling cents={subtotal} />
+                  </span>
                 </div>
+                <AnimatePresence initial={false}>
                 {mix.discount > 0 ? (
-                  <div className="flex items-baseline justify-between text-sm">
+                  <motion.div animate={{ opacity: 1, height: "auto" }} className="flex items-baseline justify-between overflow-hidden text-sm" exit={{ opacity: 0, height: 0 }} initial={{ opacity: 0, height: 0 }} key="mix-rabatt">
                     <span className="text-accent">
                       Mix-Rabatt ({mix.pct} %, {mix.sorts} Sorten · {mix.trays} Trays)
                     </span>
-                    <span className="text-accent">−{formatPrice(mix.discount)}</span>
-                  </div>
+                    <span className="text-accent tabular-nums">
+                      <Rolling cents={mix.discount} prefix="−" />
+                    </span>
+                  </motion.div>
                 ) : null}
+                </AnimatePresence>
                 {deposit > 0 ? (
                   <div className="flex items-baseline justify-between text-sm">
                     <span className="text-muted">Einwegpfand (0,25 € je Dose/Flasche)</span>
-                    <span>{formatPrice(deposit)}</span>
+                    <span className="tabular-nums">
+                      <Rolling cents={deposit} />
+                    </span>
                   </div>
                 ) : null}
                 <p className="text-muted text-xs">
@@ -293,5 +345,6 @@ export function CartDrawer() {
         </>
       ) : null}
     </AnimatePresence>
+    </MotionConfig>
   );
 }

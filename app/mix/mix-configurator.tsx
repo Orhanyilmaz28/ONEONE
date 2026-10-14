@@ -1,7 +1,7 @@
 "use client";
 
-import { AnimatePresence, MotionConfig, animate, motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, MotionConfig, motion } from "motion/react";
+import { Rolling, RollingInt } from "@/components/rolling";
 import { MinusIcon, PlusIcon } from "@/components/icons";
 import { ProductImage } from "@/components/product-image";
 import { useCart } from "@/lib/cart";
@@ -27,7 +27,7 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
 
   return (
     <MotionConfig reducedMotion="user">
-    <div className="grid grid-cols-1 gap-8 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem]">
+    <div className="grid grid-cols-1 gap-8 pb-28 lg:grid-cols-[minmax(0,1fr)_22rem] lg:pb-20">
       <div className="min-w-0 space-y-10">
         {groups.map((g) => (
           <section key={g.title}>
@@ -176,47 +176,31 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
           <p className="mt-3 text-center text-muted text-xs">Inkl. MwSt., zzgl. Pfand und Versand. Dein Mix liegt direkt im Warenkorb.</p>
         </div>
       </aside>
+
+      {/* Handy/Tablet: Zusammenfassung immer sichtbar unten – kein Scrollen zur Box „Dein Mix“ nötig */}
+      <div className="fixed inset-x-3 bottom-3 z-40 flex items-center gap-3 rounded-full border border-line bg-card/95 p-2 pl-5 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur lg:hidden" data-mix-bar data-print-hide>
+        <span className="min-w-0 flex-1">
+          <span className="block font-medium text-sm tabular-nums">
+            <RollingInt value={mix.trays} /> {mix.trays === 1 ? "Tray" : "Trays"} · <Rolling cents={mix.subtotal - mix.discount} />
+          </span>
+          <span className="block truncate text-muted text-xs">
+            {mix.sorts < 2 ? "Ab 2 Sorten Mix-Rabatt" : mix.next ? `Noch ${mix.next.missing} bis ${mix.next.pct} %` : "Höchster Rabatt"}
+          </span>
+        </span>
+        <AnimatePresence initial={false} mode="popLayout">
+          {mix.pct > 0 ? (
+            <motion.span animate={{ scale: [0.6, 1.15, 1], opacity: 1 }} className="rounded-full bg-accent/15 px-2.5 py-1 font-bold text-accent text-xs" exit={{ scale: 0.6, opacity: 0 }} initial={{ scale: 0.6, opacity: 0 }} key={mix.pct} transition={{ duration: 0.45 }}>
+              −{mix.pct} %
+            </motion.span>
+          ) : null}
+        </AnimatePresence>
+        <button className="h-11 shrink-0 rounded-full bg-accent px-5 font-bold text-black text-sm transition hover:bg-accent-dark disabled:opacity-50" disabled={chosen.length === 0} onClick={open} type="button">
+          Warenkorb
+        </button>
+      </div>
     </div>
     </MotionConfig>
   );
-}
-
-/** Zahl rollt weich zum neuen Wert (bei „Bewegung reduzieren“ sofort) */
-function useRolling(value: number) {
-  const reduce = useReducedMotion();
-  const [shown, setShown] = useState(value);
-  const from = useRef(value);
-  useEffect(() => {
-    if (reduce) {
-      from.current = value;
-      setShown(value);
-      return;
-    }
-    const controls = animate(from.current, value, {
-      duration: 0.45,
-      ease: [0.22, 1, 0.36, 1],
-      onUpdate: (v) => {
-        from.current = v;
-        setShown(v);
-      },
-    });
-    return () => controls.stop();
-  }, [value, reduce]);
-  return shown;
-}
-
-function Rolling({ cents, prefix = "" }: { cents: number; prefix?: string }) {
-  const v = useRolling(cents);
-  return (
-    <>
-      {prefix}
-      {formatPrice(Math.round(v))}
-    </>
-  );
-}
-
-function RollingInt({ value }: { value: number }) {
-  return <>{Math.round(useRolling(value))}</>;
 }
 
 const MAX_BLOCKS = 48;
