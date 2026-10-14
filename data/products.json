@@ -21,13 +21,13 @@
     {
       "handle": "ice-tea",
       "title": "X-Tea Ice Tea",
-      "description": "Watermelon, Peach und Lemon – Eistee in der Dose.",
+      "description": "Watermelon, Peach und Lemon – Eistee in der Dose. Nur auf Anfrage bei LKW-Bestellung.",
       "image": "/dosen-foto/xtea-peach.webp"
     },
     {
       "handle": "mineralwasser",
       "title": "Aqua x Wasser",
-      "description": "Still, Medium oder Classic – Mineralwasser in der 500-ml-Flasche.",
+      "description": "Still, Medium oder Classic – Mineralwasser in der 500-ml-Flasche. Nur auf Anfrage bei LKW-Bestellung.",
       "image": "/dosen-foto/wasser-classic.webp"
     }
   ],
@@ -850,6 +850,7 @@
           "cans": 24
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "Ice Tea",
@@ -900,6 +901,7 @@
           "cans": 24
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "Ice Tea",
@@ -950,6 +952,7 @@
           "cans": 24
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "Ice Tea",
@@ -1000,6 +1003,7 @@
           "cans": 12
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "500-ml-Flasche",
@@ -1051,6 +1055,7 @@
           "cans": 12
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "500-ml-Flasche",
@@ -1102,6 +1107,7 @@
           "cans": 12
         }
       ],
+      "onRequest": true,
       "featured": true,
       "highlights": [
         "500-ml-Flasche",

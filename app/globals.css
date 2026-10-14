@@ -435,3 +435,18 @@ body::after {
 @media (max-width: 1023px) {
   body:has([data-mix-bar]) .help-btn { display: none; }
 }
+
+/* Warenkorb: Rabatt-Hinweis „Mehr Trays · mehr Rabatt“ – fließender Verlauf in den Markenfarben, pulsierender Badge, nächste Stufe blinkt */
+@keyframes booster-flow { from { background-position: 0% 50%; } to { background-position: 100% 50%; } }
+@keyframes booster-glow { 0%, 100% { box-shadow: 0 0 0 0 rgba(0, 0, 0, 0.35); } 50% { box-shadow: 0 0 0 8px rgba(0, 0, 0, 0); } }
+@keyframes booster-next { 0%, 100% { background-color: rgba(0, 0, 0, 0.15); } 50% { background-color: rgba(0, 0, 0, 0.4); } }
+@keyframes booster-nudge { 0%, 80%, 100% { transform: none; } 84% { transform: translateX(-3px) rotate(-1.5deg); } 88% { transform: translateX(3px) rotate(1.5deg); } 92% { transform: translateX(-2px); } 96% { transform: translateX(1px); } }
+.mix-booster {
+  background: linear-gradient(110deg, #a8e652 0%, #ffd400 25%, #a8e652 50%, #ffd400 75%, #a8e652 100%);
+  background-size: 200% 100%;
+  animation: booster-flow 7s linear infinite;
+}
+.booster-glow { animation: booster-glow 2.2s ease-in-out infinite; }
+.booster-next { animation: booster-next 1.4s ease-in-out infinite; }
+.booster-nudge { animation: booster-nudge 4.5s ease-in-out infinite; }
+.booster-nudge:hover { animation: none; }

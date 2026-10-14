@@ -5,7 +5,7 @@ import { useState } from "react";
 const field = "h-12 w-full rounded-2xl border border-line bg-card px-4 outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/15";
 
 /** Anfrage-Formular: öffnet das E-Mail-Programm mit fertigem Text (bis die Händler-Registrierung online ist) */
-export function PaletteForm({ email, paletten, preselect }: { email: string; paletten: { handle: string; title: string }[]; preselect?: string }) {
+export function PaletteForm({ email, paletten, preselect, note }: { email: string; paletten: { handle: string; title: string }[]; preselect?: string; note?: string }) {
   const [produkt, setProdukt] = useState(paletten.some((p) => p.handle === preselect) ? (preselect as string) : (paletten[0]?.handle ?? ""));
   const [anzahl, setAnzahl] = useState("1");
   const [sent, setSent] = useState(false);
@@ -80,7 +80,7 @@ export function PaletteForm({ email, paletten, preselect }: { email: string; pal
         </label>
         <label className="grid gap-1.5 text-sm lg:col-span-2">
           Nachricht (optional) – z. B. Wunschsorten für eine Mischpalette
-          <textarea className={`${field} h-28 py-3`} name="nachricht" />
+          <textarea className={`${field} h-28 py-3`} defaultValue={note} name="nachricht" />
         </label>
         <div className="flex flex-col gap-3 lg:col-span-2 sm:flex-row sm:items-center">
           <button className="anim-shine relative inline-flex h-14 items-center justify-center overflow-hidden rounded-full bg-accent px-10 font-bold text-black text-lg transition hover:bg-accent-dark" type="submit">

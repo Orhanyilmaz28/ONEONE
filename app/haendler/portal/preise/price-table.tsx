@@ -1,6 +1,8 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
+import { PdfLink } from "@/components/dealer-dialog";
 import { useMemo, useState } from "react";
 import type { DealerPriceCell, DealerRow } from "@/lib/dealer-catalog";
 import { formatPrice as euro } from "@/lib/format";
@@ -33,9 +35,9 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
         </nav>
         <input aria-label="Artikel suchen" className="h-10 w-full rounded-full border border-line bg-card px-4 text-sm outline-none focus:border-accent sm:w-56" onChange={(e) => setQ(e.target.value)} placeholder="Artikel suchen …" type="search" value={q} />
         {katalog ? (
-          <a className="inline-flex h-10 items-center rounded-full border border-accent px-4 font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href="/haendler/portal/pass/katalog">
+          <PdfLink className="inline-flex h-10 items-center rounded-full border border-accent px-4 font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href="/haendler/portal/pass/katalog" title="Gesamtkatalog">
             Gesamtkatalog (PDF)
-          </a>
+          </PdfLink>
         ) : null}
       </div>
 
@@ -67,23 +69,39 @@ export function PriceTable({ rows, groups, katalog }: { rows: DealerRow[]; group
                           <span>
                             <span className="block font-medium">{r.title}</span>
                             <span className="block text-muted text-xs">{r.unit}</span>
+                            {r.artNr || r.gtin ? (
+                              <span className="block text-muted text-[11px] tabular-nums">
+                                {[r.artNr && `Art.-Nr. ${r.artNr}`, r.gtin && `EAN ${r.gtin}`].filter(Boolean).join(" · ")}
+                              </span>
+                            ) : null}
                           </span>
                         </span>
                       </td>
-                      <td className="px-3 py-3 text-right">
-                        <Cell cell={r.t1} sub={r.t1.value ? `${euro(Math.round(r.t1.value / r.perTray))} je Stück` : undefined} />
-                      </td>
-                      <td className="px-3 py-3 text-right">
-                        <Cell cell={r.t2} sub={r.t2.value ? `${euro(Math.round(r.t2.value / r.perTray))} je Stück` : undefined} />
-                      </td>
-                      <td className="px-3 py-3 text-right">
-                        <Cell cell={r.pal} sub={r.pal.value && r.trays ? `${r.trays} Trays · ${euro(Math.round(r.pal.value / r.trays))} je Tray` : undefined} />
-                      </td>
+                      {r.lkw ? (
+                        <td className="px-3 py-3 text-right" colSpan={3}>
+                          <span className="block font-bold text-accent">Nur per LKW auf Anfrage</span>
+                          <Link className="text-muted text-xs underline-offset-4 hover:text-accent hover:underline" href={`/palette?produkt=${r.group === "wasser" ? "wasser" : "ice-tea"}&sorte=${r.handle}`}>
+                            LKW-Ladung anfragen →
+                          </Link>
+                        </td>
+                      ) : (
+                        <>
+                          <td className="px-3 py-3 text-right">
+                            <Cell cell={r.t1} sub={r.t1.value ? `${euro(Math.round(r.t1.value / r.perTray))} je Stück` : undefined} />
+                          </td>
+                          <td className="px-3 py-3 text-right">
+                            <Cell cell={r.t2} sub={r.t2.value ? `${euro(Math.round(r.t2.value / r.perTray))} je Stück` : undefined} />
+                          </td>
+                          <td className="px-3 py-3 text-right">
+                            <Cell cell={r.pal} sub={r.pal.value && r.trays ? `${r.trays} Trays · ${euro(Math.round(r.pal.value / r.trays))} je Tray` : undefined} />
+                          </td>
+                        </>
+                      )}
                       <td className="px-4 py-3 text-right">
                         {r.pass ? (
-                          <a className="inline-flex h-8 items-center rounded-full border border-accent px-3 font-bold text-accent text-xs transition hover:bg-accent hover:text-black" href={`/haendler/portal/pass/${r.handle}`}>
+                          <PdfLink className="inline-flex h-8 items-center rounded-full border border-accent px-3 font-bold text-accent text-xs transition hover:bg-accent hover:text-black" href={`/haendler/portal/pass/${r.handle}`} title={`Artikelpass ${r.title}`}>
                             PDF
-                          </a>
+                          </PdfLink>
                         ) : (
                           <span className="text-muted text-xs">folgt</span>
                         )}

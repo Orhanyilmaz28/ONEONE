@@ -25,6 +25,11 @@ export type DealerRow = {
   t2: DealerPriceCell;
   pal: DealerPriceCell;
   pass: boolean;
+  /** Art.-Nr. und EAN aus dem Artikelpass */
+  artNr?: string;
+  gtin?: string;
+  /** Nur per LKW auf Anfrage (Wasser, X-Tea) – keine Tray-Preise */
+  lkw: boolean;
 };
 
 /** Trays je Euro-Palette laut Artikelpass: Energy und Ice Coffee 120 (24 × 250 ml), Wasser 126 (12 × 500 ml); X-Tea noch ohne Pass */

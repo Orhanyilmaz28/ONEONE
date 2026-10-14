@@ -129,8 +129,8 @@ export function Promises() {
 
 /* ───────── FAQ ───────── */
 const FAQ = [
-  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut. Dazu X-Tea Ice Tea (Watermelon, Peach, Lemon), Ice Coffee (Latte, Cappuccino) und Aqua x Mineralwasser (Still, Medium, Classic). Im Mix-Konfigurator stellst du dir mehrere Sorten zusammen – jeweils als ganze Trays."],
-  ["Gibt es einzelne Dosen?", "Nein, wir verkaufen nur komplette Trays (24 Dosen, beim Wasser 12 Flaschen). Wer mehrere Sorten möchte, stellt sich im Mix-Konfigurator einen Mix aus mehreren Trays zusammen – ab 2 Sorten mit Mix-Rabatt."],
+  ["Welche Sorten gibt es?", "Energy: Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut, Dragonfruit Lychee und Cactus. Ice Coffee: Latte, Cappuccino, Caramel, Espresso und Vanille. Im Mix-Konfigurator stellst du dir mehrere Sorten zusammen – jeweils als ganze Trays. X-Tea Ice Tea (Watermelon, Peach, Lemon) und Aqua x Mineralwasser (Still, Medium, Classic) gibt es nur auf Anfrage bei LKW-Bestellung."],
+  ["Gibt es einzelne Dosen?", "Nein, wir verkaufen nur komplette Trays mit 24 Dosen. Wer mehrere Sorten möchte, stellt sich im Mix-Konfigurator einen Mix aus mehreren Trays zusammen – ab 2 Sorten mit Mix-Rabatt."],
   ["Wie viel Koffein ist enthalten?", "Die genauen Angaben stehen auf der Dose und auf der jeweiligen Produktseite. EXSTASE hat einen erhöhten Koffeingehalt – für Kinder, schwangere und stillende Frauen nicht empfohlen."],
   ["Wie funktioniert der Mix-Rabatt?", "Sobald mindestens 2 verschiedene Sorten im Warenkorb sind, gibt es Rabatt auf alle Trays – je mehr Trays, desto mehr: ab 2 Trays 3 %, ab 3 Trays 5 %, ab 4 Trays 7 %, ab 6 Trays 9 %, ab 9 Trays 10 %, ab 12 Trays 12 %, ab 18 Trays 13 % und ab 24 Trays 15 %."],
   ["Gibt es Pfand?", "Ja. Auf jede Dose und Flasche kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],

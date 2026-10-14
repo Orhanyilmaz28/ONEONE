@@ -5,11 +5,12 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { depositFor, formatPrice } from "@/lib/format";
-import { MIX_TIERS } from "@/lib/mix";
+import { mixDiscount } from "@/lib/mix";
 import { SORT_COLORS } from "@/lib/pack-contents";
 import { useShopData } from "@/lib/shop-data";
 import { ArrowIcon, CloseIcon, MinusIcon, PlusIcon } from "./icons";
 import { LogoMark } from "./logo";
+import { MixBooster } from "./mix-booster";
 import { ProductImage } from "./product-image";
 import { Rolling } from "./rolling";
 import { shippingRules } from "./trust";
@@ -78,9 +79,16 @@ export function CartDrawer() {
     }
   }
 
-  // Fortschritt zur nächsten Mix-Rabattstufe (zählt erst ab 2 Sorten)
-  const prevMin = [...MIX_TIERS].reverse().find((t) => t.min <= mix.trays)?.min ?? 0;
-  const mixProgress = mix.sorts < 2 ? 0 : mix.next ? Math.max(0, Math.min(1, (mix.trays - prevMin) / (mix.next.trays - prevMin))) : 1;
+  // Rabatt-Hinweis: +1 Tray einer noch fehlenden Sorte (sonst der ersten im Warenkorb) und was die nächste Stufe spart
+  const suggest = addable[0];
+  const first = lines[0];
+  const boost = suggest ? () => setLine(suggest.handle, suggest.variants[0].id, 1) : first ? () => setQuantity(first.variantId, first.quantity + 1) : undefined;
+  const boostLabel = suggest ? `+1 Tray ${suggest.title}` : first ? `+1 Tray ${first.product.title}` : undefined;
+  const addTrays = mix.sorts < 2 ? 1 : (mix.next?.missing ?? 0);
+  const sim = mixDiscount([
+    ...lines.map((l) => ({ handle: l.handle, quantity: l.quantity, price: l.variant.price })),
+    suggest ? { handle: suggest.handle, quantity: addTrays, price: suggest.variants[0].price } : { handle: first?.handle ?? "", quantity: addTrays, price: first?.variant.price ?? 0 },
+  ]);
 
   return (
     <MotionConfig reducedMotion="user">
@@ -118,6 +126,12 @@ export function CartDrawer() {
                 <CloseIcon />
               </button>
             </header>
+
+            {lines.length > 0 ? (
+              <div className="border-line border-b px-4 py-3 sm:px-6">
+                <MixBooster addLabel={boostLabel} mix={mix} onAdd={boost} sim={sim} />
+              </div>
+            ) : null}
 
             {/* Hinweis zum kostenlosen Versand – entfällt, wenn es im Shop keinen gibt */}
             {lines.length > 0 && (freeFrom || shipping.alwaysFree) ? (
@@ -234,33 +248,8 @@ export function CartDrawer() {
               )}
               {lines.length > 0 ? (
                 <section aria-label="Mix zusammenstellen" className="mt-3 rounded-2xl border border-line p-4">
-                  <div className="flex items-center justify-between gap-3">
-                    <p className="font-medium text-sm">Mix zusammenstellen</p>
-                    <AnimatePresence initial={false} mode="popLayout">
-                      {mix.pct > 0 ? (
-                        <motion.span
-                          animate={{ scale: [0.6, 1.15, 1], opacity: 1 }}
-                          className="rounded-full bg-accent px-2.5 py-0.5 font-bold text-black text-xs"
-                          exit={{ scale: 0.6, opacity: 0 }}
-                          initial={{ scale: 0.6, opacity: 0 }}
-                          key={mix.pct}
-                          transition={{ duration: 0.45, ease: "easeOut" }}
-                        >
-                          −{mix.pct} %
-                        </motion.span>
-                      ) : null}
-                    </AnimatePresence>
-                  </div>
-                  <p className="mt-1 text-muted text-xs">
-                    {mix.sorts < 2
-                      ? "Nimm eine zweite Sorte dazu – ab 2 Trays gemischt gibt es 3 % Mix-Rabatt."
-                      : mix.next
-                        ? `Noch ${mix.next.missing} ${mix.next.missing === 1 ? "Tray" : "Trays"} bis ${mix.next.pct} % Mix-Rabatt.`
-                        : `Höchster Mix-Rabatt erreicht: ${mix.pct} %.`}
-                  </p>
-                  <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-cream">
-                    <motion.div animate={{ width: `${mixProgress * 100}%` }} className="h-full rounded-full bg-accent" initial={false} transition={{ type: "spring", stiffness: 160, damping: 24 }} />
-                  </div>
+                  <p className="font-medium text-sm">Mix zusammenstellen</p>
+                  <p className="mt-1 text-muted text-xs">Weitere Sorten mit einem Tipp dazulegen – jede Sorte zählt für den Mix-Rabatt.</p>
                   {addable.length ? (
                     <motion.ul className="mt-3 grid grid-cols-2 gap-2" layout>
                       <AnimatePresence initial={false}>

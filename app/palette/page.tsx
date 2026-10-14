@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PaletteForm } from "./palette-form";
+import { getProduct } from "@/lib/catalog";
 import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = {
@@ -8,18 +9,18 @@ export const metadata: Metadata = {
   description: "EXSTASE Paletten für Händler, Gastronomie und Events – Preis auf Anfrage, Lieferung per Spedition.",
 };
 
-type Props = { searchParams: Promise<{ produkt?: string }> };
+type Props = { searchParams: Promise<{ produkt?: string; sorte?: string }> };
 
 export default async function PalettePage({ searchParams }: Props) {
-  const { produkt } = await searchParams;
-  const settings = await getSettings();
+  const { produkt, sorte } = await searchParams;
+  const [settings, wunsch] = await Promise.all([getSettings(), sorte && /^[a-z0-9-]{1,60}$/.test(sorte) ? getProduct(sorte) : undefined]);
   // Palettenarten für die Anfrage (keine Produkte im Shop – nur Anfrageformular)
   const paletten = [
     { handle: "energy", title: "Energy-Palette (120 Trays, Sorten nach Wunsch)" },
     { handle: "ice-coffee", title: "Ice-Coffee-Palette (120 Trays)" },
-    { handle: "ice-tea", title: "X-Tea-Palette" },
+    { handle: "ice-tea", title: "X-Tea – nur als LKW-Ladung" },
     { handle: "misch", title: "Mischpalette (Energy, Ice Coffee, Ice Tea)" },
-    { handle: "wasser", title: "Aqua-x-Palette (126 Trays à 12 Flaschen)" },
+    { handle: "wasser", title: "Aqua x Wasser – nur als LKW-Ladung (126 Trays je Palette)" },
   ];
   const facts = [
     ["120", "Trays je Palette", "Energy-Palette: 2.880 Dosen"],
@@ -52,7 +53,7 @@ export default async function PalettePage({ searchParams }: Props) {
           Als Händler registrieren
         </Link>
       </header>
-      <PaletteForm email={settings.company.email} paletten={paletten} preselect={produkt} />
+      <PaletteForm email={settings.company.email} note={wunsch ? `Wunschsorte: ${wunsch.title}` : undefined} paletten={paletten} preselect={produkt} />
     </div>
   );
 }
