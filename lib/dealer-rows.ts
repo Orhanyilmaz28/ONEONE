@@ -26,6 +26,7 @@ export async function dealerRows(dealer: Dealer, products: Product[]): Promise<{
         t2: effectivePrice("t2", base[p.handle], tier, custom),
         pal: effectivePrice("pal", base[p.handle], tier, custom),
         pass: Boolean(passes[p.handle]),
+        available: p.variants.some((v) => v.available),
       },
     ];
   });

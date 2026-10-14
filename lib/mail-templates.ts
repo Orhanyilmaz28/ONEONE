@@ -1,4 +1,5 @@
 import { carrierLabel, normalizeTracking, trackingUrl } from "@/app/admin/(panel)/bestellungen/shipping";
+import type { DealerOrder } from "./dealer-order-pricing";
 import { formatPrice, SITE_URL } from "./format";
 import type { Order } from "./orders";
 import { RETURN_COST_SENTENCE, type Settings } from "./settings-defaults";
@@ -286,4 +287,99 @@ export function testMail(settings: Settings): Rendered {
     body: `${h1("Es funktioniert ✓")}${p("Diese Test-E-Mail kommt direkt aus deinem Shop. Bestellbestätigungen, Versand-E-Mails und Newsletter-Bestätigungen sehen genauso aus.")}${signature(c)}`,
   });
   return { subject: `Test-E-Mail von ${c.brand || "EXSTASE"}`, html, text: "Es funktioniert! Diese Test-E-Mail kommt direkt aus deinem Shop." };
+}
+
+/* ───────────── Händler-Bestellungen ───────────── */
+
+function dealerLinesTable(o: DealerOrder) {
+  const rows = o.lines
+    .map(
+      (l) => `<tr>
+        <td style="padding:8px 0;border-bottom:1px solid ${C.line}">${l.quantity} × ${l.kind === "palette" ? "Palette" : "Tray"} ${esc(l.title)}<br><span style="color:${C.muted};font-size:13px">je ${formatPrice(l.unitPrice)} netto · ${l.cans.toLocaleString("de-DE")} Stück</span></td>
+        <td style="padding:8px 0;border-bottom:1px solid ${C.line};text-align:right;white-space:nowrap;vertical-align:top">${formatPrice(l.total)}</td>
+      </tr>`
+    )
+    .join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 18px;font-size:14px">${rows}
+    <tr><td style="padding:10px 0 0">Warenwert netto</td><td style="padding:10px 0 0;text-align:right">${formatPrice(o.net)}</td></tr>
+    <tr><td style="padding:4px 0 0;color:${C.muted}">Einwegpfand netto</td><td style="padding:4px 0 0;text-align:right;color:${C.muted}">${formatPrice(o.deposit)}</td></tr>
+    <tr><td colspan="2" style="padding:8px 0 0;color:${C.muted};font-size:13px">zzgl. gesetzlicher MwSt. und ggf. Versand – die Rechnung folgt.</td></tr>
+  </table>`;
+}
+
+function dealerLinesText(o: DealerOrder) {
+  return [
+    ...o.lines.map((l) => `${l.quantity} × ${l.kind === "palette" ? "Palette" : "Tray"} ${l.title} – je ${formatPrice(l.unitPrice)} = ${formatPrice(l.total)}`),
+    "",
+    `Warenwert netto: ${formatPrice(o.net)}`,
+    `Einwegpfand netto: ${formatPrice(o.deposit)}`,
+    "zzgl. gesetzlicher MwSt. und ggf. Versand – die Rechnung folgt.",
+  ].join("\n");
+}
+
+/** Info an den Shop: neue Händler-Bestellung */
+export function dealerOrderShopMail(o: DealerOrder, settings: Settings): Rendered {
+  const d = o.dealer;
+  const url = `${SITE_URL}/admin/haendler/bestellungen`;
+  const subject = `Händler-Bestellung ${o.number} · ${d.company} · ${formatPrice(o.net)} netto`;
+  const html = layout({
+    preheader: `${d.company} hat über den Händlerbereich bestellt.`,
+    company: settings.company,
+    body: `
+      ${h1("Neue Händler-Bestellung")}
+      ${p(`<b>${esc(d.company)}</b> (${esc(d.contact)}, <a href="mailto:${esc(d.email)}">${esc(d.email)}</a>${d.phone ? `, ${esc(d.phone)}` : ""}) hat bestellt.`)}
+      ${dealerLinesTable(o)}
+      ${p(`Lieferadresse: ${esc(d.street)}, ${esc(d.zip)} ${esc(d.city)}${d.vatId ? `<br>USt-IdNr.: ${esc(d.vatId)}` : ""}`)}
+      ${o.note ? p(`Anmerkung: ${esc(o.note).replace(/\n/g, "<br>")}`) : ""}
+      ${button(url, "Im Dashboard öffnen")}
+      ${small("Bitte bestätige die Bestellung und schicke die Rechnung. Den Status setzt du im Dashboard unter Händler → Bestellungen.")}`,
+  });
+  const text = [
+    `Neue Händler-Bestellung ${o.number}`,
+    "",
+    `${d.company} – ${d.contact} – ${d.email}${d.phone ? ` – ${d.phone}` : ""}`,
+    `Lieferadresse: ${d.street}, ${d.zip} ${d.city}${d.vatId ? ` – USt-IdNr.: ${d.vatId}` : ""}`,
+    "",
+    dealerLinesText(o),
+    ...(o.note ? ["", `Anmerkung: ${o.note}`] : []),
+    "",
+    `Im Dashboard: ${url}`,
+  ].join("\n");
+  return { subject, html, text };
+}
+
+/** Eingangsbestätigung an den Händler */
+export function dealerOrderConfirmMail(o: DealerOrder, settings: Settings): Rendered {
+  const c = settings.company;
+  const d = o.dealer;
+  const subject = `Deine Bestellung ${o.number} ist eingegangen`;
+  const html = layout({
+    preheader: `Wir haben deine Bestellung erhalten und melden uns mit der Bestätigung.`,
+    company: c,
+    body: `
+      ${h1("Danke für deine Bestellung")}
+      ${p(`Hallo ${esc(firstName(d.contact) || d.contact)},`)}
+      ${p(`wir haben die Bestellung <b>${esc(o.number)}</b> für <b>${esc(d.company)}</b> erhalten. Wir prüfen sie und melden uns mit der Bestätigung, dem Liefertermin und der Rechnung.`)}
+      ${dealerLinesTable(o)}
+      ${p(`Lieferadresse: ${esc(d.street)}, ${esc(d.zip)} ${esc(d.city)}`)}
+      ${o.note ? p(`Deine Anmerkung: ${esc(o.note).replace(/\n/g, "<br>")}`) : ""}
+      ${button(`${SITE_URL}/haendler/portal/bestellungen`, "Bestellungen im Händlerbereich")}
+      ${small("Etwas ändern? Antworte einfach auf diese E-Mail.")}
+      ${signature(c)}`,
+  });
+  const text = [
+    `Hallo ${firstName(d.contact) || d.contact},`,
+    "",
+    `wir haben die Bestellung ${o.number} für ${d.company} erhalten. Wir prüfen sie und melden uns mit der Bestätigung, dem Liefertermin und der Rechnung.`,
+    "",
+    dealerLinesText(o),
+    "",
+    `Lieferadresse: ${d.street}, ${d.zip} ${d.city}`,
+    ...(o.note ? [`Deine Anmerkung: ${o.note}`] : []),
+    "",
+    `Deine Bestellungen: ${SITE_URL}/haendler/portal/bestellungen`,
+    "",
+    `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`,
+  ].join("\n");
+  return { subject, html, text };
 }
