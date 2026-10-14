@@ -36,6 +36,12 @@ export async function getCustomProducts(): Promise<CustomProducts> {
   return getJSON<CustomProducts>(KEYS.custom, {});
 }
 
+/**
+ * Ehemalige Mixpakete (ersetzt durch den Mix-Konfigurator): auch dann nicht mehr anzeigen,
+ * wenn sie früher im Dashboard bearbeitet wurden und deshalb noch im Datenspeicher liegen.
+ */
+const isRetired = (p: Pick<Product, "handle" | "collections">) => p.handle.startsWith("mix-") || (p.collections ?? []).includes("mixpakete");
+
 /** Grunddaten aller Produkte (Katalog + Dashboard), ohne Preis-Änderungen. Neue Produkte stehen vorne. */
 export function mergeBase(custom: CustomProducts): Product[] {
   const fromCatalog = catalog.products.flatMap((p) => {
@@ -45,7 +51,7 @@ export function mergeBase(custom: CustomProducts): Product[] {
   });
   const known = new Set(catalog.products.map((p) => p.handle));
   const added = Object.entries(custom)
-    .filter(([handle, entry]) => !known.has(handle) && !isDeleted(entry))
+    .filter(([handle, entry]) => !known.has(handle) && !isDeleted(entry) && !isRetired(entry as Product))
     .map(([, entry]) => entry as Product)
     .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   return [...added, ...fromCatalog];

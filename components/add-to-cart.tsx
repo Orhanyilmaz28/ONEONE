@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { cansOf, depositFor, formatPrice } from "@/lib/format";
+import { unitPriceLabel } from "@/lib/pack-contents";
 import { useShopData } from "@/lib/shop-data";
 import type { Product } from "@/lib/types";
 import { CheckIcon, MinusIcon, PlusIcon } from "./icons";
@@ -56,6 +57,7 @@ export function AddToCart({ product }: { product: Product }) {
         <p className="-mt-6 flex flex-wrap items-center gap-2 text-sm">
           <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{cansOf(variant)} Dosen</span>
           <span className="font-medium">{formatPrice(Math.round(variant.price / cansOf(variant)))} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"}</span>
+          {unitPriceLabel(product, variant) ? <span className="text-muted">({unitPriceLabel(product, variant)})</span> : null}
           <span className="text-muted">+ {formatPrice(depositFor(variant, 1))} Pfand</span>
         </p>
       ) : null}

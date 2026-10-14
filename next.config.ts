@@ -14,6 +14,13 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: { "/haendler/portal/pass/[key]": ["./data/artikelpaesse/**/*"] },
 
   // Grundschutz: kein Einbetten in fremde Seiten (Klick-Fallen), keine Typ-Raterei, sparsame Weitergabe der Herkunft
+  async redirects() {
+    return [
+      // Mixpakete gibt es nicht mehr – stattdessen den Mix-Konfigurator
+      { source: "/collections/mixpakete", destination: "/konfigurator", permanent: true },
+      { source: "/products/mix-:rest", destination: "/konfigurator", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

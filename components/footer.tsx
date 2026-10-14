@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AI_MEDIA_FILES, SITE_MEDIA, aiMediaType, isAi } from "@/lib/ai-media";
 import { getAiOverrides } from "@/lib/ai-media-store";
 import { getProducts } from "@/lib/catalog";
+import { HOMEPAGE_URL } from "@/lib/format";
 import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 import type { Collection } from "@/lib/types";
 import { DropIcon, Logo, LogoMark } from "./logo";
@@ -40,6 +41,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
             links={[
               { href: "/products", label: "Alle Produkte" },
               ...collections.map((c) => ({ href: `/collections/${c.handle}`, label: c.title })),
+              { href: "/konfigurator", label: "Mix-Konfigurator" },
               { href: "/palette", label: "Paletten für Händler" },
               { href: "/haendler", label: "Händler werden" },
             ]}
@@ -51,6 +53,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
               { href: "/versand", label: "Versand & Lieferung" },
               { href: "/widerruf", label: "Rückgabe & Widerruf" },
               { href: "/kontakt", label: "Kontakt" },
+              { href: HOMEPAGE_URL, label: "EXSTASE Homepage" },
             ]}
             title="Hilfe"
           />
