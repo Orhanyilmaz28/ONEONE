@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AI_MEDIA_FILES, SITE_MEDIA, aiMediaType, isAi } from "@/lib/ai-media";
 import { getAiOverrides } from "@/lib/ai-media-store";
 import { getProducts } from "@/lib/catalog";
+import { BRAND_SITE_URL } from "@/lib/format";
 import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 import type { Collection } from "@/lib/types";
 import { DropIcon, Logo, LogoMark } from "./logo";
@@ -30,6 +31,9 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
             <p className="t-small mt-5 max-w-sm text-muted">
               EXSTASE Energy – Energy Drinks für jeden Moment. Pure Ekstase in jeder Dose.
             </p>
+            <a className="t-small mt-3 inline-block font-medium text-accent underline-offset-4 hover:underline" href={BRAND_SITE_URL}>
+              ← Zur EXSTASE-Website
+            </a>
             <p className="t-small mt-5 flex items-center gap-2 font-medium">
               <FlagDE /> Händler aus Deutschland{town ? ` · Versand aus ${town}${region}` : ""}
             </p>

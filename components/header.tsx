@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
+import { BRAND_SITE_URL } from "@/lib/format";
 import { useShopData } from "@/lib/shop-data";
 import type { Collection } from "@/lib/types";
 import { BagIcon, CloseIcon, MenuIcon, SearchIcon, UserIcon } from "./icons";
@@ -84,6 +85,10 @@ export function Header({
           </div>
 
           <nav aria-label="Hauptnavigation" className="hidden items-center gap-0.5 lg:flex">
+            {/* Zurück zur Internetseite der Marke – nur auf breiten Bildschirmen, damit die Leiste nicht überläuft */}
+            <a className="hidden whitespace-nowrap rounded-full px-3 py-2 text-[15px] text-muted transition hover:bg-ink/5 hover:text-ink xl:block xl:px-3.5" href={BRAND_SITE_URL}>
+              ← Website
+            </a>
             {nav.map((item) => (
               <Link
                 aria-current={pathname === item.href ? "page" : undefined}
@@ -186,6 +191,9 @@ export function Header({
                   <UserIcon /> Mein Konto
                 </Link>
               ) : null}
+              <a className="mt-6 inline-flex items-center gap-2 text-[17px] text-muted" href={BRAND_SITE_URL}>
+                ← Zur EXSTASE-Website
+              </a>
             </nav>
           </motion.div>
         ) : null}

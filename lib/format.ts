@@ -13,6 +13,12 @@ export const SITE_URL = (
   process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
 ).replace(/\/$/, "");
 
+/**
+ * Internetseite der Marke (Link „Zur EXSTASE-Website“ in Kopfzeile, Handy-Menü und Fußzeile).
+ * Später auf https://exstase.com umstellen: Umgebungsvariable NEXT_PUBLIC_BRAND_SITE_URL in Vercel setzen (oder den Standard hier ändern).
+ */
+export const BRAND_SITE_URL = (process.env.NEXT_PUBLIC_BRAND_SITE_URL || "https://exstase-animiert.vercel.app").replace(/\/$/, "");
+
 /** Einwegpfand je Dose in Cent (wird an der Kasse separat berechnet, nicht im Produktpreis enthalten) */
 export const DEPOSIT_PER_CAN = 25;
 

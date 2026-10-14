@@ -72,6 +72,7 @@ Empfohlene Maßnahmen (erst nach Freigabe):
    1. Domain bei Vercel hinzufügen, DNS setzen, Zertifikat abwarten, **beide** Adressen parallel erreichbar lassen.
    2. Alles auf der neuen Domain testen (Startseite, Produkte, Kasse im Stripe-Testmodus, Händlerlogin, E-Mails).
    3. `NEXT_PUBLIC_SITE_URL=https://exstaseshop.com` setzen → neu bauen.
+      Sobald die Marken-Website umgezogen ist: `NEXT_PUBLIC_BRAND_SITE_URL=https://exstase.com` (Link „Zur EXSTASE-Website“ in Kopfzeile, Handy-Menü und Fußzeile; Standard bis dahin `https://exstase-animiert.vercel.app`).
    4. **Stripe:** zweiten Webhook-Endpunkt auf der neuen Domain anlegen (alten erst nach Test löschen); Redirect-URLs kommen aus dem Code.
    5. **Brevo:** Absenderdomain mit SPF/DKIM/DMARC verifizieren, `MAIL_FROM` ändern.
    6. **Redirect-Schalter** aktivieren (301 von der Vercel-Adresse auf die Hauptdomain) – erst jetzt.
