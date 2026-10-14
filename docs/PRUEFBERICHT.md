@@ -47,7 +47,7 @@ Bewertung: 🔴 sofort · 🟠 vor Livegang · 🟡 bald · 🟢 optional
 
 - Shop-Preise: Energy, Coffee, Tea 18,00 € je 24er Tray (0,75 € je Dose); Wasser 6,60 € je 12er Tray (0,55 € je Flasche) – **alle auf Basis Ihrer Angaben**, bitte final bestätigen. Preise stehen in `data/products.json` und lassen sich im Dashboard überschreiben.
 - Alle Produktseiten: **Grundpreis je Dose/Flasche** und Pfandhinweis sind vorhanden. Pflichtangabe **Grundpreis pro Liter** (PAngV, z. B. 0,75 € / 0,25 l = 3,00 €/l) fehlt – nur Preis je Dose. 🟠 **Vorschlag, Design bleibt gleich:** Zeile ergänzen.
-- **Zutaten, Nährwerte, Allergene (LMIV):** Die Daten liegen in den Artikelpässen (PDF), sind aber **auf den Produktseiten nicht eingetragen** (`material` leer). Für den Fernabsatz von Lebensmitteln Pflicht. 🟠 Vorschlag: Inhalte aus den Pässen übernehmen.
+- **Zutaten, Nährwerte, Allergene (LMIV):** Aus den Artikelpässen übernommen (Reiter „Zutaten & Nährwerte“) für Classic, Tropical, Kiwi & Lemon, Watermelon, White Peach, Ice Bonbon, Lime, Blueberry Coconut, Ice Coffee Latte und Cappuccino sowie die drei Aqua-x-Wasser. 🟠 Offen: Dragonfruit Lychee, Cactus, X-Tea (keine Pässe) und Ice Coffee Caramel, Espresso, Vanille (Pässe ohne Zutatenblock; Caramel und Vanille tragen beide Art.-Nr. D31102).
 - Koffeinhinweis ist vorhanden. Nicht geprüft: Altersempfehlung/Kennzeichnung für Energy Drinks laut Etikett.
 - Bei Wasser steht in manchen Texten noch „Dose“ – größtenteils bereits auf „Dose/Flasche“ umgestellt.
 - Blueberry Coconut ist auf 250 ml korrigiert (laut neuem Foto und Artikelpass).

@@ -15,14 +15,14 @@ export default async function PalettePage({ searchParams }: Props) {
   const settings = await getSettings();
   // Palettenarten für die Anfrage (keine Produkte im Shop – nur Anfrageformular)
   const paletten = [
-    { handle: "energy", title: "Energy-Palette (108 Trays, Sorten nach Wunsch)" },
-    { handle: "ice-coffee", title: "Ice-Coffee-Palette (108 Trays)" },
-    { handle: "ice-tea", title: "X-Tea-Palette (108 Trays)" },
+    { handle: "energy", title: "Energy-Palette (120 Trays, Sorten nach Wunsch)" },
+    { handle: "ice-coffee", title: "Ice-Coffee-Palette (120 Trays)" },
+    { handle: "ice-tea", title: "X-Tea-Palette" },
     { handle: "misch", title: "Mischpalette (Energy, Ice Coffee, Ice Tea)" },
-    { handle: "wasser", title: "Aqua-x-Palette (Wasser)" },
+    { handle: "wasser", title: "Aqua-x-Palette (126 Trays à 12 Flaschen)" },
   ];
   const facts = [
-    ["108", "Trays je Palette", "Energy-Palette: 2.592 Dosen"],
+    ["120", "Trays je Palette", "Energy-Palette: 2.880 Dosen"],
     ["1", "Anfrage, ein Angebot", "Händlerpreis nach Menge und Region"],
     ["Spedition", "Lieferung", "direkt an deine Rampe oder dein Lager"],
   ];

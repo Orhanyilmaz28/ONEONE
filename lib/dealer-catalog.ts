@@ -19,7 +19,7 @@ export type DealerRow = {
   unit: string;
   /** Dosen/Flaschen je Tray */
   perTray: number;
-  /** Trays je Palette (nur wenn bekannt: 108 bei Dosen) */
+  /** Trays je Palette laut Artikelpass (nur wenn bekannt) */
   trays?: number;
   t1: DealerPriceCell;
   t2: DealerPriceCell;
@@ -27,8 +27,12 @@ export type DealerRow = {
   pass: boolean;
 };
 
-/** Trays je Euro-Palette laut Artikelpass (24 × 250 ml: 108); bei Wasser nicht bekannt */
-export const palletTrays = (p: Product) => (p.productType === "Mineralwasser" ? undefined : 108);
+/** Trays je Euro-Palette laut Artikelpass: Energy und Ice Coffee 120 (24 × 250 ml), Wasser 126 (12 × 500 ml); X-Tea noch ohne Pass */
+export const palletTrays = (p: Product) => {
+  if (p.collections.includes("mineralwasser")) return 126;
+  if (p.collections.includes("energy") || p.collections.includes("ice-coffee")) return 120;
+  return undefined;
+};
 
 export function dealerUnit(p: Product) {
   const v = p.variants[0];
