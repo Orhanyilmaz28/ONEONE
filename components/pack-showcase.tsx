@@ -5,7 +5,7 @@ import type { Product } from "@/lib/types";
 
 /**
  * Packung im Überblick (fällt beim Scrollen nacheinander ein):
- * - Einzelprodukt: alle Dosen/Flaschen des Trays
+ * - Einzelprodukt: Bild des ganzen Trays (24er bzw. 12er bei Wasser, aus den Dosenfotos zusammengesetzt – scripts/make-trays.mjs)
  * - Mixpaket: Tray-Mosaik (jedes Kästchen = 1 Tray, in Sortenfarbe) und je Sorte ein Tray mit allen Dosen
  * Verkauft werden nur ganze Trays – keine Einzeldosen.
  */
@@ -81,13 +81,28 @@ export function PackShowcase({ product }: { product: Product }) {
                   </span>
                 </p>
               ) : null}
-              <ul className={`relative grid gap-x-2 gap-y-5 sm:gap-x-3 ${cols}`}>
-                {Array.from({ length: per }, (_, i) => (
-                  <li className="tray-can flex justify-center" key={i} style={{ "--i": i } as React.CSSProperties}>
-                    <Image alt="" aria-hidden className={`h-auto w-full object-contain [filter:drop-shadow(0_14px_14px_rgba(0,0,0,0.6))] ${groups.length > 1 ? "max-w-[44px]" : "max-w-[64px]"}`} height={170} loading="lazy" sizes="64px" src={`/dosen-foto/frei/${h}.webp`} width={64} />
-                  </li>
-                ))}
-              </ul>
+              {mix ? (
+                <ul className={`relative grid gap-x-2 gap-y-5 sm:gap-x-3 ${cols}`}>
+                  {Array.from({ length: per }, (_, i) => (
+                    <li className="tray-can flex justify-center" key={i} style={{ "--i": i } as React.CSSProperties}>
+                      <Image alt="" aria-hidden className="h-auto w-full max-w-[44px] object-contain [filter:drop-shadow(0_14px_14px_rgba(0,0,0,0.6))]" height={170} loading="lazy" sizes="64px" src={`/dosen-foto/frei/${h}.webp`} width={64} />
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                // Das ganze Tray als ein Bild statt einzelner Dosen
+                <div className="tray-can relative mx-auto max-w-3xl" style={{ "--i": 0 } as React.CSSProperties}>
+                  <Image
+                    alt={`${per}er Tray ${product.title}`}
+                    className="h-auto w-full object-contain [filter:drop-shadow(0_24px_24px_rgba(0,0,0,0.55))]"
+                    height={600}
+                    loading="lazy"
+                    sizes="(min-width: 768px) 768px, 100vw"
+                    src={`/dosen-foto/tray/${h}.webp`}
+                    width={900}
+                  />
+                </div>
+              )}
               {mix && n > 1 ? <p className="relative mt-4 text-center text-muted text-xs">Hier ein Tray – du bekommst {n} davon.</p> : null}
               {!mix ? (
                 <p className="relative mt-6 text-center font-bold text-muted text-xs uppercase tracking-[0.25em]">
