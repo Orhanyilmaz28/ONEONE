@@ -31,6 +31,7 @@ export async function dealerRows(dealer: Dealer, products: Product[]): Promise<{
         artNr: PRODUCT_SPECS[p.handle]?.artNr,
         gtin: PRODUCT_SPECS[p.handle]?.gtin,
         lkw: lkwOnly(p),
+        available: p.variants.some((v) => v.available),
       },
     ];
   });

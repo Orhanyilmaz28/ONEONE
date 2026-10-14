@@ -5,7 +5,7 @@ import { CloseIcon } from "./icons";
 import type { ProductSpec } from "@/lib/product-specs";
 
 /** Pop-up im Händlerbereich (natives <dialog>: Esc schließt, Fokus bleibt im Fenster) */
-function Sheet({ title, actions, children, onClose, tall }: { title: string; actions?: ReactNode; children: ReactNode; onClose: () => void; tall?: boolean }) {
+export function Sheet({ title, actions, children, onClose, tall }: { title: string; actions?: ReactNode; children: ReactNode; onClose: () => void; tall?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const d = ref.current;

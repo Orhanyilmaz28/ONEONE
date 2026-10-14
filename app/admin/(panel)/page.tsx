@@ -9,6 +9,7 @@ import { berlinHour, changePercent, computeOverview, formatLongDay } from "@/com
 import { TodoList } from "@/components/admin/overview/todo-list";
 import { TopProducts } from "@/components/admin/overview/top-products";
 import { Card, Notice, PageHeader, Stat } from "@/components/admin/ui";
+import { getDealerOrders } from "@/lib/dealer-orders";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getOverrides, getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
@@ -116,7 +117,7 @@ export default async function AdminHome() {
   await requireAdmin();
   // Zeitpunkt der Auswertung – alle Zahlen beziehen sich darauf
   const now = Date.now();
-  const [result, reviewsRaw, newsletterRaw, settings, products, overrides] = await Promise.all([
+  const [result, reviewsRaw, newsletterRaw, settings, products, overrides, dealerOrders] = await Promise.all([
     // 61 Tage = 30 Tage + die 30 Tage davor (für den Vergleich) + Puffer für die Zeitzone
     listOrders({ days: 61, limit: 1000 }),
     getJSON<unknown>(KEYS.reviews, []),
@@ -124,7 +125,9 @@ export default async function AdminHome() {
     getSettings(),
     getProducts({ includeHidden: true }),
     getOverrides(),
+    getDealerOrders().catch(() => []),
   ]);
+  const newDealerOrders = dealerOrders.filter((o) => o.status === "eingegangen").length;
 
   const o = computeOverview(result.orders, now);
   const pendingReviews = countPending(reviewsRaw);
@@ -298,6 +301,16 @@ export default async function AdminHome() {
         title="Übersicht"
         actions={setupDone < setup.length ? <SetupPill done={setupDone} total={setup.length} /> : undefined}
       />
+
+      {newDealerOrders ? (
+        <div className="mb-6">
+          <Notice title={`${newDealerOrders} neue Händler-Bestellung${newDealerOrders === 1 ? "" : "en"} (auf Rechnung)`} tone="green">
+            <a className="font-medium underline underline-offset-2" href="/admin/haendler/bestellungen?status=eingegangen">
+              Jetzt ansehen und bestätigen
+            </a>
+          </Notice>
+        </div>
+      ) : null}
 
       {/* Hinweise zur Datenquelle */}
       {result.source === "demo" || result.source === "none" || stripeError ? (

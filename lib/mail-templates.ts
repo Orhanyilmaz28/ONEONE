@@ -1,5 +1,7 @@
 import { carrierLabel, normalizeTracking, trackingUrl } from "@/app/admin/(panel)/bestellungen/shipping";
 import { formatPrice, SITE_URL } from "./format";
+import type { DealerOrder } from "./dealer-orders";
+import { TIER_LABELS } from "./dealer-order-calc";
 import type { Order } from "./orders";
 import { RETURN_COST_SENTENCE, type Settings } from "./settings-defaults";
 
@@ -286,4 +288,135 @@ export function testMail(settings: Settings): Rendered {
     body: `${h1("Es funktioniert ✓")}${p("Diese Test-E-Mail kommt direkt aus deinem Shop. Bestellbestätigungen, Versand-E-Mails und Newsletter-Bestätigungen sehen genauso aus.")}${signature(c)}`,
   });
   return { subject: `Test-E-Mail von ${c.brand || "EXSTASE"}`, html, text: "Es funktioniert! Diese Test-E-Mail kommt direkt aus deinem Shop." };
+}
+
+/* ───────── Händler-Bestellungen (auf Rechnung, Preise netto) ───────── */
+
+const STATUS_TEXT: Record<DealerOrder["status"], string> = {
+  eingegangen: "ist bei uns eingegangen",
+  bestätigt: "ist bestätigt – wir bereiten sie vor",
+  versendet: "ist unterwegs zu dir",
+  storniert: "wurde storniert",
+};
+
+function dealerAddress(o: DealerOrder) {
+  const a = o.delivery;
+  return [a.company, a.contact, a.street, `${a.zip} ${a.city}`.trim()].filter(Boolean).map(esc).join("<br>");
+}
+
+function dealerTable(o: DealerOrder) {
+  const c = o.calc;
+  const row = (l: string, v: string, strong = false) =>
+    `<tr><td style="padding:2px 0;color:${strong ? C.ink : C.muted};${strong ? "font-weight:600;padding-top:10px;border-top:1px solid " + C.line : ""}">${l}</td><td style="padding:2px 0;text-align:right;white-space:nowrap;${strong ? "font-weight:600;padding-top:10px;border-top:1px solid " + C.line : ""}">${v}</td></tr>`;
+  const lines = c.lines
+    .map(
+      (l) => `<tr>
+        <td style="padding:10px 0;border-bottom:1px solid ${C.line};vertical-align:top">${l.trays} × ${esc(l.title)}<br><span style="color:${C.muted};font-size:13px">${l.units.toLocaleString("de-DE")} Stück · ${formatPrice(l.perTray)} je Tray (${TIER_LABELS[l.tier]})</span></td>
+        <td style="padding:10px 0;border-bottom:1px solid ${C.line};text-align:right;white-space:nowrap;vertical-align:top">${formatPrice(l.total)}</td>
+      </tr>`,
+    )
+    .join("");
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:8px 0 18px;font-size:14px">
+    ${lines}
+    ${row("Warenwert netto", formatPrice(c.goodsNet))}
+    ${row(`Pfand (${c.units.toLocaleString("de-DE")} × 0,25 €)`, formatPrice(c.depositNet))}
+    ${row(esc(c.shippingLabel), c.shippingNet === null ? "nach Absprache" : c.shippingNet ? formatPrice(c.shippingNet) : "kostenlos")}
+    ${row("Summe netto", formatPrice(c.net))}
+    ${row("zzgl. 19 % MwSt.", formatPrice(c.vat))}
+    ${row("Gesamt (voraussichtlich)", formatPrice(c.gross), true)}
+  </table>`;
+}
+
+function dealerText(o: DealerOrder) {
+  const c = o.calc;
+  return [
+    ...c.lines.map((l) => `${l.trays} × ${l.title} (${l.units} Stück, ${formatPrice(l.perTray)} je Tray, ${TIER_LABELS[l.tier]}) – ${formatPrice(l.total)}`),
+    "",
+    `Warenwert netto: ${formatPrice(c.goodsNet)}`,
+    `Pfand: ${formatPrice(c.depositNet)}`,
+    `${c.shippingLabel}: ${c.shippingNet === null ? "nach Absprache" : c.shippingNet ? formatPrice(c.shippingNet) : "kostenlos"}`,
+    `Summe netto: ${formatPrice(c.net)}`,
+    `zzgl. 19 % MwSt.: ${formatPrice(c.vat)}`,
+    `Gesamt (voraussichtlich): ${formatPrice(c.gross)}`,
+  ].join("\n");
+}
+
+function dealerExtras(o: DealerOrder) {
+  return [o.reference ? `Deine Bestellnummer: ${o.reference}` : "", o.wishDate ? `Wunschliefertermin: ${new Date(`${o.wishDate}T12:00:00`).toLocaleDateString("de-DE")}` : "", o.note ? `Bemerkung: ${o.note}` : ""].filter(Boolean);
+}
+
+export function dealerOrderConfirmationMail(o: DealerOrder, settings: Settings): Rendered {
+  const c = settings.company;
+  const name = firstName(o.delivery.contact);
+  const url = `${SITE_URL}/haendler/portal/bestellungen`;
+  const subject = `Deine Händler-Bestellung ${o.number} bei ${c.brand || "EXSTASE"}`;
+  const extras = dealerExtras(o);
+  const html = layout({
+    preheader: `Danke! Wir haben deine Bestellung ${o.number} erhalten.`,
+    company: c,
+    body: `
+      ${h1(`Danke für deine Bestellung${name ? `, ${esc(name)}` : ""}!`)}
+      ${p(`Wir haben die Bestellung <b>${esc(o.number)}</b> für <b>${esc(o.delivery.company)}</b> erhalten. Wir prüfen sie und melden uns mit der Bestätigung. Bezahlt wird <b>auf Rechnung</b> – die Rechnung bekommst du von uns.`)}
+      ${dealerTable(o)}
+      <p style="margin:0 0 4px;font-size:13px;color:${C.muted}">Lieferadresse</p><p style="margin:0 0 14px">${dealerAddress(o)}</p>
+      ${extras.length ? p(extras.map(esc).join("<br>")) : ""}
+      ${button(url, "Meine Bestellungen")}
+      ${small("Alle Preise netto zzgl. MwSt.; Pfand 0,25 € je Dose bzw. Flasche. Maßgeblich ist unsere Rechnung.")}
+      ${signature(c)}`,
+  });
+  const text = [
+    `Danke für deine Bestellung${name ? `, ${name}` : ""}!`,
+    "",
+    `Wir haben die Bestellung ${o.number} für ${o.delivery.company} erhalten. Bezahlt wird auf Rechnung.`,
+    "",
+    dealerText(o),
+    "",
+    `Lieferadresse:\n${[o.delivery.company, o.delivery.contact, o.delivery.street, `${o.delivery.zip} ${o.delivery.city}`].join("\n")}`,
+    ...(extras.length ? ["", ...extras] : []),
+    "",
+    `Meine Bestellungen: ${url}`,
+    "",
+    `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`,
+  ].join("\n");
+  return { subject, html, text };
+}
+
+export function adminNewDealerOrderMail(o: DealerOrder, settings: Settings): Rendered {
+  const c = settings.company;
+  const url = `${SITE_URL}/admin/haendler/bestellungen#${o.id}`;
+  const subject = `Neue Händler-Bestellung ${o.number} · ${o.delivery.company} · ${o.calc.trays} Trays`;
+  const extras = dealerExtras(o);
+  const html = layout({
+    preheader: `${o.delivery.company} hat ${o.calc.trays} Trays bestellt (auf Rechnung).`,
+    company: c,
+    body: `
+      ${h1("Neue Händler-Bestellung 📦")}
+      ${p(`<b>${esc(o.delivery.company)}</b> (${esc(o.dealerEmail)}, Stufe ${esc(o.tierName)}) hat auf Rechnung bestellt.`)}
+      ${dealerTable(o)}
+      <p style="margin:0 0 4px;font-size:13px;color:${C.muted}">Lieferadresse</p><p style="margin:0 0 14px">${dealerAddress(o)}</p>
+      ${extras.length ? p(extras.map(esc).join("<br>")) : ""}
+      ${button(url, "Im Dashboard öffnen")}
+      ${small("Bestätigen, versenden oder stornieren: Dashboard → Händler → Bestellungen.")}`,
+  });
+  const text = [`Neue Händler-Bestellung ${o.number}`, "", `${o.delivery.company} (${o.dealerEmail})`, "", dealerText(o), ...(extras.length ? ["", ...extras] : []), "", `Im Dashboard: ${url}`].join("\n");
+  return { subject, html, text };
+}
+
+export function dealerOrderStatusMail(o: DealerOrder, settings: Settings): Rendered {
+  const c = settings.company;
+  const name = firstName(o.delivery.contact);
+  const url = `${SITE_URL}/haendler/portal/bestellungen`;
+  const subject = `Bestellung ${o.number}: ${o.status === "bestätigt" ? "bestätigt" : o.status === "versendet" ? "versendet" : o.status === "storniert" ? "storniert" : "eingegangen"}`;
+  const html = layout({
+    preheader: `Deine Bestellung ${o.number} ${STATUS_TEXT[o.status]}.`,
+    company: c,
+    body: `
+      ${h1(`${name ? `Hallo ${esc(name)}, d` : "D"}eine Bestellung ${STATUS_TEXT[o.status]}`)}
+      ${p(`Bestellung <b>${esc(o.number)}</b> · ${o.calc.trays} Trays · ${formatPrice(o.calc.gross)} (voraussichtlich, inkl. MwSt.)`)}
+      ${o.status === "storniert" ? p("Bei Fragen antworte einfach auf diese E-Mail.") : ""}
+      ${button(url, "Meine Bestellungen")}
+      ${signature(c)}`,
+  });
+  const text = [`${name ? `Hallo ${name},` : "Hallo,"}`, "", `deine Bestellung ${o.number} ${STATUS_TEXT[o.status]}.`, `${o.calc.trays} Trays · ${formatPrice(o.calc.gross)} (voraussichtlich, inkl. MwSt.)`, "", `Meine Bestellungen: ${url}`, "", `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`].join("\n");
+  return { subject, html, text };
 }

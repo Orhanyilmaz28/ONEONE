@@ -1,4 +1,5 @@
 import { cansOf, formatPrice } from "./format";
+import type { OrderRow } from "./dealer-order-calc";
 import type { Product } from "./types";
 
 /** Reihenfolge und Namen der Bereiche in Preisliste und Artikelpässen */
@@ -30,7 +31,17 @@ export type DealerRow = {
   gtin?: string;
   /** Nur per LKW auf Anfrage (Wasser, X-Tea) – keine Tray-Preise */
   lkw: boolean;
+  /** Im Sortiment lieferbar (Shop-Verfügbarkeit) */
+  available: boolean;
 };
+
+/** Zeile der Preisliste → Zeile für die Bestellberechnung */
+export function toOrderRow(r: DealerRow): OrderRow {
+  const t1 = r.t1.value;
+  const t2 = r.t2.value;
+  const pal = r.pal.value;
+  return { handle: r.handle, title: r.title, perTray: r.perTray, palletTrays: r.trays, t1, t2, pal, orderable: r.available && !r.lkw && Boolean(t1 || t2) };
+}
 
 /** Trays je Euro-Palette laut Artikelpass: Energy und Ice Coffee 120 (24 × 250 ml), Wasser 126 (12 × 500 ml); X-Tea noch ohne Pass */
 export const palletTrays = (p: Product) => {

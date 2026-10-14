@@ -45,6 +45,8 @@ export const KEYS = {
   dealerTiers: "tt:dealer-tiers",
   /** Artikelpässe (PDF) je Produkt – nur für freigegebene Händler */
   dealerPasses: "tt:dealer-passes",
+  /** Händler-Bestellungen (auf Rechnung) */
+  dealerOrders: "tt:dealer-orders",
 } as const;
 
 export function storeKind(): StoreKind {

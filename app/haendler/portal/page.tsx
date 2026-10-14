@@ -3,12 +3,13 @@ import { TierBadge } from "@/components/tier-badge";
 import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
 import { getDealerPasses } from "@/lib/dealer-data";
+import { getDealerOrdersOf } from "@/lib/dealer-orders";
 import { dealerRows } from "@/lib/dealer-rows";
 import { getProducts } from "@/lib/catalog";
 
 export default async function PortalHome() {
   const dealer = await requireDealer();
-  const [products, passes] = await Promise.all([getProducts(), getDealerPasses()]);
+  const [products, passes, orders] = await Promise.all([getProducts(), getDealerPasses(), getDealerOrdersOf(dealer.id)]);
   const { rows, tierName } = await dealerRows(dealer, products);
   const priced = rows.filter((r) => r.t1.value).length;
   const singles = products;
@@ -17,9 +18,10 @@ export default async function PortalHome() {
   const first = dealer.contact.split(" ")[0];
 
   const tiles = [
-    { href: "/haendler/portal/preise", title: "Preisliste", text: "Alle Artikel mit deinen Händlerpreisen – netto, je Tray und je Dose.", big: priced ? `${priced}` : "–", unit: "Preise" },
+    { href: "/haendler/portal/preise", title: "Preise & Bestellen", text: "Alle Artikel mit deinen Händlerpreisen – Mengen wählen und direkt auf Rechnung bestellen.", big: priced ? `${priced}` : "–", unit: "Preise" },
+    { href: "/haendler/portal/bestellungen", title: "Meine Bestellungen", text: "Status deiner Bestellungen – und mit einem Klick nachbestellen.", big: `${orders.length}`, unit: orders.length === 1 ? "Bestellung" : "Bestellungen" },
     { href: "/haendler/portal/artikelpaesse", title: "Artikelpässe", text: "Datenblätter als PDF zum Download – für Listung und Kasse.", big: passCount ? `${passCount}` : "–", unit: passCount === 1 ? "Pass" : "Pässe" },
-    { href: "/palette", title: "Palette anfragen", text: "Menge nennen, Mischpalette wünschen – wir machen dir ein Angebot.", big: "120", unit: "Trays je Palette" },
+    { href: "/palette", title: "Palette anfragen", text: "Ab 120 Trays gilt beim Bestellen automatisch der Palettenpreis – Sonderwünsche hier anfragen.", big: "120", unit: "Trays je Palette" },
   ];
 
   return (
@@ -45,7 +47,7 @@ export default async function PortalHome() {
         </ul>
       </section>
 
-      <ul className="mt-6 grid gap-4 md:grid-cols-3">
+      <ul className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {tiles.map((t) => (
           <li key={t.href}>
             <Link className="group block h-full rounded-[2rem] border border-line bg-card p-6 transition hover:-translate-y-1 hover:border-accent" href={t.href}>
