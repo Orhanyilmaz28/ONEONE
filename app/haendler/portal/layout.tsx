@@ -7,6 +7,7 @@ import { Logo } from "@/components/logo";
 import { TierBadge } from "@/components/tier-badge";
 import { requireDealer } from "@/lib/dealer-auth";
 import { getTiers } from "@/lib/dealer-data";
+import { getMessages, unreadCount } from "@/lib/dealer-messages";
 
 export const metadata: Metadata = { title: { default: "Händlerbereich", template: "%s · Händlerbereich" }, robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -14,7 +15,7 @@ export const dynamic = "force-dynamic";
 /** Eigene Bühne für freigegebene Händler: Seitenleiste statt Shop-Kopfzeile */
 export default async function PortalLayout({ children }: { children: ReactNode }) {
   const dealer = await requireDealer();
-  const tiers = await getTiers();
+  const [tiers, messages] = await Promise.all([getTiers(), getMessages().catch(() => [])]);
   const tierName = (tiers.find((t) => t.id === dealer.tierId) ?? tiers[0]).name;
   return (
     <div className="relative isolate min-h-screen lg:grid lg:grid-cols-[17rem_1fr]">
@@ -29,7 +30,7 @@ export default async function PortalLayout({ children }: { children: ReactNode }
         <div className="mt-4 lg:mt-6">
           <TierBadge name={tierName} />
         </div>
-        <PortalNav />
+        <PortalNav unread={unreadCount(messages, dealer)} />
         <div className="mt-4 hidden border-line border-t pt-4 text-sm lg:absolute lg:right-6 lg:bottom-6 lg:left-6 lg:block">
           <p className="truncate font-bold">{dealer.company}</p>
           <p className="truncate text-muted text-xs">{dealer.email}</p>

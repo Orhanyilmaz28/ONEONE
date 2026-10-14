@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from "node:crypto";
 import { hashPassword, verifyPassword } from "./customers";
+import { MARKETING_TEXT } from "./dealer-consent";
 import type { CanPrices } from "./dealer-pricing";
 import { KEYS, getJSON, updateJSON } from "./store";
 
@@ -38,7 +39,10 @@ export type Dealer = {
   failedLogins?: number;
   lockedUntil?: string;
   lastLoginAt?: string;
+  /** Einwilligung in Werbung per E-Mail (freiwillig, jederzeit widerrufbar) – mit Zeitpunkt und Wortlaut als Nachweis */
+  marketing?: { granted: boolean; at: string; text: string };
 };
+
 
 export const BRANCHES = ["Einzelhandel", "Getränkemarkt / Großhandel", "Gastronomie", "Kiosk / Späti", "Tankstelle", "Event / Verein", "Online-Händler", "Sonstiges"] as const;
 export const VOLUMES = ["bis 10 Trays pro Monat", "10–50 Trays pro Monat", "ab 1 Palette pro Monat", "mehrere Paletten pro Monat", "noch unklar"] as const;
@@ -189,6 +193,19 @@ export async function setDealerPricing(id: string, tierId: string | undefined, c
       // alte Preise je Tray dabei entfernen
       const { customPrices: _old, ...rest } = d;
       return { ...rest, tierId, customCanPrices };
+    }),
+  );
+  return found;
+}
+
+/** Werbe-Einwilligung erteilen oder widerrufen */
+export async function setDealerMarketing(id: string, granted: boolean): Promise<boolean> {
+  let found = false;
+  await updateJSON<Dealer[]>(KEYS.dealers, [], (list) =>
+    (Array.isArray(list) ? list : []).map((d) => {
+      if (d.id !== id) return d;
+      found = true;
+      return { ...d, marketing: { granted, at: new Date().toISOString(), text: MARKETING_TEXT } };
     }),
   );
   return found;

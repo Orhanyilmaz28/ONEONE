@@ -6,12 +6,13 @@ import { usePathname } from "next/navigation";
 const ITEMS = [
   { href: "/haendler/portal", label: "Übersicht", icon: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10" },
   { href: "/haendler/portal/preise", label: "Preise & Bestellen", icon: "M4 6h16M4 12h16M4 18h10" },
+  { href: "/haendler/portal/nachrichten", label: "Nachrichten", icon: "M4 5h16v11H8l-4 4zM8 9h8M8 12h5" },
   { href: "/haendler/portal/bestellungen", label: "Bestellungen", icon: "M3 4h2l2.4 11.2a2 2 0 0 0 2 1.6h7.7a2 2 0 0 0 1.9-1.5L21 8H6M10 21h.01M17 21h.01" },
   { href: "/haendler/portal/artikelpaesse", label: "Artikelpässe", icon: "M7 3h8l4 4v14H7zM15 3v4h4M10 12h6M10 16h6" },
   { href: "/haendler/portal/konto", label: "Konto & Dokumente", icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-8 9c0-4 3.6-6 8-6s8 2 8 6" },
 ];
 
-export function PortalNav() {
+export function PortalNav({ unread = 0 }: { unread?: number }) {
   const path = usePathname();
   return (
     <nav aria-label="Händlerbereich" className="no-scrollbar mt-4 flex gap-1 overflow-x-auto lg:mt-8 lg:flex-col">
@@ -28,6 +29,11 @@ export function PortalNav() {
               <path d={i.icon} />
             </svg>
             {i.label}
+            {i.href === "/haendler/portal/nachrichten" && unread ? (
+              <span aria-label={`${unread} ungelesen`} className={`ml-auto rounded-full px-2 py-0.5 font-black text-[11px] ${active ? "bg-black text-accent" : "bg-accent text-black"}`}>
+                {unread}
+              </span>
+            ) : null}
           </Link>
         );
       })}

@@ -47,6 +47,10 @@ export const KEYS = {
   dealerPasses: "tt:dealer-passes",
   /** Händler-Bestellungen (auf Rechnung) */
   dealerOrders: "tt:dealer-orders",
+  /** Nachrichten an Händler (Händlerbereich → Nachrichten) */
+  dealerMessages: "tt:dealer-messages",
+  /** Bankverbindung und Zahlungsziel für Händler-Rechnungen */
+  dealerInvoiceSettings: "tt:dealer-invoice-settings",
 } as const;
 
 export function storeKind(): StoreKind {

@@ -450,3 +450,18 @@ body::after {
 .booster-next { animation: booster-next 1.4s ease-in-out infinite; }
 .booster-nudge { animation: booster-nudge 4.5s ease-in-out infinite; }
 .booster-nudge:hover { animation: none; }
+
+/* Rechnung drucken bzw. als PDF speichern: nur das Rechnungsblatt ausgeben (alles andere ausblenden, Hüllen neutralisieren) */
+@media print {
+  html:has(.invoice-doc), body:has(.invoice-doc) { background: #fff !important; }
+  body:has(.invoice-doc)::before, body:has(.invoice-doc)::after { display: none !important; }
+  body:has(.invoice-doc) *:not(:has(.invoice-doc)):not(.invoice-doc):not(.invoice-doc *) { display: none !important; }
+  body:has(.invoice-doc) *:has(.invoice-doc) {
+    display: block !important; position: static !important; margin: 0 !important; padding: 0 !important; border: 0 !important;
+    width: auto !important; max-width: none !important; min-height: 0 !important; overflow: visible !important; background: none !important; box-shadow: none !important;
+  }
+  .invoice-doc { position: relative !important; overflow: visible !important; max-width: none !important; width: 100% !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; }
+  /* Wasserzeichen auf jeder gedruckten Seite */
+  .invoice-watermark { position: fixed !important; top: 50% !important; left: 50% !important; translate: -50% -50% !important; transform: none !important; }
+  @page { size: A4; margin: 14mm; }
+}

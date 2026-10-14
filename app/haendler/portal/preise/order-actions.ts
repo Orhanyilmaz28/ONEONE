@@ -5,6 +5,7 @@ import { getProducts } from "@/lib/catalog";
 import { toOrderRow } from "@/lib/dealer-catalog";
 import { getCurrentDealer } from "@/lib/dealer-auth";
 import { PALLET_MIN_TRAYS, calcDealerOrder, cleanQty } from "@/lib/dealer-order-calc";
+import { notifyDealer } from "@/lib/dealer-messages";
 import { DealerOrderLimitError, createDealerOrder } from "@/lib/dealer-orders";
 import { dealerRows } from "@/lib/dealer-rows";
 import { mailReady, sendMail } from "@/lib/mail";
@@ -84,6 +85,15 @@ export async function placeDealerOrderAction(input: PlaceOrderInput): Promise<Pl
     console.error("[haendler-bestellung]", e);
     return { ok: false, error: "Die Bestellung konnte nicht gespeichert werden. Bitte versuche es noch einmal." };
   }
+
+  await notifyDealer({
+    to: dealer.id,
+    type: "bestellung",
+    title: `Bestellung ${order.number} ist eingegangen`,
+    body: `${calc.trays} Trays · ${(calc.gross / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} (voraussichtlich, inkl. MwSt.). Wir prüfen sie und melden uns mit der Bestätigung.`,
+    link: "/haendler/portal/bestellungen",
+    linkLabel: "Meine Bestellungen",
+  });
 
   // E-Mails: Bestätigung an den Händler, Info an den Shop (Fehler beim Versand verhindern die Bestellung nicht)
   if (mailReady()) {

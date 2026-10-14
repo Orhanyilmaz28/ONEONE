@@ -5,6 +5,7 @@ import { Badge, EmptyState, PageHeader, btn, formatDateTime, formatDay, input } 
 import { requireAdmin } from "@/lib/admin-auth";
 import { TIER_LABELS } from "@/lib/dealer-order-calc";
 import { DEALER_ORDER_STATUS, type DealerOrderStatus, getDealerOrders } from "@/lib/dealer-orders";
+import { invoiceTotals } from "@/lib/dealer-invoice";
 import { formatCan } from "@/lib/dealer-pricing";
 import { formatPrice } from "@/lib/format";
 import { mailReady } from "@/lib/mail";
@@ -59,7 +60,8 @@ export default async function DealerOrdersAdminPage({ searchParams }: { searchPa
                     </span>
                   </span>
                   <Badge tone={TONE[o.status]}>{LABEL[o.status]}</Badge>
-                  <span className="font-medium tabular-nums">{formatPrice(o.calc.gross)}</span>
+                  {o.invoice ? <Badge tone={o.invoice.paid ? "green" : o.invoice.released ? "blue" : "neutral"}>{o.invoice.number} · {o.invoice.paid ? "bezahlt" : o.invoice.released ? "offen" : "Entwurf"}</Badge> : null}
+                  <span className="font-medium tabular-nums">{formatPrice(o.invoice ? invoiceTotals(o.invoice).gross : o.calc.gross)}</span>
                 </summary>
                 <div className="grid gap-6 border-line border-t p-5 lg:grid-cols-[1.4fr_1fr]">
                   <div>
@@ -129,6 +131,9 @@ export default async function DealerOrdersAdminPage({ searchParams }: { searchPa
                       </button>
                     </form>
                     <p className="mt-3 text-[12px] text-muted">{o.history.map((h) => `${LABEL[h.status]} ${formatDateTime(h.at)}`).join(" → ")}</p>
+                    <a className={`${btn} mt-4 w-full`} href={`/admin/haendler/bestellungen/${o.id}/rechnung`}>
+                      {o.invoice ? `Rechnung ${o.invoice.number} bearbeiten` : "Rechnung erstellen"}
+                    </a>
                   </div>
                 </div>
               </details>

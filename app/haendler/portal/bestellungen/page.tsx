@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
 import { TIER_LABELS } from "@/lib/dealer-order-calc";
 import { type DealerOrderStatus, getDealerOrdersOf } from "@/lib/dealer-orders";
+import { dueDate, formatDate, invoiceTotals, invoiceVisible } from "@/lib/dealer-invoice";
 import { formatCan } from "@/lib/dealer-pricing";
 import { formatPrice as euro } from "@/lib/format";
 
@@ -42,7 +43,10 @@ export default async function DealerOrdersPage() {
                     </span>
                   </span>
                   <span className={`rounded-full border px-3 py-1 font-bold text-xs ${STATUS[o.status].cls}`}>{STATUS[o.status].label}</span>
-                  <span className="font-bold tabular-nums">{euro(o.calc.gross)}</span>
+                  {o.invoice && invoiceVisible(o.invoice) ? (
+                    <span className={`rounded-full px-3 py-1 font-bold text-xs ${o.invoice.paid ? "bg-accent text-black" : "border border-amber-300/60 text-amber-300"}`}>{o.invoice.paid ? "Bezahlt" : "Rechnung offen"}</span>
+                  ) : null}
+                  <span className="font-bold tabular-nums">{euro(o.invoice && invoiceVisible(o.invoice) ? invoiceTotals(o.invoice).gross : o.calc.gross)}</span>
                   <span aria-hidden className="text-muted transition group-open:rotate-180">⌄</span>
                 </summary>
                 <div className="grid gap-6 border-line border-t p-5 md:grid-cols-[1.4fr_1fr]">
@@ -79,6 +83,17 @@ export default async function DealerOrdersPage() {
                     {o.wishDate ? <p className="mt-2">Wunschtermin: {date(`${o.wishDate}T12:00:00Z`)}</p> : null}
                     {o.note ? <p className="mt-2 whitespace-pre-line text-muted">{o.note}</p> : null}
                     <p className="mt-3 text-muted text-xs">{o.history.map((h) => `${STATUS[h.status].label} ${date(h.at)}`).join(" → ")}</p>
+                    {o.invoice && invoiceVisible(o.invoice) ? (
+                      <div className="mt-4 rounded-2xl border border-line p-3">
+                        <p className="font-bold">Rechnung {o.invoice.number}</p>
+                        <p className="text-muted text-xs">
+                          {euro(invoiceTotals(o.invoice).gross)} · {o.invoice.paid ? "bezahlt" : `zahlbar bis ${formatDate(dueDate(o.invoice))}`}
+                        </p>
+                        <Link className="mt-2 inline-flex h-9 items-center rounded-full bg-accent px-4 font-bold text-black text-sm" href={`/haendler/portal/rechnung/${o.id}`}>
+                          Rechnung ansehen / PDF
+                        </Link>
+                      </div>
+                    ) : null}
                     <Link className="mt-4 inline-flex h-10 items-center rounded-full border border-accent px-5 font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/haendler/portal/preise?nochmal=${o.id}`}>
                       Nochmal bestellen
                     </Link>

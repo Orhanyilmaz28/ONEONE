@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { MARKETING_TEXT } from "@/lib/dealer-consent";
 
 const field = "h-12 w-full rounded-2xl border border-line bg-card px-4 outline-none transition focus:border-accent focus:ring-4 focus:ring-accent/15 aria-[invalid=true]:border-red-500";
 
@@ -131,6 +132,13 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
             Datenschutzerklärung
           </Link>{" "}
           gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage gespeichert werden. Der Gewerbenachweis wird nur zur Prüfung verwendet. *
+        </span>
+      </label>
+      {/* Werbe-Einwilligung: freiwillig und nicht vorausgewählt (sonst unwirksam) */}
+      <label className="flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm sm:col-span-2">
+        <input className="mt-1 size-4 accent-accent" name="marketing" type="checkbox" />
+        <span>
+          <b>Angebote & Aktionen erhalten:</b> {MARKETING_TEXT.replace(/^Ja, /, "")}
         </span>
       </label>
       {error ? (

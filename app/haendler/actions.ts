@@ -59,3 +59,14 @@ export async function activationValid(id: string, token: string) {
   const d = await checkActivation(id, token).catch(() => null);
   return d ? { company: d.company, contact: d.contact, email: d.email } : null;
 }
+
+/** Werbe-Einwilligung im Händlerbereich erteilen oder widerrufen */
+export async function dealerMarketingAction(form: FormData): Promise<void> {
+  const { getCurrentDealer } = await import("@/lib/dealer-auth");
+  const { setDealerMarketing } = await import("@/lib/dealer-store");
+  const { revalidatePath } = await import("next/cache");
+  const dealer = await getCurrentDealer();
+  if (!dealer) return;
+  await setDealerMarketing(dealer.id, form.get("granted") === "1");
+  revalidatePath("/haendler/portal/konto");
+}

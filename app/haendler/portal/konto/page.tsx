@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { dealerLogoutAction } from "../../actions";
+import { dealerLogoutAction, dealerMarketingAction } from "../../actions";
+import { MARKETING_TEXT } from "@/lib/dealer-consent";
 import { TierBadge } from "@/components/tier-badge";
 import { requireDealer } from "@/lib/dealer-auth";
 import { getTiers } from "@/lib/dealer-data";
@@ -55,6 +56,25 @@ export default async function AccountPage() {
             <span className="block text-muted text-sm">{d.proof ? `Hinterlegt: ${d.proof.name}` : "Hinterlegt"}</span>
           </span>
         </p>
+      </section>
+
+      <section className="mt-6 rounded-[2rem] border border-line bg-card p-6 sm:p-8" id="werbung">
+        <h2 className="t-h3">Angebote & Aktionen per E-Mail</h2>
+        <p className="mt-2 text-muted text-sm">{MARKETING_TEXT.replace(/^Ja, /, "")}</p>
+        <p className="mt-4">
+          {d.marketing?.granted ? (
+            <span className="font-bold text-accent">✓ Eingewilligt</span>
+          ) : (
+            <span className="text-muted">Keine Einwilligung – du bekommst nur Nachrichten zu deinen Bestellungen und Rechnungen.</span>
+          )}
+          {d.marketing ? <span className="block text-muted text-xs">Stand: {new Date(d.marketing.at).toLocaleString("de-DE", { timeZone: "Europe/Berlin" })}</span> : null}
+        </p>
+        <form action={dealerMarketingAction} className="mt-4">
+          <input name="granted" type="hidden" value={d.marketing?.granted ? "0" : "1"} />
+          <button className={d.marketing?.granted ? "text-muted text-sm underline transition hover:text-accent" : "inline-flex h-11 items-center rounded-full border border-accent px-6 font-bold text-accent transition hover:bg-accent hover:text-black"} type="submit">
+            {d.marketing?.granted ? "Einwilligung widerrufen" : "Ja, Angebote per E-Mail erhalten"}
+          </button>
+        </form>
       </section>
 
       <div className="mt-8 flex flex-wrap items-center gap-4">

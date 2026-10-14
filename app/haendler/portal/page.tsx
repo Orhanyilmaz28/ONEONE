@@ -4,12 +4,14 @@ import Link from "next/link";
 import { requireDealer } from "@/lib/dealer-auth";
 import { getDealerPasses } from "@/lib/dealer-data";
 import { getDealerOrdersOf } from "@/lib/dealer-orders";
+import { MESSAGE_LABELS, getMessages, messagesFor } from "@/lib/dealer-messages";
 import { dealerRows } from "@/lib/dealer-rows";
 import { getProducts } from "@/lib/catalog";
 
 export default async function PortalHome() {
   const dealer = await requireDealer();
-  const [products, passes, orders] = await Promise.all([getProducts(), getDealerPasses(), getDealerOrdersOf(dealer.id)]);
+  const [products, passes, orders, allMessages] = await Promise.all([getProducts(), getDealerPasses(), getDealerOrdersOf(dealer.id), getMessages().catch(() => [])]);
+  const latest = messagesFor(allMessages, dealer).slice(0, 3);
   const { rows, tierName } = await dealerRows(dealer, products);
   const priced = rows.filter((r) => Object.values(r.steps).some((c) => c.value)).length;
   const singles = products;
@@ -60,6 +62,31 @@ export default async function PortalHome() {
           </li>
         ))}
       </ul>
+
+      {latest.length ? (
+        <section className="mt-10">
+          <div className="flex items-baseline justify-between gap-4">
+            <h2 className="t-h3">Neueste Nachrichten</h2>
+            <Link className="text-accent text-sm underline-offset-4 hover:underline" href="/haendler/portal/nachrichten">
+              Alle ansehen →
+            </Link>
+          </div>
+          <ul className="mt-4 grid gap-3 md:grid-cols-3">
+            {latest.map((m) => (
+              <li key={m.id}>
+                <Link className={`block h-full rounded-[1.5rem] border bg-card p-5 transition hover:border-accent ${m.readBy.includes(dealer.id) ? "border-line" : "border-accent/60"}`} href={m.link ?? "/haendler/portal/nachrichten"}>
+                  <p className="font-bold text-[11px] text-accent uppercase tracking-wider">
+                    {MESSAGE_LABELS[m.type]}
+                    {m.readBy.includes(dealer.id) ? "" : " · neu"}
+                  </p>
+                  <p className="mt-1 font-bold">{m.title}</p>
+                  {m.body ? <p className="mt-1 line-clamp-2 text-muted text-sm">{m.body}</p> : null}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="mt-12">
         <h2 className="t-h3">Das Sortiment</h2>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
 import type { Product } from "@/lib/types";
 import { ArrowIcon } from "./icons";
@@ -28,6 +29,8 @@ export function StickyBuy({ product }: { product: Product }) {
   // Ein einziges Angebot (z. B. 24er Tray): kein „Größe wählen“; ausverkauft: kein Kauf-Knopf
   const single = product.variants.length === 1;
   const available = product.variants.some((v) => v.available);
+  const { add } = useCart();
+  const btn = "anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-accent px-5 font-medium text-black transition hover:bg-accent-dark";
   return (
     <div
       className={`fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-line bg-card p-2 pr-2 shadow-[0_20px_60px_-15px_rgba(20,20,20,0.35)] transition-all duration-500 sm:inset-x-6 ${
@@ -44,10 +47,16 @@ export function StickyBuy({ product }: { product: Product }) {
         <span className="block truncate font-medium">{product.title}</span>
         <span className="t-small block text-muted">{formatPrice(price)} · inkl. MwSt., zzgl. Versand</span>
       </span>
-      {available ? (
-        <a className="anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-accent px-5 font-medium text-black transition hover:bg-accent-dark" href="#kaufen">
-          <span className="hidden sm:inline">{single ? "Jetzt kaufen" : "Größe wählen"}</span>
-          <span className="sm:hidden">Kaufen</span>
+      {available && single ? (
+        // Ein einziges Angebot (z. B. 24er Tray): direkt in den Warenkorb
+        <button className={btn} onClick={() => add(product.handle, product.variants[0].id)} type="button">
+          In den Korb
+          <ArrowIcon />
+        </button>
+      ) : available ? (
+        <a className={btn} href="#kaufen">
+          <span className="hidden sm:inline">Größe wählen</span>
+          <span className="sm:hidden">Wählen</span>
           <ArrowIcon />
         </a>
       ) : (

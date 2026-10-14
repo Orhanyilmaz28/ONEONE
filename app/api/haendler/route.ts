@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { MARKETING_TEXT } from "@/lib/dealer-consent";
 import { BRANCHES, DealerLimitError, VOLUMES, addDealer } from "@/lib/dealer-store";
 import { mailReady, sendMail } from "@/lib/mail";
 import { getSettings } from "@/lib/settings";
@@ -37,6 +38,8 @@ export async function POST(request: Request) {
   }
   const body: Record<string, unknown> = Object.fromEntries([...form.entries()].filter(([, v]) => typeof v === "string"));
   body.consent = body.consent === "on" || body.consent === "true";
+  // Werbe-Einwilligung ist freiwillig – nur wenn das Häkchen gesetzt wurde
+  const marketing = body.marketing === "on" || body.marketing === "true";
   // Spam-Schutz: verstecktes Feld ausgefüllt → so tun, als hätte es geklappt
   if (text(body.website, 50)) return Response.json({ ok: true });
 
@@ -74,7 +77,10 @@ export async function POST(request: Request) {
   try {
     await putBinary(proofId, buf);
     const safeName = `${file.name.replace(/[^\w.\- äöüÄÖÜß]/g, "_").slice(0, 80) || "nachweis"}`.replace(/\.[a-z0-9]{1,5}$/i, "") + `.${kind.ext}`;
-    ({ duplicate } = await addDealer({ ...d, proof: { id: proofId, name: safeName, type: kind.type, size: buf.length } }, id));
+    ({ duplicate } = await addDealer(
+      { ...d, proof: { id: proofId, name: safeName, type: kind.type, size: buf.length }, ...(marketing ? { marketing: { granted: true, at: new Date().toISOString(), text: MARKETING_TEXT } } : {}) },
+      id,
+    ));
     if (duplicate) await deleteBinary([proofId]).catch(() => undefined);
   } catch (e) {
     await deleteBinary([proofId]).catch(() => undefined);

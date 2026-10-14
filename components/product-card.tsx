@@ -50,7 +50,7 @@ export function ProductCard({
   const simple = product.options.every((o) => o.name === "Packung" || o.name === "Farbe" || o.name === "Größe");
   const quickVariants = !simple ? [] : colorOption ? product.variants.filter((v) => v.options.Farbe === colorOption.values[0]) : product.variants;
   const pack = product.packSize ?? 1;
-  // Ein einziges Angebot (z. B. 24er Tray): direkt „Jetzt kaufen“ auf der Karte
+  // Ein einziges Angebot (z. B. 24er Tray): direkt „In den Korb“ auf der Karte
   const single = simple && product.variants.length === 1 ? product.variants[0] : undefined;
   // Preis pro Dose: aus der günstigsten Variante (Packungsgröße), sonst aus der Paketgröße des Produkts
   const perUnit = cheapest ? cansOf(cheapest) : pack;
@@ -182,7 +182,7 @@ export function ProductCard({
             onClick={() => add(product.handle, single.id)}
             type="button"
           >
-            {single.available ? "Jetzt kaufen" : "Ausverkauft"}
+            {single.available ? "In den Korb" : "Ausverkauft"}
           </button>
         ) : (
           <Link className="inline-flex h-11 w-full items-center justify-center rounded-full border border-line font-medium text-sm transition hover:border-accent hover:text-accent" href={`/products/${product.handle}`}>

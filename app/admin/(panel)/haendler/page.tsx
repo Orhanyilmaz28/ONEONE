@@ -81,6 +81,7 @@ export default async function HaendlerAdminPage({ searchParams }: { searchParams
                     ["USt-IdNr.", d.vatId || "–"],
                     ["Branche", d.branch],
                     ["Geplante Menge", d.volume],
+                    ["Werbung per E-Mail", d.marketing?.granted ? `Ja – eingewilligt am ${formatDateTime(d.marketing.at)}` : d.marketing ? `Nein – widerrufen am ${formatDateTime(d.marketing.at)}` : "Nein"],
                   ] as const
                 ).map(([k, v]) => (
                   <div className="flex gap-2" key={k}>

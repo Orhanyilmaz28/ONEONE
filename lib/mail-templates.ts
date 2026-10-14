@@ -1,5 +1,6 @@
 import { carrierLabel, normalizeTracking, trackingUrl } from "@/app/admin/(panel)/bestellungen/shipping";
 import { formatPrice, SITE_URL } from "./format";
+import { type DealerInvoice, dueDate, formatDate, invoiceTotals } from "./dealer-invoice";
 import type { DealerOrder } from "./dealer-orders";
 import { TIER_LABELS } from "./dealer-order-calc";
 import { formatCan } from "./dealer-pricing";
@@ -419,5 +420,48 @@ export function dealerOrderStatusMail(o: DealerOrder, settings: Settings): Rende
       ${signature(c)}`,
   });
   const text = [`${name ? `Hallo ${name},` : "Hallo,"}`, "", `deine Bestellung ${o.number} ${STATUS_TEXT[o.status]}.`, `${o.calc.trays} Trays · ${formatPrice(o.calc.gross)} (voraussichtlich, inkl. MwSt.)`, "", `Meine Bestellungen: ${url}`, "", `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`].join("\n");
+  return { subject, html, text };
+}
+
+/** Neue Nachricht / neues Angebot im Händlerbereich */
+export function dealerMessageMail(m: { title: string; body: string; type: string; link?: string; linkLabel?: string }, contact: string, settings: Settings): Rendered {
+  const c = settings.company;
+  const name = firstName(contact);
+  const url = `${SITE_URL}${m.link ?? "/haendler/portal/nachrichten"}`;
+  const subject = `${m.type === "angebot" ? "Angebot: " : ""}${m.title}`;
+  const html = layout({
+    preheader: m.title,
+    company: c,
+    body: `
+      ${h1(esc(m.title))}
+      ${name ? p(`Hallo ${esc(name)},`) : ""}
+      ${m.body ? p(esc(m.body).replace(/\n/g, "<br>")) : ""}
+      ${button(url, m.linkLabel ?? "Im Händlerbereich ansehen")}
+      ${m.type === "angebot" ? small("Du bekommst diese E-Mail, weil du in Angebote per E-Mail eingewilligt hast. Abbestellen: Händlerbereich → Konto & Dokumente.") : ""}
+      ${signature(c)}`,
+  });
+  const text = [`${name ? `Hallo ${name},` : "Hallo,"}`, "", m.title, "", m.body, "", `Ansehen: ${url}`, ...(m.type === "angebot" ? ["", "Abbestellen: Händlerbereich → Konto & Dokumente."] : []), "", `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`].join("\n");
+  return { subject, html, text };
+}
+
+/** Rechnung im Händlerbereich verfügbar (freigegeben oder korrigiert) */
+export function dealerInvoiceMail(o: DealerOrder, inv: DealerInvoice, settings: Settings, corrected?: string): Rendered {
+  const c = settings.company;
+  const name = firstName(o.delivery.contact);
+  const t = invoiceTotals(inv);
+  const url = `${SITE_URL}/haendler/portal/rechnung/${o.id}`;
+  const subject = `${corrected ? "Korrigierte " : ""}Rechnung ${inv.number} zu Bestellung ${o.number}`;
+  const info = inv.paid ? "Der Betrag ist bereits beglichen – danke!" : `Bitte überweise ${formatPrice(t.gross)} bis zum ${formatDate(dueDate(inv))}${inv.seller.iban ? ` (IBAN ${inv.seller.iban})` : ""}, Verwendungszweck ${inv.number}.`;
+  const html = layout({
+    preheader: `Rechnung ${inv.number} über ${formatPrice(t.gross)}`,
+    company: c,
+    body: `
+      ${h1(`${name ? `Hallo ${esc(name)}, d` : "D"}eine Rechnung ist da`)}
+      ${p(`${corrected ? `Die Rechnung ${esc(corrected)} wurde korrigiert und durch <b>${esc(inv.number)}</b> ersetzt. ` : `Zu deiner Bestellung <b>${esc(o.number)}</b> steht die Rechnung <b>${esc(inv.number)}</b> bereit. `}Gesamtbetrag: <b>${formatPrice(t.gross)}</b> (inkl. ${inv.vatRate} % USt. und Pfand).`)}
+      ${p(esc(info))}
+      ${button(url, "Rechnung ansehen / als PDF speichern")}
+      ${signature(c)}`,
+  });
+  const text = [`${name ? `Hallo ${name},` : "Hallo,"}`, "", corrected ? `die Rechnung ${corrected} wurde korrigiert und durch ${inv.number} ersetzt.` : `zu deiner Bestellung ${o.number} steht die Rechnung ${inv.number} bereit.`, `Gesamtbetrag: ${formatPrice(t.gross)}`, "", info, "", `Rechnung ansehen: ${url}`, "", `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`].join("\n");
   return { subject, html, text };
 }

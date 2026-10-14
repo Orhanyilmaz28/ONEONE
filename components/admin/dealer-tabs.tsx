@@ -3,9 +3,11 @@ import Link from "next/link";
 const TABS = [
   { href: "/admin/haendler", label: "Anfragen" },
   { href: "/admin/haendler/bestellungen", label: "Bestellungen" },
+  { href: "/admin/haendler/nachrichten", label: "Nachrichten" },
   { href: "/admin/haendler/preise", label: "Dosenpreise" },
   { href: "/admin/haendler/stufen", label: "Stufen" },
   { href: "/admin/haendler/artikelpaesse", label: "Artikelpässe" },
+  { href: "/admin/haendler/rechnungsdaten", label: "Rechnungsdaten" },
 ];
 
 /** Umschalter im Bereich „Händler“ */

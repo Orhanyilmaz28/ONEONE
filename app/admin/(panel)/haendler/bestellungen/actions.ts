@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin-auth";
 import { DEALER_ORDER_STATUS, type DealerOrderStatus, setDealerOrderStatus } from "@/lib/dealer-orders";
+import { notifyDealer } from "@/lib/dealer-messages";
 import { mailReady, sendMail } from "@/lib/mail";
 import { dealerOrderStatusMail } from "@/lib/mail-templates";
 import { getSettings } from "@/lib/settings";
@@ -16,6 +17,10 @@ export async function setDealerOrderStatusAction(form: FormData): Promise<void> 
   const status = form.get("status");
   if (typeof id !== "string" || !/^[a-f0-9]{16}$/.test(id) || typeof status !== "string" || !DEALER_ORDER_STATUS.includes(status as DealerOrderStatus)) return;
   const order = await setDealerOrderStatus(id, status as DealerOrderStatus);
+  if (order) {
+    const text: Record<DealerOrderStatus, string> = { eingegangen: "ist eingegangen", bestätigt: "ist bestätigt – wir bereiten sie vor", versendet: "ist unterwegs zu dir", storniert: "wurde storniert" };
+    await notifyDealer({ to: order.dealerId, type: "bestellung", title: `Bestellung ${order.number} ${text[order.status]}`, body: "", link: "/haendler/portal/bestellungen", linkLabel: "Meine Bestellungen" });
+  }
   if (order && form.get("notify") === "on" && mailReady()) {
     const settings = await getSettings();
     const replyTo = isPlaceholder(settings.company.email) ? undefined : settings.company.email.trim();
