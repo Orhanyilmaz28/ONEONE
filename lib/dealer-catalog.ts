@@ -25,6 +25,8 @@ export type DealerRow = {
   t2: DealerPriceCell;
   pal: DealerPriceCell;
   pass: boolean;
+  /** Im Shop lieferbar (mindestens eine Variante verfügbar) */
+  available?: boolean;
 };
 
 /** Trays je Euro-Palette laut Artikelpass (24 × 250 ml: 108); bei Wasser nicht bekannt */
