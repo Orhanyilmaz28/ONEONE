@@ -1,10 +1,13 @@
 "use client";
 
+import { AnimatePresence, MotionConfig, animate, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef, useState } from "react";
 import { MinusIcon, PlusIcon } from "@/components/icons";
 import { ProductImage } from "@/components/product-image";
 import { useCart } from "@/lib/cart";
 import { depositFor, formatPrice } from "@/lib/format";
 import { MIX_TIERS, mixDiscount } from "@/lib/mix";
+import { SORT_COLORS } from "@/lib/pack-contents";
 import type { Product } from "@/lib/types";
 
 /** Mix zusammenstellen: Mengen je Sorte (ganze Trays) – wirkt direkt auf den Warenkorb */
@@ -16,7 +19,14 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
   const deposit = chosen.reduce((n, p) => n + depositFor(p.variants[0], qty(p)), 0);
   const byHandle = new Map(products.map((p) => [p.handle, p]));
 
+  // Tray-Raster: Reihenfolge wie die Sorten im Mix
+  const blocks = chosen.flatMap((p) => Array.from({ length: qty(p) }, (_, i) => ({ key: `${p.handle}-${i}`, color: SORT_COLORS[p.handle] ?? "#a8e652", title: p.title })));
+  // Fortschritt zur nächsten Rabattstufe (erst ab 2 Sorten zählt der Rabatt)
+  const prevMin = [...MIX_TIERS].reverse().find((t) => t.min <= mix.trays)?.min ?? 0;
+  const progress = mix.next ? Math.max(0, Math.min(1, (mix.trays - prevMin) / (mix.next.trays - prevMin))) : 1;
+
   return (
+    <MotionConfig reducedMotion="user">
     <div className="grid grid-cols-1 gap-8 pb-20 lg:grid-cols-[minmax(0,1fr)_22rem]">
       <div className="min-w-0 space-y-10">
         {groups.map((g) => (
@@ -29,7 +39,11 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
                 const v = p.variants[0];
                 const q = qty(p);
                 return (
-                  <li className={`flex items-center gap-4 rounded-[1.25rem] border bg-card p-3 ${q > 0 ? "border-accent/60" : "border-line"}`} key={h}>
+                  <li
+                    className="flex items-center gap-4 rounded-[1.25rem] border border-line bg-card p-3 transition-[box-shadow,border-color] duration-500"
+                    key={h}
+                    style={q > 0 ? { borderColor: `color-mix(in srgb, ${SORT_COLORS[h] ?? "#a8e652"} 70%, transparent)`, boxShadow: `0 0 28px -8px ${SORT_COLORS[h] ?? "#a8e652"}` } : undefined}
+                  >
                     <span className="relative size-20 shrink-0 overflow-hidden rounded-xl bg-cream">
                       <ProductImage product={p} sizes="80px" />
                     </span>
@@ -44,8 +58,12 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
                         <button aria-label={`${p.title}: ein Tray weniger`} className="p-2.5 transition hover:text-accent disabled:opacity-30" disabled={q === 0} onClick={() => setLine(h, v.id, q - 1)} type="button">
                           <MinusIcon className="size-3.5" />
                         </button>
-                        <span aria-live="polite" className="w-7 text-center tabular-nums">
-                          {q}
+                        <span aria-live="polite" className="relative w-7 overflow-hidden text-center tabular-nums">
+                          <AnimatePresence initial={false} mode="popLayout">
+                            <motion.span animate={{ y: 0, opacity: 1 }} className="inline-block" exit={{ y: -10, opacity: 0 }} initial={{ y: 10, opacity: 0 }} key={q} transition={{ duration: 0.18 }}>
+                              {q}
+                            </motion.span>
+                          </AnimatePresence>
                         </span>
                         <button aria-label={`${p.title}: ein Tray mehr`} className="p-2.5 transition hover:text-accent" onClick={() => setLine(h, v.id, q + 1)} type="button">
                           <PlusIcon className="size-3.5" />
@@ -65,6 +83,7 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
       <aside className="lg:sticky lg:top-28 lg:self-start">
         <div className="rounded-[1.75rem] border border-line bg-card p-6">
           <h2 className="t-h3">Dein Mix</h2>
+          <TrayGrid blocks={blocks} />
           {chosen.length === 0 ? (
             <p className="mt-3 text-muted text-sm">Noch nichts gewählt. Leg mit + deine ersten Trays in den Mix.</p>
           ) : (
@@ -83,29 +102,38 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
           <dl className="mt-5 space-y-2 border-line border-t pt-4 text-sm">
             <div className="flex justify-between">
               <dt className="text-muted">
-                {mix.trays} {mix.trays === 1 ? "Tray" : "Trays"} · {mix.sorts} {mix.sorts === 1 ? "Sorte" : "Sorten"}
+                <RollingInt value={mix.trays} /> {mix.trays === 1 ? "Tray" : "Trays"} · {mix.sorts} {mix.sorts === 1 ? "Sorte" : "Sorten"}
               </dt>
-              <dd className="tabular-nums">{formatPrice(mix.subtotal)}</dd>
+              <dd className="tabular-nums">
+                <Rolling cents={mix.subtotal} />
+              </dd>
             </div>
             {mix.discount > 0 ? (
               <div className="flex justify-between text-accent">
                 <dt>Mix-Rabatt {mix.pct} %</dt>
-                <dd className="tabular-nums">−{formatPrice(mix.discount)}</dd>
+                <dd className="tabular-nums">
+                  <Rolling cents={mix.discount} prefix="−" />
+                </dd>
               </div>
             ) : null}
             <div className="flex justify-between font-medium text-base">
               <dt>Summe</dt>
-              <dd className="tabular-nums">{formatPrice(mix.subtotal - mix.discount)}</dd>
+              <dd className="tabular-nums">
+                <Rolling cents={mix.subtotal - mix.discount} />
+              </dd>
             </div>
             {deposit > 0 ? (
               <div className="flex justify-between text-muted text-xs">
                 <dt>zzgl. Einwegpfand</dt>
-                <dd className="tabular-nums">{formatPrice(deposit)}</dd>
+                <dd className="tabular-nums">
+                  <Rolling cents={deposit} />
+                </dd>
               </div>
             ) : null}
           </dl>
 
-          <p className="mt-4 rounded-xl bg-cream px-3 py-2 text-xs">
+          <div className="mt-4 rounded-xl bg-cream px-3 py-2.5 text-xs">
+          <p>
             {mix.trays === 0
               ? "Ab 2 verschiedenen Sorten gibt es Mix-Rabatt."
               : mix.sorts < 2
@@ -114,16 +142,25 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
                   ? `Noch ${mix.next.missing} ${mix.next.missing === 1 ? "Tray" : "Trays"} bis ${mix.next.pct} % Mix-Rabatt.`
                   : "Höchster Mix-Rabatt erreicht."}
           </p>
+          <div aria-hidden className="mt-2 h-1.5 overflow-hidden rounded-full bg-paper">
+            <motion.div animate={{ width: `${(mix.sorts >= 2 || mix.trays === 0 ? progress : 0) * 100}%` }} className="h-full rounded-full bg-accent" initial={false} transition={{ type: "spring", stiffness: 160, damping: 24 }} />
+          </div>
+          </div>
 
           <ul aria-label="Rabattstufen" className="mt-4 grid grid-cols-4 gap-1.5 text-center text-xs">
             {MIX_TIERS.map((t) => {
               const reached = mix.sorts >= 2 && mix.trays >= t.min;
               const current = reached && mix.pct === t.pct;
               return (
-                <li className={`rounded-lg border px-1 py-1.5 ${current ? "border-accent bg-accent/15" : reached ? "border-accent/40" : "border-line text-muted"}`} key={t.min}>
+                <motion.li
+                  animate={current ? { scale: [1, 1.14, 1], boxShadow: ["0 0 0 0 rgba(168,230,82,0)", "0 0 22px 2px rgba(168,230,82,0.55)", "0 0 10px 0 rgba(168,230,82,0.25)"] } : { scale: 1, boxShadow: "0 0 0 0 rgba(168,230,82,0)" }}
+                  className={`rounded-lg border px-1 py-1.5 transition-colors duration-500 ${current ? "border-accent bg-accent/15" : reached ? "border-accent/40" : "border-line text-muted"}`}
+                  key={t.min}
+                  transition={{ duration: 0.6, ease: "easeOut" }}
+                >
                   <span className="block font-bold">−{t.pct} %</span>
                   <span className="block">ab {t.min}</span>
-                </li>
+                </motion.li>
               );
             })}
           </ul>
@@ -139,6 +176,74 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
           <p className="mt-3 text-center text-muted text-xs">Inkl. MwSt., zzgl. Pfand und Versand. Dein Mix liegt direkt im Warenkorb.</p>
         </div>
       </aside>
+    </div>
+    </MotionConfig>
+  );
+}
+
+/** Zahl rollt weich zum neuen Wert (bei „Bewegung reduzieren“ sofort) */
+function useRolling(value: number) {
+  const reduce = useReducedMotion();
+  const [shown, setShown] = useState(value);
+  const from = useRef(value);
+  useEffect(() => {
+    if (reduce) {
+      from.current = value;
+      setShown(value);
+      return;
+    }
+    const controls = animate(from.current, value, {
+      duration: 0.45,
+      ease: [0.22, 1, 0.36, 1],
+      onUpdate: (v) => {
+        from.current = v;
+        setShown(v);
+      },
+    });
+    return () => controls.stop();
+  }, [value, reduce]);
+  return shown;
+}
+
+function Rolling({ cents, prefix = "" }: { cents: number; prefix?: string }) {
+  const v = useRolling(cents);
+  return (
+    <>
+      {prefix}
+      {formatPrice(Math.round(v))}
+    </>
+  );
+}
+
+function RollingInt({ value }: { value: number }) {
+  return <>{Math.round(useRolling(value))}</>;
+}
+
+const MAX_BLOCKS = 48;
+
+/** Tray-Raster: ein Kästchen je Tray in der Sortenfarbe – neue Trays ploppen hinein */
+function TrayGrid({ blocks }: { blocks: { key: string; color: string; title: string }[] }) {
+  const shown = blocks.slice(0, MAX_BLOCKS);
+  return (
+    <div className="mt-4">
+      <ul aria-label={`${blocks.length} Trays im Mix`} className="grid min-h-6 grid-cols-8 gap-1.5">
+        <AnimatePresence initial={false}>
+          {shown.map((b) => (
+            <motion.li
+              animate={{ scale: 1, opacity: 1 }}
+              className="aspect-[4/3] rounded-[4px] border border-white/10"
+              exit={{ scale: 0, opacity: 0 }}
+              initial={{ scale: 0, opacity: 0 }}
+              key={b.key}
+              layout
+              style={{ background: `linear-gradient(135deg, ${b.color}, color-mix(in srgb, ${b.color} 40%, #000))` }}
+              title={b.title}
+              transition={{ type: "spring", stiffness: 520, damping: 26 }}
+            />
+          ))}
+        </AnimatePresence>
+      </ul>
+      {blocks.length > MAX_BLOCKS ? <p className="mt-1 text-muted text-xs">+ {blocks.length - MAX_BLOCKS} weitere Trays</p> : null}
     </div>
   );
 }
