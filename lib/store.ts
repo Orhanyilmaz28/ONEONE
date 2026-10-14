@@ -51,6 +51,10 @@ export const KEYS = {
   dealerMessages: "tt:dealer-messages",
   /** Bankverbindung und Zahlungsziel für Händler-Rechnungen */
   dealerInvoiceSettings: "tt:dealer-invoice-settings",
+  /** Letzte Messung der Speicherbelegung (Dashboard → Speicher) */
+  storageUsage: "tt:storage-usage",
+  /** Speicher-Limit des Upstash-Tarifs in MB (Dashboard → Speicher) */
+  storageLimit: "tt:storage-limit",
 } as const;
 
 export function storeKind(): StoreKind {
@@ -257,4 +261,9 @@ export async function releaseOnce(name: string): Promise<void> {
     onceQueue = run.catch(() => undefined);
     await run.catch(() => undefined);
   }
+}
+
+/** Zugang und Pfade für Auswertungen (Dashboard → Speicher) – nur auf dem Server verwenden */
+export function storeInternals() {
+  return { redisUrl: REDIS_URL, redisToken: REDIS_TOKEN, file: FILE, mediaDir: MEDIA_DIR };
 }

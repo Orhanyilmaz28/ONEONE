@@ -10,6 +10,7 @@ import { TodoList } from "@/components/admin/overview/todo-list";
 import { TopProducts } from "@/components/admin/overview/top-products";
 import { Card, Notice, PageHeader, Stat } from "@/components/admin/ui";
 import { getDealerOrders } from "@/lib/dealer-orders";
+import { getLastUsage, getLimitMb } from "@/lib/storage-usage";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getOverrides, getProducts } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
@@ -127,6 +128,9 @@ export default async function AdminHome() {
     getOverrides(),
     getDealerOrders().catch(() => []),
   ]);
+  // Speicher: nur die letzte Messung lesen (gemessen wird auf der Seite „Speicher“)
+  const [storage, storageLimitMb] = await Promise.all([getLastUsage().catch(() => null), getLimitMb().catch(() => 256)]);
+  const storagePct = storage ? (storage.usedBytes / (storageLimitMb * 1024 * 1024)) * 100 : 0;
   const newDealerOrders = dealerOrders.filter((o) => o.status === "eingegangen").length;
 
   const o = computeOverview(result.orders, now);
@@ -301,6 +305,16 @@ export default async function AdminHome() {
         title="Übersicht"
         actions={setupDone < setup.length ? <SetupPill done={setupDone} total={setup.length} /> : undefined}
       />
+
+      {storagePct >= 70 ? (
+        <div className="mb-6">
+          <Notice title={`Speicher zu ${Math.round(storagePct)} % belegt`} tone={storagePct >= 90 ? "red" : "amber"}>
+            <a className="font-medium underline underline-offset-2" href="/admin/speicher">
+              Speicher ansehen
+            </a>
+          </Notice>
+        </div>
+      ) : null}
 
       {newDealerOrders ? (
         <div className="mb-6">
