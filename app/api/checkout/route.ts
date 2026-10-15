@@ -176,6 +176,9 @@ export async function POST(request: Request) {
     return Response.json({ url: session.url });
   } catch (error) {
     console.error("Stripe-Checkout fehlgeschlagen", error);
-    return Response.json({ error: "Zahlung konnte nicht gestartet werden. Bitte später erneut versuchen." }, { status: 500 });
+    // Kurzer Hinweis für die Fehlersuche (Stripe-Fehlerart und -Text, ohne Schlüssel- oder Konto-IDs) – wird im Shop nicht angezeigt
+    const e = error as { type?: string; code?: string; message?: string };
+    const detail = [e.type, e.code, e.message?.replace(/\b(sk|rk|pk)_(live|test)_[A-Za-z0-9.]+/g, "[key]").replace(/acct_[A-Za-z0-9]+/g, "[konto]").slice(0, 300)].filter(Boolean).join(" · ");
+    return Response.json({ error: "Zahlung konnte nicht gestartet werden. Bitte später erneut versuchen.", detail }, { status: 500 });
   }
 }
