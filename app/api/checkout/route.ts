@@ -5,9 +5,11 @@ import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 import { getStripe } from "@/lib/stripe";
 import { getCurrentCustomer } from "@/lib/customer-auth";
 import { getAccountsConfig } from "@/lib/customers";
+import { findByCode } from "@/lib/influencers";
+import { SHOP_VAT } from "@/lib/influencer-rules";
 import { type MixLine, mixDiscount } from "@/lib/mix";
 
-type Body = { lines?: { variantId?: unknown; quantity?: unknown }[] };
+type Body = { lines?: { variantId?: unknown; quantity?: unknown }[]; code?: unknown };
 
 /** Betrag in Cent aus den Einstellungen absichern (kaputte Werte → Standardwert) */
 function cents(value: unknown, fallback: number) {
@@ -92,7 +94,12 @@ export async function POST(request: Request) {
   const expressCost = cents(shipping.express, DEFAULT_SETTINGS.shipping.express);
   // Mix-Rabatt (ab 2 Sorten, nach Tray-Anzahl) – immer hier auf dem Server berechnet, nie vom Browser übernommen
   const mix = mixDiscount(mixLines);
-  const freeShipping = shippingCost === 0 || (freeFrom > 0 && subtotal - mix.discount >= freeFrom);
+  // Influencer-Code: es gilt der höhere Rabatt (Mix oder Code); die Provision fällt bei gültigem Code immer an
+  const influencer = typeof body.code === "string" && body.code ? await findByCode(body.code).catch(() => undefined) : undefined;
+  const codeDiscount = influencer ? Math.round((subtotal * influencer.discountPct) / 100) : 0;
+  const useCode = codeDiscount > mix.discount;
+  const discount = Math.max(mix.discount, codeDiscount);
+  const freeShipping = shippingCost === 0 || (freeFrom > 0 && subtotal - discount >= freeFrom);
   const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [
     {
       shipping_rate_data: {
@@ -124,30 +131,34 @@ export async function POST(request: Request) {
 
   // Für die Live-Statistik („heute bestellt“): Produkt-Handles mit Menge, z. B. "classic:2,lime:1"
   const itemsMeta = metaParts.join(",").slice(0, 480);
+  // Basis der Provision: Warenwert nach Rabatt ohne MwSt. (Pfand und Versand zählen nicht)
+  const refMeta: Record<string, string> = influencer?.code
+    ? { ref: influencer.code, refId: influencer.id, commissionPct: String(influencer.commissionPct), goodsNet: String(Math.round(((subtotal - discount) * 100) / (100 + SHOP_VAT))) }
+    : {};
 
   // Angemeldete Kund:innen (nur wenn Kundenkonten eingeschaltet sind): E-Mail vorausfüllen, damit die Bestellung im Konto erscheint
   const customer = (await getAccountsConfig()).enabled ? await getCurrentCustomer().catch(() => null) : null;
 
   try {
-    // Mix-Rabatt als einmaliger Gutschein (Stripe erlaubt Rabatt und Rabattcodes nicht gleichzeitig – mit Mix-Rabatt entfällt das Codefeld)
+    // Mix- bzw. Code-Rabatt als einmaliger Gutschein (Stripe erlaubt Rabatt und Rabattcodes nicht gleichzeitig – dann entfällt das Codefeld)
     const coupon =
-      mix.discount > 0
+      discount > 0
         ? await stripe.coupons.create({
-            amount_off: mix.discount,
+            amount_off: discount,
             currency: "eur",
             duration: "once",
             max_redemptions: 1,
             redeem_by: Math.floor(Date.now() / 1000) + 24 * 3600,
-            name: `Mix-Rabatt ${mix.pct} % (${mix.sorts} Sorten, ${mix.trays} Trays)`.slice(0, 40),
+            name: (useCode && influencer ? `Code ${influencer.code} (${influencer.discountPct} %)` : `Mix-Rabatt ${mix.pct} % (${mix.sorts} Sorten, ${mix.trays} Trays)`).slice(0, 40),
           })
         : null;
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      metadata: { items: itemsMeta, ...(customer ? { customerId: customer.id } : {}) },
+      metadata: { items: itemsMeta, ...(customer ? { customerId: customer.id } : {}), ...refMeta },
       ...(customer ? { customer_email: customer.email } : {}),
       locale: "de",
       line_items: lineItems,
-      ...(coupon ? { discounts: [{ coupon: coupon.id }] } : { allow_promotion_codes: true }),
+      ...(coupon ? { discounts: [{ coupon: coupon.id }] } : influencer ? {} : { allow_promotion_codes: true }),
       billing_address_collection: "auto",
       shipping_address_collection: { // EU-Länder ohne Zollabwicklung (Schweiz bewusst nicht: Zoll + Schweizer MwSt.)
       allowed_countries: ["DE", "AT", "NL", "BE", "LU", "FR", "IT", "DK"] },

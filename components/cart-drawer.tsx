@@ -23,11 +23,11 @@ function tint(handle: string, alpha: number) {
 }
 
 export function CartDrawer() {
-  const { lines, subtotal, isOpen, close, setQuantity, setLine, count, mix } = useCart();
+  const { lines, subtotal, isOpen, close, setQuantity, setLine, count, mix, promo, codeDiscount, discount, discountBy } = useCart();
   const { products } = useShopData();
   // Sorten, die man im Warenkorb noch dazunehmen kann (verfügbar und noch nicht drin)
   const addable = products.filter((p) => p.variants.length === 1 && p.variants[0].available && !p.onRequest && !lines.some((l) => l.handle === p.handle));
-  const net = subtotal - mix.discount;
+  const net = subtotal - discount;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   // Versandkosten aus den Einstellungen im Dashboard
@@ -66,6 +66,7 @@ export function CartDrawer() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           lines: lines.map((l) => ({ variantId: l.variantId, quantity: l.quantity })),
+          ...(promo ? { code: promo.code } : {}),
         }),
       });
       const data = (await res.json()) as { url?: string; error?: string };
@@ -289,7 +290,7 @@ export function CartDrawer() {
                   </span>
                 </div>
                 <AnimatePresence initial={false}>
-                {mix.discount > 0 ? (
+                {discountBy === "mix" ? (
                   <motion.div animate={{ opacity: 1, height: "auto" }} className="flex items-baseline justify-between overflow-hidden text-sm" exit={{ opacity: 0, height: 0 }} initial={{ opacity: 0, height: 0 }} key="mix-rabatt">
                     <span className="text-accent">
                       Mix-Rabatt ({mix.pct} %, {mix.sorts} Sorten · {mix.trays} Trays)
@@ -299,7 +300,18 @@ export function CartDrawer() {
                     </span>
                   </motion.div>
                 ) : null}
+                {discountBy === "code" && promo ? (
+                  <motion.div animate={{ opacity: 1, height: "auto" }} className="flex items-baseline justify-between overflow-hidden text-sm" exit={{ opacity: 0, height: 0 }} initial={{ opacity: 0, height: 0 }} key="code-rabatt">
+                    <span className="text-accent">
+                      Code {promo.code} ({promo.pct} %)
+                    </span>
+                    <span className="text-accent tabular-nums">
+                      <Rolling cents={codeDiscount} prefix="−" />
+                    </span>
+                  </motion.div>
+                ) : null}
                 </AnimatePresence>
+                <PromoField mixHigher={Boolean(promo && discountBy === "mix")} />
                 {deposit > 0 ? (
                   <div className="flex items-baseline justify-between text-sm">
                     <span className="text-muted">Einwegpfand (0,25 € je Dose/Flasche)</span>
@@ -335,5 +347,63 @@ export function CartDrawer() {
       ) : null}
     </AnimatePresence>
     </MotionConfig>
+  );
+}
+
+/** Feld für den Influencer-Code – eingeklappt, damit der Warenkorb ruhig bleibt */
+function PromoField({ mixHigher }: { mixHigher: boolean }) {
+  const { promo, applyCode, removeCode } = useCart();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  if (promo) {
+    return (
+      <div className="text-sm">
+        <p className="flex items-center justify-between gap-3">
+          <span className="text-muted">
+            Code <b className="text-ink">{promo.code}</b> eingelöst
+          </span>
+          <button aria-label="Code entfernen" className="text-muted text-xs underline underline-offset-4 hover:text-ink" onClick={removeCode} type="button">
+            entfernen
+          </button>
+        </p>
+        {mixHigher ? <p className="mt-1 text-muted text-xs">Dein Mix-Rabatt ist höher – er wird verwendet.</p> : null}
+      </div>
+    );
+  }
+  if (!open) {
+    return (
+      <button className="text-muted text-sm underline-offset-4 hover:text-ink hover:underline" onClick={() => setOpen(true)} type="button">
+        Rabattcode?
+      </button>
+    );
+  }
+  async function submit(e: { preventDefault: () => void }) {
+    e.preventDefault();
+    setBusy(true);
+    setError(await applyCode(value));
+    setBusy(false);
+  }
+  return (
+    <form className="text-sm" onSubmit={submit}>
+      <div className="flex gap-2">
+        <input
+          aria-label="Rabattcode"
+          autoCapitalize="characters"
+          autoComplete="off"
+          className="h-10 min-w-0 flex-1 rounded-full border border-line bg-transparent px-4 uppercase outline-none focus:border-accent"
+          maxLength={24}
+          onChange={(e) => setValue(e.target.value)}
+          placeholder="Code eingeben"
+          value={value}
+        />
+        <button className="h-10 shrink-0 rounded-full border border-accent px-4 font-medium text-accent transition hover:bg-accent hover:text-paper disabled:opacity-60" disabled={busy || !value.trim()} type="submit">
+          {busy ? "…" : "Einlösen"}
+        </button>
+      </div>
+      {error ? <p className="mt-1 text-accent-dark text-xs">{error}</p> : null}
+    </form>
   );
 }

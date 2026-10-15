@@ -47,6 +47,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
               { href: "/mix", label: "Mix-Konfigurator" },
               { href: "/palette", label: "Paletten für Händler" },
               { href: "/haendler", label: "Händler werden" },
+              { href: "/influencer", label: "Influencer werden" },
             ]}
             title="Shop"
           />

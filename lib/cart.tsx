@@ -10,11 +10,29 @@ import {
   useReducer,
   useState,
 } from "react";
+import { CODE_RE, normalizeCode } from "./influencer-rules";
 import { useShopData } from "./shop-data";
 import { type MixResult, mixDiscount } from "./mix";
 import type { CartLine, Product, Variant } from "./types";
 
 const STORAGE_KEY = "shop-cart-v2";
+/** Influencer-Code (aus dem Link ?code=… oder selbst eingegeben) */
+const CODE_KEY = "shop-ref-code";
+
+export type Promo = { code: string; pct: number };
+
+async function lookupCode(raw: string): Promise<Promo | string> {
+  const code = normalizeCode(raw);
+  if (!CODE_RE.test(code)) return "Bitte einen gültigen Code eingeben.";
+  try {
+    const res = await fetch(`/api/code?code=${encodeURIComponent(code)}`, { cache: "no-store" });
+    const data = (await res.json()) as { valid?: boolean; pct?: number; error?: string };
+    if (data.valid && typeof data.pct === "number") return { code, pct: data.pct };
+    return data.error ?? "Diesen Code gibt es nicht (mehr).";
+  } catch {
+    return "Code konnte nicht geprüft werden – bitte später erneut versuchen.";
+  }
+}
 
 type Action =
   | { type: "hydrate"; lines: CartLine[] }
@@ -74,6 +92,15 @@ type CartContextValue = {
   setLine: (handle: string, variantId: string, quantity: number) => void;
   /** Mix-Rabatt (ab 2 Sorten, nach Tray-Anzahl) */
   mix: MixResult;
+  /** Eingelöster Influencer-Code */
+  promo: Promo | null;
+  applyCode: (raw: string) => Promise<string | null>;
+  removeCode: () => void;
+  /** Rabatt durch den Code (Cent) */
+  codeDiscount: number;
+  /** Tatsächlicher Rabatt: der höhere von Mix- und Code-Rabatt */
+  discount: number;
+  discountBy: "mix" | "code" | null;
   clear: () => void;
 };
 
@@ -84,6 +111,60 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
   const [isOpen, setOpen] = useState(false);
   const { products } = useShopData();
+  const [promo, setPromo] = useState<Promo | null>(null);
+
+  // Code aus dem Link (?code=MAX10) übernehmen, sonst einen gespeicherten Code erneut prüfen
+  useEffect(() => {
+    let fromUrl: string | null = null;
+    let saved: string | null = null;
+    try {
+      fromUrl = new URLSearchParams(window.location.search).get("code");
+      saved = localStorage.getItem(CODE_KEY);
+    } catch {
+      // ignorieren
+    }
+    const candidate = fromUrl || saved;
+    if (!candidate) return;
+    lookupCode(candidate).then((r) => {
+      if (typeof r === "string") {
+        if (!fromUrl) {
+          try {
+            localStorage.removeItem(CODE_KEY);
+          } catch {
+            // ignorieren
+          }
+        }
+        return;
+      }
+      setPromo(r);
+      try {
+        localStorage.setItem(CODE_KEY, r.code);
+      } catch {
+        // ignorieren
+      }
+    });
+  }, []);
+
+  const applyCode = useCallback(async (raw: string) => {
+    const r = await lookupCode(raw);
+    if (typeof r === "string") return r;
+    setPromo(r);
+    try {
+      localStorage.setItem(CODE_KEY, r.code);
+    } catch {
+      // ignorieren
+    }
+    return null;
+  }, []);
+
+  const removeCode = useCallback(() => {
+    setPromo(null);
+    try {
+      localStorage.removeItem(CODE_KEY);
+    } catch {
+      // ignorieren
+    }
+  }, []);
 
   useEffect(() => {
     try {
@@ -133,22 +214,31 @@ export function CartProvider({ children }: { children: ReactNode }) {
     dispatch({ type: "put", line: { handle, variantId, quantity } });
   }, []);
 
-  const value = useMemo<CartContextValue>(
-    () => ({
+  const value = useMemo<CartContextValue>(() => {
+    const subtotal = lines.reduce((n, l) => n + l.quantity * l.variant.price, 0);
+    const mix = mixDiscount(lines.map((l) => ({ handle: l.handle, quantity: l.quantity, price: l.variant.price })));
+    const codeDiscount = promo ? Math.round((subtotal * promo.pct) / 100) : 0;
+    const discountBy = codeDiscount > 0 && codeDiscount > mix.discount ? "code" : mix.discount > 0 ? "mix" : null;
+    return {
       lines,
       count: lines.reduce((n, l) => n + l.quantity, 0),
-      subtotal: lines.reduce((n, l) => n + l.quantity * l.variant.price, 0),
+      subtotal,
       isOpen,
       open: () => setOpen(true),
       close: () => setOpen(false),
       add,
       setQuantity,
       setLine,
-      mix: mixDiscount(lines.map((l) => ({ handle: l.handle, quantity: l.quantity, price: l.variant.price }))),
+      mix,
+      promo,
+      applyCode,
+      removeCode,
+      codeDiscount,
+      discount: Math.max(mix.discount, codeDiscount),
+      discountBy,
       clear: () => dispatch({ type: "clear" }),
-    }),
-    [lines, isOpen, add, setQuantity, setLine]
-  );
+    };
+  }, [lines, isOpen, add, setQuantity, setLine, promo, applyCode, removeCode]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }

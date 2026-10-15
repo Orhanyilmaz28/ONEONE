@@ -461,6 +461,36 @@ Im Bereich **Newsletter** siehst du bei jeder Adresse den Status: **Bestätigt**
 
 ---
 
+## Influencer (Rabattcode und Provision)
+
+Influencer bewerben sich unter **/influencer**. Nach deiner Freischaltung bekommen sie einen eigenen Code. Ihre Zuschauer sparen damit im Shop, der Influencer bekommt Provision und sieht alles in seinem eigenen Dashboard.
+
+### Freischalten
+1. Unter **Influencer** auf die neue Bewerbung schauen: Kanal-Link, Follower, Wunsch-Code.
+2. Code (vorbelegt mit dem Wunsch-Code), **Rabatt Kunde %** (Standard 10) und **Provision %** (Standard 10) prüfen und **Freischalten** drücken.
+3. Der Influencer bekommt eine E-Mail mit dem Zugangs-Link (14 Tage gültig). Ohne eingerichteten E-Mail-Versand kopierst du den Link aus dem Dashboard.
+
+Später kannst du Code, Rabatt und Provision jederzeit ändern, den Code pausieren oder den Zugang sperren.
+
+### So funktioniert der Code im Shop
+- Kunden geben den Code im Warenkorb unter **„Rabattcode?“** ein, oder sie kommen über den persönlichen Link (`…/?code=MAX10`). Dann ist der Code schon eingetragen.
+- Es gilt **der höhere Rabatt**: Mix-Rabatt oder Code-Rabatt. Die Provision fällt in beiden Fällen an, weil der Code benutzt wurde.
+- **Provision:** Prozent vom Warenwert nach Rabatt, ohne MwSt., Pfand und Versand.
+- **Gebucht** wird die Provision automatisch, sobald die Bestellung bezahlt ist.
+- **Storniert** wird sie automatisch,
+  - wenn du die Bestellung unter **Bestellungen** auf „storniert“ setzt, oder
+  - wenn die Zahlung in Stripe voll erstattet wird. Dafür im Stripe-Webhook zusätzlich das Ereignis `charge.refunded` auswählen.
+
+### Monatsgutschrift und Auszahlung
+1. Nach Monatsende: **Influencer → Provisionen & Gutschriften**, Monat wählen, **Gutschrift erstellen**.
+   - Die Gutschrift bekommt eine fortlaufende Nummer (GS-JJJJ-NNNN).
+   - Ältere offene Provisionen kommen automatisch mit in die Gutschrift.
+   - Wurde eine schon abgerechnete Bestellung später storniert, wird sie als Minusposition abgezogen.
+2. Der Influencer sieht die Gutschrift sofort im Dashboard und kann sie als PDF speichern. Du druckst sie über **Ansehen / PDF** für die Buchhaltung.
+3. Betrag an die hinterlegte IBAN überweisen und **Als ausgezahlt markieren**.
+
+Kleinunternehmer (§ 19 UStG) bekommen die Gutschrift ohne Umsatzsteuer, alle anderen zzgl. 19 % USt. Den Haken setzt der Influencer selbst unter **Konto & Auszahlung**. Gutschriftverfahren und Steuersätze bitte einmal mit dem Steuerberater abstimmen.
+
 ## Kunden (Kundenkonten – vorbereitet)
 
 Kund:innen können sich im Shop ein Konto anlegen: Bestellungen und Lieferstatus ansehen, Lieferadresse speichern, Passwort ändern und das Konto selbst löschen.

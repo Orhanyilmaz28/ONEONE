@@ -55,6 +55,12 @@ export const KEYS = {
   storageUsage: "tt:storage-usage",
   /** Speicher-Limit des Upstash-Tarifs in MB (Dashboard → Speicher) */
   storageLimit: "tt:storage-limit",
+  /** Influencer (Registrierung, Code, Zugang) – Dashboard → Influencer */
+  influencers: "tt:influencers",
+  /** Provisionen je Bestellung mit Influencer-Code */
+  commissions: "tt:commissions",
+  /** Monatliche Provisionsgutschriften an Influencer */
+  influencerStatements: "tt:influencer-statements",
 } as const;
 
 export function storeKind(): StoreKind {

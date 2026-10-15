@@ -3,10 +3,10 @@
 import { usePathname } from "next/navigation";
 import type { ReactNode } from "react";
 
-/** Blendet Kopfzeile, Footer & Co. im Dashboard (/admin), auf der Passwort-Seite (/zugang) und im Händlerbereich (/haendler/portal, Login) aus */
+/** Blendet Kopfzeile, Footer & Co. im Dashboard (/admin), auf der Passwort-Seite (/zugang) und im Händler- und Influencer-Bereich (Portal, Login) aus */
 export function ShopChrome({ header, footer, extras, children }: { header: ReactNode; footer: ReactNode; extras: ReactNode; children: ReactNode }) {
   const path = usePathname();
-  const admin = path?.startsWith("/admin") || path === "/zugang" || path?.startsWith("/haendler/portal") || path === "/haendler/login" || path === "/haendler/aktivieren";
+  const admin = path?.startsWith("/admin") || path === "/zugang" || path?.startsWith("/haendler/portal") || path === "/haendler/login" || path === "/haendler/aktivieren" || path?.startsWith("/influencer/portal") || path === "/influencer/login" || path === "/influencer/aktivieren";
   if (admin) return <>{children}</>;
   return (
     <>

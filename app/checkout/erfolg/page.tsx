@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { after } from "next/server";
+import { recordCommission } from "@/lib/commissions";
 import { sendOrderMails } from "@/lib/order-mails";
 import { ClearCart } from "@/components/clear-cart";
 import { ArrowIcon, CheckIcon } from "@/components/icons";
@@ -22,6 +23,8 @@ export default async function SuccessPage({ searchParams }: Props) {
   // Bestellbestätigung verschicken, nachdem die Seite ausgeliefert ist (doppelt ausgeschlossen – der Stripe-Webhook macht dasselbe)
   if (paid && session) {
     after(() => sendOrderMails(session.id).catch((e) => console.error("[erfolg] E-Mails fehlgeschlagen", e)));
+    // Influencer-Provision vormerken, falls der Webhook (noch) nicht da war – bucht nur einmal
+    after(() => recordCommission(session).catch((e) => console.error("[erfolg] Provision fehlgeschlagen", e)));
   }
 
   return (

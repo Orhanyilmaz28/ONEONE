@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { assertAdmin } from "@/lib/admin-auth";
+import { cancelCommission, restoreCommission } from "@/lib/commissions";
 import { ORDER_STATUS_LABEL, type OrderMeta, type OrderStatus, getOrder, setOrderMeta } from "@/lib/orders";
 import { sendMail } from "@/lib/mail";
 import { shippingNoticeMail } from "@/lib/mail-templates";
@@ -72,6 +73,9 @@ export async function saveOrder(_prev: SaveOrderState, form: FormData): Promise<
 
   try {
     await setOrderMeta(id, patch);
+    // Influencer-Provision folgt dem Status: storniert → Provision storniert, wieder aktiv → wiederhergestellt
+    if (status === "storniert") await cancelCommission({ orderId: id });
+    else if (order.meta.status === "storniert") await restoreCommission(id);
   } catch (error) {
     if (error instanceof StoreUnavailableError) return { error: error.message };
     console.error("[bestellungen] Speichern fehlgeschlagen", id, error);
