@@ -6,7 +6,7 @@ import { getStripe } from "@/lib/stripe";
 
 /**
  * Stripe meldet hier bezahlte Bestellungen (auch Zahlarten, die erst später bestätigt werden, z. B. Klarna/SEPA).
- * In Stripe → Entwickler → Webhooks: Endpunkt https://www.exstase-energy.de/api/stripe/webhook mit den Ereignissen
+ * In Stripe → Entwickler → Webhooks: Endpunkt https://exstaseshop.vercel.app/api/stripe/webhook (bzw. die spätere Domain) mit den Ereignissen
  * checkout.session.completed und checkout.session.async_payment_succeeded (für Influencer-Provisionen zusätzlich charge.refunded);
  * das Signatur-Geheimnis (whsec_…) als STRIPE_WEBHOOK_SECRET eintragen.
  */

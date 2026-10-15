@@ -257,8 +257,8 @@ Du richtest erst einen **Testmodus** ein (kein echtes Geld). Wenn alles klappt, 
    - **Geschäftsführer:** persönliche Daten und Foto vom Ausweis (geht meist per Handy)
    - **Eigentümer:** alle Personen mit 25 % oder mehr
    - **Branche / Beschreibung:** z. B. *„Online-Shop für Energy Drinks“*
-   - **Website:** `https://exstase-energy.de`
-   - **Text auf der Kontoabrechnung** (Abrechnungsbezeichnung): `TRAGETRAUM` – das sehen Kund:innen auf ihrem Kontoauszug. Neutral und diskret.
+   - **Website:** `https://exstaseshop.vercel.app` (später die eigene Domain)
+   - **Text auf der Kontoabrechnung** (Abrechnungsbezeichnung): `EXSTASE SHOP` – das sehen Kund:innen auf ihrem Kontoauszug.
    - **Bankkonto (IBAN)** der GmbH für die Auszahlungen
 3. Absenden. Stripe prüft das meist in Minuten, manchmal in 1–3 Werktagen. Du bekommst eine E-Mail.
 
@@ -475,7 +475,7 @@ Wir nehmen **Brevo**: Anbieter aus der EU, deutsche Oberfläche, kostenlos bis 3
 Damit kommt die Bestellbestätigung auch dann, wenn jemand nach dem Bezahlen die Seite sofort schließt – und bei Zahlarten, die erst später bestätigt werden (z. B. Klarna, Lastschrift).
 
 1. Stripe → **Entwickler** (englisch: *Developers*) → **Webhooks** → **Endpunkt hinzufügen**.
-2. **Endpunkt-URL:** `https://www.exstase-energy.de/api/stripe/webhook`
+2. **Endpunkt-URL:** `https://exstaseshop.vercel.app/api/stripe/webhook` (nach dem Domain-Umzug auf die neue Adresse ändern)
 3. **Ereignisse auswählen:** `checkout.session.completed` und `checkout.session.async_payment_succeeded` (für Influencer-Provisionen zusätzlich `charge.refunded`) → **Endpunkt hinzufügen**.
 4. Beim neuen Endpunkt unter **Signaturgeheimnis** auf **Anzeigen** klicken → Wert kopieren (beginnt mit `whsec_`).
 5. In Vercel die Variable `STRIPE_WEBHOOK_SECRET` mit diesem Wert anlegen → **Redeploy**.
