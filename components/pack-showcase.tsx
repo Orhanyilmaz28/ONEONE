@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { cansOf } from "@/lib/format";
 import { SORT_COLORS, SORT_NAMES, trayCans } from "@/lib/pack-contents";
+import { TRAY_PHOTOS } from "@/lib/tray-photos";
 import type { Product } from "@/lib/types";
 
 /**
@@ -81,6 +82,12 @@ export function PackShowcase({ product }: { product: Product }) {
                   </span>
                 </p>
               ) : null}
+              {!mix && TRAY_PHOTOS.has(h) ? (
+                // Echtes Foto vom ganzen Tray
+                <div className="tray-can relative mx-auto max-w-2xl" style={{ "--i": 0 } as React.CSSProperties}>
+                  <Image alt={`${per}er Tray ${product.title}`} className="h-auto w-full object-contain [filter:drop-shadow(0_24px_24px_rgba(0,0,0,0.5))]" height={447} loading="lazy" sizes="(min-width: 768px) 648px, 100vw" src={`/dosen-foto/tray-foto/${h}.webp`} width={648} />
+                </div>
+              ) : (
               <ul className={`relative grid gap-x-2 gap-y-5 sm:gap-x-3 ${cols}`}>
                 {Array.from({ length: per }, (_, i) => (
                   <li className="tray-can flex justify-center" key={i} style={{ "--i": i } as React.CSSProperties}>
@@ -88,6 +95,7 @@ export function PackShowcase({ product }: { product: Product }) {
                   </li>
                 ))}
               </ul>
+              )}
               {mix && n > 1 ? <p className="relative mt-4 text-center text-muted text-xs">Hier ein Tray – du bekommst {n} davon.</p> : null}
               {!mix ? (
                 <p className="relative mt-6 text-center font-bold text-muted text-xs uppercase tracking-[0.25em]">
