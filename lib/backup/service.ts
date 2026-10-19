@@ -7,6 +7,7 @@ import { type BackupPayload, type CategorySummary, type ExcludedSummary, BackupF
 import { type BackupLogEntry, type BackupState, type OpsStore, memoryOps, redisOps } from "./ops";
 import { decideRetention, retentionPolicy } from "./retention";
 import { type RedisClient, productionCredentials, restClient } from "./redis-rest";
+import { BUSINESS_KEYS } from "./keys";
 import { type ExportResult, exportFileStore, exportRedis } from "./snapshot";
 import { type BackupStorage, StorageNotConfiguredError, configuredStorage } from "./storage";
 
@@ -38,6 +39,8 @@ export type BackupMeta = {
   durationMs: number;
   /** Hinweise, z. B. beschädigte Datensätze (unverändert mitgesichert) */
   warnings?: string[];
+  /** Anzahl vorhandener Geschäftsdatensätze (Bestellungen, Produkte, Konten …) – 0 = keine Geschäftsdaten gesichert */
+  businessKeys?: number;
 };
 
 export type BackupListItem = {
@@ -119,6 +122,22 @@ export async function signalFailure(deps: BackupDeps, type: IncidentType, messag
   await raiseAlert(deps.alerts, type, message, send);
 }
 
+/**
+ * Optionaler „Lebenszeichen“-Aufruf nach jeder erfolgreichen Sicherung (z. B. healthchecks.io, kostenlos).
+ * Bleibt er aus – weil der Cron nicht lief, abstürzte oder fehlschlug –, schickt der Dienst selbst eine E-Mail.
+ * So werden auch Ausfälle erkannt, bei denen dieser Code gar nicht mehr zum Melden kommt. Adresse wird nie protokolliert.
+ */
+export async function pingHeartbeat(url = process.env.BACKUP_HEARTBEAT_URL) {
+  if (!url || !/^https:\/\//.test(url)) return false;
+  try {
+    const res = await fetch(url, { method: "GET", cache: "no-store", signal: AbortSignal.timeout(5000) });
+    return res.ok;
+  } catch {
+    console.error("[backup] Lebenszeichen konnte nicht gesendet werden");
+    return false;
+  }
+}
+
 async function exportSource(source: Source, deadline: number): Promise<ExportResult> {
   if (source.kind === "redis") return exportRedis(source.redis, { deadline });
   return exportFileStore(source.file, source.mediaDir);
@@ -175,6 +194,11 @@ export async function runBackup(deps: BackupDeps, trigger: BackupMeta["trigger"]
     validatePayload(payload); // Selbstprüfung vor dem Verschlüsseln
     const corrupt = corruptEntries(payload.entries);
     if (corrupt.length) reportIncident("data_corrupt", `bei der Sicherung gefunden: ${corrupt.join(", ")}`);
+    const businessKeys = payload.entries.filter((e) => BUSINESS_KEYS.includes(e.k)).length;
+    const warnings = [
+      ...(businessKeys === 0 ? ["Diese Sicherung enthält KEINE Geschäftsdaten (keine Bestellungen, Produkte, Konten oder Einstellungen). Ist die richtige Datenbank verbunden?"] : []),
+      ...corrupt.map((k) => `Beschädigter Datensatz unverändert gesichert: ${k}`),
+    ];
     const plain = Buffer.from(JSON.stringify(payload), "utf8");
     const file = encryptBackup(plain, { id, createdAt: payload.createdAt });
     if (now() > deadline) throw Object.assign(new Error("Zeitlimit der Sicherung überschritten – abgebrochen."), { name: "SnapshotError" });
@@ -204,13 +228,17 @@ export async function runBackup(deps: BackupDeps, trigger: BackupMeta["trigger"]
       excluded: payload.excluded,
       consistency: payload.consistency,
       durationMs: now() - started,
-      ...(corrupt.length ? { warnings: corrupt.map((k) => `Beschädigter Datensatz unverändert gesichert: ${k}`) } : {}),
+      businessKeys,
+      ...(warnings.length ? { warnings } : {}),
     };
     await deps.storage.put(metaName(id), Buffer.from(JSON.stringify(meta, null, 2)), "application/json");
     uploaded = false;
 
-    await deps.ops.patchState({ lastAttemptAt: meta.createdAt, lastSuccessAt: meta.createdAt, lastSuccessId: id }).catch(() => undefined);
-    await safeLog(deps.ops, { at: new Date(now()).toISOString(), action: "backup", ok: true, trigger, id, durationMs: meta.durationMs, message: `Sicherung vollständig: ${meta.entries} Einträge, ${Math.round(meta.size / 1024)} KB verschlüsselt.${corrupt.length ? ` Achtung: ${corrupt.length} beschädigte(r) Datensatz/Datensätze (${corrupt.join(", ")}).` : ""}` });
+    // Eine Sicherung ohne Geschäftsdaten zählt nicht als Erfolg – sonst bliebe „überfällig“ trotz falscher Datenbank stumm
+    await deps.ops.patchState(businessKeys > 0 ? { lastAttemptAt: meta.createdAt, lastSuccessAt: meta.createdAt, lastSuccessId: id } : { lastAttemptAt: meta.createdAt }).catch(() => undefined);
+    await safeLog(deps.ops, { at: new Date(now()).toISOString(), action: "backup", ok: true, trigger, id, durationMs: meta.durationMs, message: `Sicherung vollständig: ${meta.entries} Einträge, ${Math.round(meta.size / 1024)} KB verschlüsselt.${warnings.length ? ` Achtung: ${warnings.join(" ")}` : ""}` });
+    if (businessKeys === 0) await signalFailure(deps, "backup_failed", "Sicherung ohne Geschäftsdaten – falsche oder leere Datenbank verbunden?");
+    if (businessKeys > 0) await pingHeartbeat();
 
     let removed: string[] = [];
     try {
@@ -268,7 +296,11 @@ export async function applyRetention(deps: Pick<BackupDeps, "storage" | "now">):
   const items = await listBackups(deps.storage);
   const complete = items.filter((i) => i.status === "complete");
   if (!complete.length) return []; // ohne eine einzige vollständige Sicherung wird nichts gelöscht
-  const { remove } = decideRetention(complete, now, retentionPolicy());
+  const { remove } = decideRetention(
+    complete.map((i) => ({ id: i.id, createdAt: i.createdAt, hasData: i.meta?.businessKeys !== 0 })),
+    now,
+    retentionPolicy(),
+  );
   const removeSet = new Set(remove);
   // Reste: unvollständig/beschädigt und älter als 6 Stunden (ein laufender Vorgang wird nie angefasst)
   for (const i of items) if (i.status !== "complete" && now - Date.parse(i.createdAt) > 6 * 3600_000) removeSet.add(i.id);

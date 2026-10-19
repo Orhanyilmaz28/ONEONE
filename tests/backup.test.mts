@@ -134,6 +134,51 @@ describe("Sicherung erstellen", () => {
     assert.ok(signal.recentIncidents().some((i) => i.type === "data_corrupt"));
   });
 
+  test("Sicherung ohne Geschäftsdaten → deutliche Warnung + Störungsmeldung, kein Lebenszeichen", async () => {
+    const r = fakeRedis();
+    r.put("tt:media:img-1", Buffer.from("bild").toString("base64"));
+    const d = deps(r);
+    let pinged = 0;
+    const realFetch = globalThis.fetch;
+    process.env.BACKUP_HEARTBEAT_URL = "https://hc.example.invalid/ping/abc";
+    globalThis.fetch = (async () => {
+      pinged++;
+      return new Response("ok");
+    }) as typeof fetch;
+    try {
+      const empty = await service.runBackup(d, "manual");
+      assert.ok(empty.ok);
+      assert.equal(empty.meta.businessKeys, 0);
+      assert.match(empty.meta.warnings?.[0] ?? "", /KEINE Geschäftsdaten/);
+      assert.ok(signal.recentIncidents().some((i) => i.type === "backup_failed" && /ohne Geschäftsdaten/.test(i.detail ?? "")));
+      assert.equal(pinged, 0, "leere Sicherung sendet kein Lebenszeichen");
+      assert.equal((await d.ops.getState()).lastSuccessAt, undefined, "leere Sicherung zählt nicht als Erfolg");
+      seed(r);
+      const full = await service.runBackup(d, "manual");
+      assert.ok(full.ok);
+      assert.ok((full.meta.businessKeys ?? 0) >= 6);
+      assert.equal(full.meta.warnings, undefined);
+      assert.equal(pinged, 1, "erfolgreiche Sicherung sendet ein Lebenszeichen");
+    } finally {
+      globalThis.fetch = realFetch;
+      delete process.env.BACKUP_HEARTBEAT_URL;
+    }
+  });
+
+  test("Lebenszeichen: nur https, Fehler werden geschluckt", async () => {
+    assert.equal(await service.pingHeartbeat(undefined), false);
+    assert.equal(await service.pingHeartbeat("http://unsicher.example.invalid"), false);
+    const realFetch = globalThis.fetch;
+    globalThis.fetch = (async () => {
+      throw new TypeError("fetch failed");
+    }) as typeof fetch;
+    try {
+      assert.equal(await service.pingHeartbeat("https://hc.example.invalid/x"), false);
+    } finally {
+      globalThis.fetch = realFetch;
+    }
+  });
+
   test("ohne Backup-Schlüssel: keine Sicherung, Fehler protokolliert", async () => {
     delete process.env.BACKUP_ENCRYPTION_KEY;
     const r = fakeRedis();
@@ -437,6 +482,15 @@ describe("Aufbewahrung", () => {
   test("die neueste Sicherung bleibt immer, auch wenn sie uralt ist", () => {
     const r = decideRetention([{ id: "alt", createdAt: "2020-01-01T00:00:00Z" }], now, { dailyDays: 30, weeklyWeeks: 12 });
     assert.deepEqual(r.remove, []);
+  });
+  test("die letzte Sicherung MIT Geschäftsdaten bleibt, auch wenn danach wochenlang nur leere Sicherungen kamen", () => {
+    const list = [
+      { id: "echt", createdAt: new Date(now - 100 * DAY).toISOString() },
+      ...Array.from({ length: 60 }, (_, i) => ({ id: `leer${i}`, createdAt: new Date(now - i * DAY).toISOString(), hasData: false })),
+    ];
+    const r = decideRetention(list, now, { dailyDays: 30, weeklyWeeks: 12 });
+    assert.ok(r.keep.has("echt"));
+    assert.ok(r.keep.has("leer0"));
   });
   test("Aufräumen löscht abgelaufene Sicherungen und alte Reste, nie ohne vollständige Sicherung", async () => {
     const s = memoryStorage();

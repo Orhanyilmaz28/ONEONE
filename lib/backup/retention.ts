@@ -1,6 +1,7 @@
 /**
  * Aufbewahrung: tägliche Sicherungen 30 Tage, dazu je Kalenderwoche die erste Sicherung als Wochensicherung (12 Wochen).
- * Die neueste vollständige Sicherung wird nie gelöscht – egal wie alt.
+ * Die neueste vollständige Sicherung wird nie gelöscht – egal wie alt. Ebenso die neueste Sicherung MIT Geschäftsdaten:
+ * ist wochenlang versehentlich eine leere Datenbank verbunden, bleibt die letzte echte Sicherung trotzdem erhalten.
  */
 export type RetentionPolicy = { dailyDays: number; weeklyWeeks: number };
 
@@ -22,7 +23,7 @@ export function isoWeek(d: Date): string {
   return `${year}-W${String(week).padStart(2, "0")}`;
 }
 
-export type RetentionItem = { id: string; createdAt: string };
+export type RetentionItem = { id: string; createdAt: string; /** false = enthält keine Geschäftsdaten */ hasData?: boolean };
 export type RetentionDecision = { keep: Set<string>; weekly: Set<string>; remove: string[] };
 
 export function decideRetention(items: RetentionItem[], now: number, policy: RetentionPolicy): RetentionDecision {
@@ -42,5 +43,7 @@ export function decideRetention(items: RetentionItem[], now: number, policy: Ret
   }
   const newest = sorted.at(-1);
   if (newest) keep.add(newest.id);
+  const newestWithData = sorted.filter((it) => it.hasData !== false).at(-1);
+  if (newestWithData) keep.add(newestWithData.id);
   return { keep, weekly, remove: sorted.filter((it) => !keep.has(it.id)).map((it) => it.id) };
 }

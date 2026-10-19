@@ -95,7 +95,11 @@ Kommandozeile: `npm run backup -- create | list | verify <id> | restore-test <id
 
 ## 6. Überwachung
 
-`lib/monitoring/signal.ts` erfasst: Redis nicht erreichbar, Zeitüberschreitung, beschädigte Daten, Schreibkonflikte (alles direkt aus `lib/store.ts`), fehlgeschlagene Sicherung/Wiederherstellung, überfällige Sicherung (> 26 Std.), Fehlerhäufung (≥ 50 in zwei Stunden). Server-Protokoll + gedrosselt in Redis (`tt:monitor:*`), Anzeige unter Dashboard → Datensicherung. E-Mail-Warnungen werden vorbereitet, aber **nur** mit `ALERT_EMAILS_ENABLED=1` und `ADMIN_ALERT_EMAIL` verschickt.
+`lib/monitoring/signal.ts` erfasst: Redis nicht erreichbar, Zeitüberschreitung, beschädigte Daten, Schreibkonflikte (alles direkt aus `lib/store.ts`), fehlgeschlagene Sicherung/Wiederherstellung, überfällige Sicherung (> 26 Std.), Fehlerhäufung (≥ 50 in zwei Stunden). Server-Protokoll + gedrosselt in Redis (`tt:monitor:*`), Anzeige unter Dashboard → Datensicherung. E-Mail-Warnungen werden vorbereitet, aber **nur** mit `ALERT_EMAILS_ENABLED=1` und `ADMIN_ALERT_EMAIL` verschickt (Versand über Brevo/Resend wie die Bestellmails).
+
+Sicherung ohne Geschäftsdaten (z. B. falsche oder leere Datenbank verbunden): wird abgelegt, aber mit roter Warnung im Dashboard und Störungsmeldung; sie zählt **nicht** als erfolgreiche Sicherung (Überwachung meldet weiter „überfällig“), sendet kein Lebenszeichen und die letzte Sicherung mit Geschäftsdaten wird beim Aufräumen nie gelöscht.
+
+Ausfälle, bei denen der Code gar nicht mehr meldet (Cron lief nicht, Absturz, Zeitlimit): optional `BACKUP_HEARTBEAT_URL` (z. B. healthchecks.io). Ohne sie fällt so ein Ausfall erst beim nächsten Lauf oder Dashboard-Besuch auf (Grenze `BACKUP_MAX_AGE_HOURS`, Standard 26 Std.).
 
 ## 7. Passwortschutz bei Redis-Ausfall (Fail-Closed)
 
@@ -109,6 +113,8 @@ Jetzt (`lib/site-lock.ts → createLockResolver`, `proxy.ts`):
 
 ## 8. Einrichtung (später, nach Freigabe)
 
+Ausführliche Schritt-für-Schritt-Anleitung: `docs/EINRICHTUNG-BACKUP.md`.
+
 1. Cloudflare-Konto → R2 → Bucket `exstase-backups` anlegen (kostenlos), API-Token „Object Read & Write“ nur für diesen Bucket.
 2. In Vercel eintragen: `BACKUP_ENCRYPTION_KEY`, `BACKUP_S3_ENDPOINT`, `BACKUP_S3_BUCKET`, `BACKUP_S3_ACCESS_KEY_ID`, `BACKUP_S3_SECRET_ACCESS_KEY` → Redeploy → Dashboard → Datensicherung → „Jetzt sichern“.
 3. Zweite, leere Upstash-Datenbank (Free) als Testdatenbank → `BACKUP_RESTORE_TEST_URL/_TOKEN` → Testwiederherstellung im Dashboard.
@@ -117,5 +123,5 @@ Jetzt (`lib/site-lock.ts → createLockResolver`, `proxy.ts`):
 
 ## 9. Tests
 
-- `tests/backup.test.mts` – 42 Tests ohne Datenbank (Nachbau im Arbeitsspeicher).
+- `tests/backup.test.mts` – 45 Tests ohne Datenbank (Nachbau im Arbeitsspeicher).
 - `tests/backup-redis.test.mts` – 5 Tests mit zwei echten, lokalen Redis-Testdatenbanken (Befehle im Dateikopf).

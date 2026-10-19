@@ -26,6 +26,9 @@ export default async function BackupPage() {
     : [recentIncidents(), [] as AlertDraft[]];
   const policy = retentionPolicy();
   const complete = o.backups.filter((b) => b.status === "complete");
+  /** Sicherung ohne Geschäftsdaten (z. B. falsche oder leere Datenbank verbunden) */
+  const isEmpty = (b: (typeof complete)[number]) => (b.meta?.businessKeys ?? b.meta?.entries ?? 0) === 0;
+  const newestEmpty = complete[0] ? isEmpty(complete[0]) : false;
   const ready = o.configured.key && o.configured.storage && o.configured.source;
   const lastFailedAfterSuccess = o.state.lastFailureAt && (!o.state.lastSuccessAt || o.state.lastFailureAt > o.state.lastSuccessAt);
   const status = !ready ? (
@@ -60,6 +63,14 @@ export default async function BackupPage() {
         <div className="mb-6">
           <Notice title="Die letzte Sicherung ist fehlgeschlagen" tone="red">
             {formatDateTime(o.state.lastFailureAt as string)}: {o.state.lastFailureMessage}
+          </Notice>
+        </div>
+      ) : null}
+      {newestEmpty ? (
+        <div className="mb-6">
+          <Notice title="Achtung: Die neueste Sicherung enthält keine Geschäftsdaten" tone="red">
+            Darin sind keine Bestellungen, Produkte, Kunden-, Händler- oder Influencer-Konten und keine Einstellungen ({complete[0].meta?.entries ?? 0} Einträge insgesamt). Bitte prüfen, ob in
+            Vercel die richtige Datenbank verbunden ist. Diese Sicherung taugt nicht zur Wiederherstellung des Shops.
           </Notice>
         </div>
       ) : null}
@@ -106,7 +117,9 @@ export default async function BackupPage() {
                 </td>
                 <td className="py-3 pr-4 tabular-nums">{b.meta ? b.meta.entries.toLocaleString("de-DE") : "–"}</td>
                 <td className="py-3 pr-4 tabular-nums">{formatBytes(b.size)}</td>
-                <td className="py-3 pr-4">{b.status === "complete" ? <Badge tone="green">vollständig</Badge> : <Badge tone="red">{b.problem ?? "unvollständig"}</Badge>}</td>
+                <td className="py-3 pr-4">
+                  {b.status !== "complete" ? <Badge tone="red">{b.problem ?? "unvollständig"}</Badge> : isEmpty(b) ? <Badge tone="amber">keine Geschäftsdaten</Badge> : <Badge tone="green">vollständig</Badge>}
+                </td>
               </tr>
             ))}
           </Table>
