@@ -69,6 +69,11 @@ describe("echter Redis", { skip }, () => {
     const { totp } = await import("../lib/admin-security/totp");
     const O = { ip: "local", ua: "integration-test" };
     await kv().del("tt:adm:2fa", "tt:adm:2fa:last", "tt:adm:2fa:recovery", "tt:adm:sessions");
+    // Zähler früherer Testläufe entfernen – sonst greift (richtigerweise) die Login-Sperre nach mehreren Läufen
+    const call = (cmd: string[]) =>
+      fetch(url as string, { method: "POST", headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(cmd) }).then((r) => r.json() as Promise<{ result: string[] }>);
+    const counters = (await call(["KEYS", "tt:adm:rl:*"])).result;
+    if (counters.length) await kv().del(...counters);
     const first = await flow.passwordStep("richtig-langes-passwort", O);
     assert.ok(first.ok && first.next === "admin");
     const me = await sessions.readSession(first.ok ? first.token : "");

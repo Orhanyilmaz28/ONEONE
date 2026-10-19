@@ -593,3 +593,11 @@ Ja. Alle Bereiche funktionieren auch auf dem Handy. Das Menü steht oben – zum
 
 **Kann jemand anderes ins Dashboard?**
 Nur wer das Passwort kennt. Gib es nicht weiter. Wenn du glaubst, jemand kennt es: in Vercel ein neues Passwort eintragen und **Redeploy** – dann sind alle abgemeldet.
+
+## Datensicherheit bei gleichzeitigen Änderungen (technisch)
+
+- Jeder gespeicherte Datensatz hat einen Versionszähler (`tt:ver:<schlüssel>`). Eine Änderung wird nur gespeichert, wenn seit dem Lesen niemand anderes gespeichert hat – sonst wird mit dem frischen Stand neu gerechnet (höchstens 12 Versuche, dann Fehlermeldung „Bitte noch einmal versuchen“). Gleichzeitige Klicks, mehrere Server und doppelte Stripe-Meldungen überschreiben sich dadurch nicht mehr.
+- Bestell-, Rechnungs- (RE-…) und Gutschriftnummern (GS-…) entstehen innerhalb dieses Schritts – doppelte Nummern sind ausgeschlossen. Provisionen werden je Bestellung höchstens einmal gebucht.
+- Ist die Datenbank kurz nicht erreichbar oder sind Daten beschädigt, wird **nichts** gespeichert. Bearbeitungsseiten im Dashboard zeigen dann die Fehlerseite statt eines Formulars mit Standardwerten. Der Stripe-Webhook antwortet mit einem Fehler, damit Stripe die Meldung später wiederholt.
+- Die gespeicherten Daten selbst behalten ihr bisheriges Format; es ist keine Umstellung nötig.
+- Tests: `npm test`. Die Tests gegen einen echten Redis laufen nur mit einer lokalen Testdatenbank (Anleitung oben in `tests/store-redis.test.mts`) – nie gegen die Produktivdatenbank.

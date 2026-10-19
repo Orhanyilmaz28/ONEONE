@@ -56,8 +56,9 @@ export async function createDealerOrder(input: Omit<DealerOrder, "id" | "number"
     if (list.filter((o) => o.dealerId === input.dealerId && new Date(o.createdAt).getTime() > hourAgo).length >= MAX_PER_HOUR) {
       throw new DealerOrderLimitError("Zu viele Bestellungen in kurzer Zeit – bitte melde dich kurz bei uns.");
     }
-    // Laufende Nummer je Jahr
-    const seq = list.filter((o) => o.number.startsWith(`H-${year}-`)).length + 1;
+    // Laufende Nummer je Jahr: höchste vergebene + 1 (innerhalb der atomaren Änderung – keine doppelten Nummern)
+    const prefix = `H-${year}-`;
+    const seq = list.reduce((m, o) => (o.number.startsWith(prefix) ? Math.max(m, Number(o.number.slice(prefix.length)) || 0) : m), 0) + 1;
     created = {
       ...input,
       id: randomBytes(8).toString("hex"),
@@ -74,13 +75,14 @@ export async function createDealerOrder(input: Omit<DealerOrder, "id" | "number"
 
 export async function setDealerOrderStatus(id: string, status: DealerOrderStatus): Promise<DealerOrder | undefined> {
   let changed: DealerOrder | undefined;
-  await updateJSON<DealerOrder[]>(KEYS.dealerOrders, [], (all) =>
-    (Array.isArray(all) ? all : []).map((o) => {
+  await updateJSON<DealerOrder[]>(KEYS.dealerOrders, [], (all) => {
+    changed = undefined; // bei Wiederholung nach Konflikt neu bestimmen
+    return (Array.isArray(all) ? all : []).map((o) => {
       if (o.id !== id || o.status === status) return o;
       changed = { ...o, status, history: [...o.history, { status, at: new Date().toISOString() }] };
       return changed;
-    }),
-  );
+    });
+  });
   return changed;
 }
 
@@ -115,6 +117,7 @@ export type InvoiceChange = { kind: "neu" | "gespeichert" | "korrigiert"; previo
 export async function saveInvoice(orderId: string, draft: Omit<DealerInvoice, "number" | "createdAt" | "updatedAt" | "released" | "paid" | "replaced" | "releasedAt" | "paidAt">, flags: { release?: boolean; paid?: boolean }): Promise<{ order: DealerOrder; change: InvoiceChange } | undefined> {
   let result: { order: DealerOrder; change: InvoiceChange } | undefined;
   await updateJSON<DealerOrder[]>(KEYS.dealerOrders, [], (all) => {
+    result = undefined; // bei Wiederholung nach Konflikt neu bestimmen
     const list = Array.isArray(all) ? all : [];
     return list.map((o) => {
       if (o.id !== orderId) return o;

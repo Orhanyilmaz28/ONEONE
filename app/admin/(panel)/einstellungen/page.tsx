@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { mailProvider, mailReady, parseFrom } from "@/lib/mail";
 import { getMailSettings } from "@/lib/mail-settings";
 import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
-import { storeKind } from "@/lib/store";
+import { storeKind, strictReads } from "@/lib/store";
 import { getSiteLock } from "@/lib/site-lock";
 import { LockCard } from "./lock-card";
 import { MailCard } from "./mail-card";
@@ -14,7 +14,7 @@ export const metadata: Metadata = { title: "Einstellungen" };
 
 export default async function SettingsPage() {
   await requireAdmin();
-  const [settings, mail, lock] = await Promise.all([getSettings(), getMailSettings(), getSiteLock()]);
+  const [settings, mail, lock] = await strictReads(() => Promise.all([getSettings(), getMailSettings(), getSiteLock()]));
   const from = parseFrom();
   const companyEmail = /^\[.*\]$/.test(settings.company.email.trim()) ? "" : settings.company.email.trim();
   return (

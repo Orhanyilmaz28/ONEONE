@@ -4,7 +4,7 @@ import { getInvoiceSettings } from "./dealer-orders";
 import { type Influencer, getInfluencer } from "./influencers";
 import { orderNumber } from "./orders";
 import { getSettings } from "./settings";
-import { KEYS, claimOnce, getJSON, releaseOnce, updateJSON } from "./store";
+import { KEYS, getJSON, getJSONStrict, updateJSON } from "./store";
 
 /**
  * Provisionen für Bestellungen mit Influencer-Code und monatliche Provisionsgutschriften (§ 14 Abs. 2 UStG,
@@ -84,58 +84,57 @@ export async function recordCommission(session: PaidSession): Promise<Commission
   if (session.payment_status && session.payment_status !== "paid" && session.payment_status !== "no_payment_required") return null;
   const goodsNet = Math.max(0, Math.round(Number(meta.goodsNet) || 0));
   const pct = Math.min(100, Math.max(0, Number(meta.commissionPct) || 0));
-  if (!(await claimOnce(`commission:${session.id}`))) return null;
-  try {
-    const commission: Commission = {
-      orderId: session.id,
-      orderNumber: orderNumber(session.id),
-      date: new Date(session.created * 1000).toISOString(),
-      influencerId,
-      code: (meta.ref ?? "").slice(0, 20),
-      goodsNet,
-      pct,
-      amount: Math.round((goodsNet * pct) / 100),
-      status: "vorgemerkt",
-      paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : undefined,
-    };
-    let added = false;
-    await updateJSON<Commission[]>(KEYS.commissions, [], (current) => {
-      const all = asList<Commission>(current);
-      if (all.some((c) => c.orderId === session.id)) return all;
-      added = true;
-      return [commission, ...all].slice(0, MAX_COMMISSIONS);
-    });
-    return added ? commission : null;
-  } catch (error) {
-    await releaseOnce(`commission:${session.id}`);
-    throw error;
-  }
+  // Doppelte Webhooks / Erfolgsseite: die Prüfung auf vorhandene orderId läuft innerhalb des atomaren Schreibvorgangs (CAS),
+  // daher kann dieselbe Bestellung nie zweimal gebucht werden – auch nicht bei parallelen Aufrufen.
+  const commission: Commission = {
+    orderId: session.id,
+    orderNumber: orderNumber(session.id),
+    date: new Date(session.created * 1000).toISOString(),
+    influencerId,
+    code: (meta.ref ?? "").slice(0, 20),
+    goodsNet,
+    pct,
+    amount: Math.round((goodsNet * pct) / 100),
+    status: "vorgemerkt",
+    paymentIntent: typeof session.payment_intent === "string" ? session.payment_intent : undefined,
+  };
+  let added = false;
+  await updateJSON<Commission[]>(KEYS.commissions, [], (current) => {
+    added = false; // Callback kann bei Schreibkonflikt erneut laufen
+    const all = asList<Commission>(current);
+    if (all.some((c) => c.orderId === session.id)) return all;
+    added = true;
+    return [commission, ...all].slice(0, MAX_COMMISSIONS);
+  });
+  return added ? commission : null;
 }
 
 /** Provision stornieren (Bestellung storniert oder erstattet). Schon abgerechnete Provisionen werden in der nächsten Gutschrift abgezogen. */
 export async function cancelCommission(match: { orderId?: string; paymentIntent?: string }): Promise<boolean> {
   let changed = false;
-  await updateJSON<Commission[]>(KEYS.commissions, [], (current) =>
-    asList<Commission>(current).map((c) => {
+  await updateJSON<Commission[]>(KEYS.commissions, [], (current) => {
+    changed = false;
+    return asList<Commission>(current).map((c) => {
       const hit = (match.orderId && c.orderId === match.orderId) || (match.paymentIntent && c.paymentIntent === match.paymentIntent);
       if (!hit || c.status === "storniert") return c;
       changed = true;
       return { ...c, status: "storniert", cancelledAt: new Date().toISOString() };
-    }),
-  );
+    });
+  });
   return changed;
 }
 
 /** Stornierung zurücknehmen (Bestellung wieder aktiv), solange sie noch nicht in einer Gutschrift verrechnet wurde */
 export async function restoreCommission(orderId: string): Promise<boolean> {
   let changed = false;
-  await updateJSON<Commission[]>(KEYS.commissions, [], (current) =>
-    asList<Commission>(current).map((c) => {
+  await updateJSON<Commission[]>(KEYS.commissions, [], (current) => {
+    changed = false;
+    return asList<Commission>(current).map((c) => {
       if (c.orderId !== orderId || c.status !== "storniert" || c.reversedIn) return c;
       changed = true;
       return { ...c, status: "vorgemerkt", cancelledAt: undefined };
-    }),
-  );
+    });
+  });
   return changed;
 }
 
@@ -172,6 +171,7 @@ export async function createStatement(influencerId: string, month: string): Prom
   let statement: Statement | undefined;
   // Erst die Provisionen der Gutschrift zuordnen (atomar), dann die Gutschrift speichern
   await updateJSON<Commission[]>(KEYS.commissions, [], (current) => {
+    statement = undefined;
     const all = asList<Commission>(current);
     const { due, reversals } = openLines(all, influencerId, month);
     if (!due.length && !reversals.length) throw new StatementError("Für diesen Zeitraum gibt es keine offenen Provisionen.");
@@ -186,27 +186,59 @@ export async function createStatement(influencerId: string, month: string): Prom
     return all.map((x) => (dueIds.has(x.orderId) ? { ...x, statementId: id } : revIds.has(x.orderId) ? { ...x, reversedIn: id } : x));
   });
   if (!statement) throw new StatementError("Gutschrift konnte nicht erstellt werden.");
-  const s = statement as Statement;
-  await updateJSON<Statement[]>(KEYS.influencerStatements, [], (current) => {
-    const all = asList<Statement>(current);
-    const year = s.createdAt.slice(0, 4);
-    const prefix = `GS-${year}-`;
-    const max = all.filter((x) => x.number.startsWith(prefix)).reduce((m, x) => Math.max(m, Number(x.number.slice(prefix.length)) || 0), 0);
-    s.number = `${prefix}${String(max + 1).padStart(4, "0")}`;
-    return [s, ...all];
-  });
-  return s;
+  const draft = statement as Statement;
+  let saved: Statement | undefined;
+  try {
+    // Gutschriftnummer innerhalb des atomaren Schreibvorgangs vergeben: höchste vorhandene Nummer + 1 → nie doppelt
+    await updateJSON<Statement[]>(KEYS.influencerStatements, [], (current) => {
+      const all = asList<Statement>(current);
+      const existing = all.find((x) => x.id === id);
+      if (existing) {
+        saved = existing;
+        return all;
+      }
+      const prefix = `GS-${draft.createdAt.slice(0, 4)}-`;
+      const max = all.filter((x) => x.number.startsWith(prefix)).reduce((m, x) => Math.max(m, Number(x.number.slice(prefix.length)) || 0), 0);
+      saved = { ...draft, number: `${prefix}${String(max + 1).padStart(4, "0")}` };
+      return [saved, ...all];
+    });
+  } catch (error) {
+    // Bei Zeitüberschreitung kann die Gutschrift trotzdem gespeichert worden sein → erst nachsehen.
+    // Nur wenn sicher feststeht, dass sie fehlt, wird die Zuordnung zurückgenommen (sonst drohte eine doppelte Abrechnung).
+    let stored: Statement[] | undefined;
+    try {
+      stored = asList<Statement>(await getJSONStrict<Statement[]>(KEYS.influencerStatements, []));
+    } catch {
+      console.error("[provision] Gutschrift-Status unklar – Provisionen bleiben zugeordnet", id);
+      throw error;
+    }
+    const existing = stored.find((x) => x.id === id);
+    if (existing) return existing;
+    // Ausgleich: Zuordnung der Provisionen zurücknehmen, damit sie in einer späteren Gutschrift wieder auftauchen
+    await updateJSON<Commission[]>(KEYS.commissions, [], (current) =>
+      asList<Commission>(current).map((x) => {
+        if (x.statementId !== id && x.reversedIn !== id) return x;
+        const copy = { ...x };
+        if (copy.statementId === id) delete copy.statementId;
+        if (copy.reversedIn === id) delete copy.reversedIn;
+        return copy;
+      }),
+    ).catch((rollbackError) => console.error("[provision] Ausgleich nach Gutschrift-Fehler fehlgeschlagen", id, rollbackError));
+    throw error;
+  }
+  return saved as Statement;
 }
 
 export async function setStatementPaid(id: string, paid: boolean): Promise<boolean> {
   let found = false;
-  await updateJSON<Statement[]>(KEYS.influencerStatements, [], (current) =>
-    asList<Statement>(current).map((s) => {
+  await updateJSON<Statement[]>(KEYS.influencerStatements, [], (current) => {
+    found = false;
+    return asList<Statement>(current).map((s) => {
       if (s.id !== id) return s;
       found = true;
       return paid ? { ...s, paid: true, paidAt: s.paidAt ?? new Date().toISOString() } : { ...s, paid: false, paidAt: undefined };
-    }),
-  );
+    });
+  });
   return found;
 }
 

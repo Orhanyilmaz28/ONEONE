@@ -27,15 +27,22 @@ export async function POST(request: Request) {
   if (event.type === "checkout.session.completed" || event.type === "checkout.session.async_payment_succeeded") {
     const session = event.data.object as Stripe.Checkout.Session;
     if (session.payment_status === "paid" || session.payment_status === "no_payment_required") {
+      // Beide Schritte sind wiederholbar ohne Doppelungen (Provision wird je Bestellung höchstens einmal gebucht,
+      // verschickte E-Mails gehen nicht doppelt raus). Schlägt einer fehl → 500, damit Stripe es später erneut versucht.
+      let failed = false;
+      try {
+        await recordCommission(session);
+      } catch (error) {
+        failed = true;
+        console.error("[webhook] Provision fehlgeschlagen", (error as Error).name);
+      }
       try {
         await sendOrderMails(session.id);
       } catch (error) {
+        failed = true;
         console.error("[webhook] E-Mails fehlgeschlagen", error);
-        // 500 → Stripe versucht es später noch einmal (bereits verschickte E-Mails gehen nicht doppelt raus)
-        return Response.json({ error: "Später erneut versuchen" }, { status: 500 });
       }
-      // Influencer-Provision vormerken (bucht nur einmal, auch wenn die Erfolgsseite es schon getan hat)
-      await recordCommission(session).catch((error) => console.error("[webhook] Provision fehlgeschlagen", error));
+      if (failed) return Response.json({ error: "Später erneut versuchen" }, { status: 500 });
       revalidatePath("/admin", "layout");
     }
   }
@@ -43,7 +50,14 @@ export async function POST(request: Request) {
   if (event.type === "charge.refunded") {
     const charge = event.data.object as Stripe.Charge;
     const pi = typeof charge.payment_intent === "string" ? charge.payment_intent : charge.payment_intent?.id;
-    if (charge.refunded && pi) await cancelCommission({ paymentIntent: pi }).catch((error) => console.error("[webhook] Provision stornieren fehlgeschlagen", error));
+    if (charge.refunded && pi) {
+      try {
+        await cancelCommission({ paymentIntent: pi });
+      } catch (error) {
+        console.error("[webhook] Provision stornieren fehlgeschlagen", (error as Error).name);
+        return Response.json({ error: "Später erneut versuchen" }, { status: 500 });
+      }
+    }
   }
   return Response.json({ received: true });
 }

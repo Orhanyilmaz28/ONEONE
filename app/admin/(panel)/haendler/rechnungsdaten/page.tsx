@@ -4,12 +4,13 @@ import { DealerTabs } from "@/components/admin/dealer-tabs";
 import { PageHeader } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { getInvoiceSettings } from "@/lib/dealer-orders";
+import { strictReads } from "@/lib/store";
 
 export const metadata: Metadata = { title: "Rechnungsdaten" };
 
 export default async function InvoiceSettingsPage() {
   await requireAdmin();
-  const s = await getInvoiceSettings();
+  const s = await strictReads(getInvoiceSettings);
   return (
     <>
       <PageHeader description="Bankverbindung und Zahlungsziel für Händler-Rechnungen. Firmenname, Adresse, USt-IdNr. und Handelsregister kommen aus Einstellungen → Firmendaten." title="Händler" />

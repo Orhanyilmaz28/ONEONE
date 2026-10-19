@@ -9,12 +9,13 @@ import { getBasePricing } from "@/lib/dealer-data";
 import { STEP_KEYS, canToInput, groupOf } from "@/lib/dealer-pricing";
 import { cansOf } from "@/lib/format";
 import { lkwOnly } from "@/lib/lkw";
+import { strictReads } from "@/lib/store";
 
 export const metadata: Metadata = { title: "Dosenpreise" };
 
 export default async function DealerPricesPage() {
   await requireAdmin();
-  const [products, pricing] = await Promise.all([getProducts({ includeHidden: true }), getBasePricing()]);
+  const [products, pricing] = await strictReads(() => Promise.all([getProducts({ includeHidden: true }), getBasePricing()]));
   const groups = pricing.groups.map((g) => ({ id: g.id, name: g.name, values: Object.fromEntries(STEP_KEYS.map((k) => [k, canToInput(g.prices[k])])) }));
   const items = DEALER_GROUPS.flatMap((dg) =>
     products.filter(dg.test).map((p) => ({

@@ -118,6 +118,7 @@ export async function confirmSubscription(token: string): Promise<{ email: strin
   if (!TOKEN.test(token)) return null;
   let found: { email: string; already: boolean } | null = null;
   await updateJSON<unknown>(KEYS.newsletter, [], (raw) => {
+    found = null; // Callback kann bei Schreibkonflikt erneut laufen
     const list = clean(raw);
     const s = list.find((x) => x.token === token);
     if (!s) return list;
@@ -133,6 +134,7 @@ export async function unsubscribeByToken(token: string): Promise<string | null> 
   if (!TOKEN.test(token)) return null;
   let email: string | null = null;
   await updateJSON<unknown>(KEYS.newsletter, [], (raw) => {
+    email = null; // Callback kann bei Schreibkonflikt erneut laufen
     const list = clean(raw);
     const s = list.find((x) => x.token === token);
     if (!s) return list;
@@ -157,6 +159,7 @@ export async function getSubscribers(): Promise<Subscriber[]> {
 export async function addSubscriber(email: string, source = "website"): Promise<{ added: boolean }> {
   let added = false;
   await updateJSON<unknown>(KEYS.newsletter, [], (raw) => {
+    added = false; // Callback kann bei Schreibkonflikt erneut laufen
     const list = clean(raw);
     if (list.some((s) => s.email === email)) return list;
     if (list.length >= MAX_SUBSCRIBERS) throw new SubscriberLimitError();

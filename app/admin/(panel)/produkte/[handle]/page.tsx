@@ -5,6 +5,7 @@ import { applyOverride, catalog, getBaseProducts, getOverrides } from "@/lib/cat
 import { changedVariantCount } from "../pricing";
 import { BackLink, ProductTabs } from "../product-nav";
 import { type EditorProduct, ProductEditor } from "../product-editor";
+import { strictReads } from "@/lib/store";
 
 type Props = { params: Promise<{ handle: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
 
@@ -18,7 +19,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
   await requireAdmin();
   const { handle } = await params;
   const created = (await searchParams).angelegt === "1";
-  const [all, overrides] = await Promise.all([getBaseProducts(), getOverrides()]);
+  const [all, overrides] = await strictReads(() => Promise.all([getBaseProducts(), getOverrides()]));
   const base = all.find((p) => p.handle === handle);
 
   if (!base) {

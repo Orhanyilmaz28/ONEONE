@@ -129,6 +129,7 @@ export async function addReview(input: NewReview): Promise<{ review: StoredRevie
 async function patchReview(id: string, change: (r: StoredReview) => StoredReview): Promise<{ before: StoredReview; after: StoredReview } | undefined> {
   let result: { before: StoredReview; after: StoredReview } | undefined;
   await updateJSON<unknown>(KEYS.reviews, [], (raw) => {
+    result = undefined; // Callback kann bei Schreibkonflikt erneut laufen
     const list = clean(raw);
     const before = list.find((r) => r.id === id);
     if (!before) return list;
