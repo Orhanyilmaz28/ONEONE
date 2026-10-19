@@ -81,6 +81,7 @@ export async function POST(request: Request) {
       price_data: {
         currency: "eur",
         unit_amount: DEPOSIT_PER_CAN,
+        tax_behavior: "inclusive",
         product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", metadata: { handle: "pfand" } },
       },
     });
@@ -170,6 +171,13 @@ export async function POST(request: Request) {
           message: `Ich akzeptiere die [AGB](${SITE_URL}/agb) und habe die [Widerrufsbelehrung](${SITE_URL}/widerruf) zur Kenntnis genommen.`,
         },
       },
+      // Optional (Vercel-Variable STRIPE_INVOICES=1): Stripe erstellt nach der Zahlung eine Rechnung (PDF) und schickt sie mit. Kostet bei Stripe eine kleine Gebühr je Rechnung.
+      ...(process.env.STRIPE_INVOICES === "1"
+        ? { invoice_creation: { enabled: true, invoice_data: { metadata: { items: itemsMeta } } } }
+        : {}),
+      // Optional (STRIPE_AUTOMATIC_TAX=1): Stripe Tax berechnet die MwSt. je Lieferland (Preise bleiben brutto).
+      // Erst einschalten, wenn in Stripe unter „Steuern“ Firmensitz und Steuerregistrierung eingetragen sind – sonst wird 0 € Steuer berechnet.
+      ...(process.env.STRIPE_AUTOMATIC_TAX === "1" ? { automatic_tax: { enabled: true }, tax_id_collection: { enabled: true } } : {}),
       success_url: `${SITE_URL}/checkout/erfolg?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${SITE_URL}/products`,
     });

@@ -50,9 +50,21 @@ export default async function SuccessPage({ searchParams }: Props) {
                 <span>
                   {item.quantity} × {item.description}
                 </span>
-                <span>{formatPrice(item.amount_total)}</span>
+                <span>{formatPrice(item.amount_subtotal)}</span>
               </li>
             ))}
+            {session.shipping_cost ? (
+              <li className="flex justify-between gap-4 py-3">
+                <span>Versand</span>
+                <span>{session.shipping_cost.amount_total ? formatPrice(session.shipping_cost.amount_total) : "kostenlos"}</span>
+              </li>
+            ) : null}
+            {session.total_details?.amount_discount ? (
+              <li className="flex justify-between gap-4 py-3">
+                <span>Rabatt</span>
+                <span>−{formatPrice(session.total_details.amount_discount)}</span>
+              </li>
+            ) : null}
           </ul>
           <div className="mt-4 flex justify-between border-line border-t pt-4 font-medium">
             <span>Gesamt</span>
