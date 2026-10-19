@@ -7,6 +7,7 @@
     "build": "next build --webpack",
     "start": "next start",
     "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.mts",
     "import:shopify": "tsx scripts/import-shopify.ts",
     "import:reviews": "tsx scripts/import-reviews.ts",
     "logo": "node scripts/build-logo.mjs",
@@ -16,6 +17,7 @@
   "dependencies": {
     "motion": "^12.42.2",
     "next": "16.4.2",
+    "qrcode-generator": "2.0.4",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "sharp": "^0.35.5",

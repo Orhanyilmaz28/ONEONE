@@ -1,33 +1,20 @@
-import { createHash, createHmac, timingSafeEqual } from "node:crypto";
+import { createHash, timingSafeEqual } from "node:crypto";
 
 /**
- * Prüfung des Dashboard-Cookies ohne Next-Abhängigkeiten – damit sie auch im Proxy (proxy.ts) läuft.
- * Wird von lib/admin-auth.ts verwendet.
+ * Grundlagen des Dashboard-Zugangs ohne Next-Abhängigkeiten (auch im Proxy nutzbar).
+ * Sitzungen liegen serverseitig in Redis – siehe lib/admin-security/sessions.ts.
  */
-export const ADMIN_COOKIE = "tt_admin";
+
+/** Cookie-Name: online mit __Host-Präfix (nur HTTPS, nur diese Domain, Pfad „/“) */
+export const ADMIN_COOKIE = process.env.NODE_ENV === "production" ? "__Host-tt_admin" : "tt_admin";
 
 export function adminConfigured() {
   return (process.env.ADMIN_PASSWORD ?? "").length >= 8;
 }
 
-function secret() {
-  return process.env.ADMIN_SECRET || createHash("sha256").update(`tt-admin:${process.env.ADMIN_PASSWORD ?? ""}`).digest("hex");
-}
-
-export function signAdmin(exp: number) {
-  return createHmac("sha256", secret()).update(`admin.${exp}`).digest("base64url");
-}
-
+/** Zeitkonstanter Vergleich (über Hashes, damit auch unterschiedliche Längen nichts verraten) */
 export function safeEqual(a: string, b: string) {
   const x = createHash("sha256").update(a).digest();
   const y = createHash("sha256").update(b).digest();
   return timingSafeEqual(x, y);
-}
-
-export function verifyAdminToken(token?: string) {
-  if (!token || !adminConfigured()) return false;
-  const [e, s] = token.split(".");
-  const exp = Number(e);
-  if (!Number.isFinite(exp) || exp < Date.now() || !s) return false;
-  return safeEqual(s, signAdmin(exp));
 }

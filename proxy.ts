@@ -1,5 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { ADMIN_COOKIE, verifyAdminToken } from "./lib/admin-token";
+import { readSession } from "./lib/admin-security/sessions";
+import { ADMIN_COOKIE } from "./lib/admin-token";
 import { SITE_COOKIE, type SiteLock, getSiteLock, validSiteToken } from "./lib/site-lock";
 
 /**
@@ -23,6 +24,16 @@ async function lockState(): Promise<SiteLock> {
   }
 }
 
+/** Voll angemeldete Admins sehen den Shop auch bei Passwortschutz (Sitzung serverseitig geprüft) */
+async function adminSession(token: string | undefined) {
+  if (!token) return false;
+  try {
+    return (await readSession(token))?.stage === "full";
+  } catch {
+    return false;
+  }
+}
+
 /** Diese Bereiche bleiben immer erreichbar */
 function isOpenPath(pathname: string) {
   return (
@@ -43,7 +54,7 @@ export async function proxy(request: NextRequest) {
   const lock = await lockState();
   if (!lock.enabled) return NextResponse.next();
 
-  if (verifyAdminToken(request.cookies.get(ADMIN_COOKIE)?.value)) return NextResponse.next();
+  if (await adminSession(request.cookies.get(ADMIN_COOKIE)?.value)) return NextResponse.next();
   if (validSiteToken(request.cookies.get(SITE_COOKIE)?.value, lock)) return NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
