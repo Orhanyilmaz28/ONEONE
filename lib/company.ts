@@ -6,7 +6,7 @@ export const company = {
   name: "exstase Großhandel GmbH",
   brand: "EXSTASE Energy",
   domain: "exstase-energy.de",
-  owner: "Geschäftsführer: Herr Christopher Walich",
+  owner: "Geschäftsführer: Herr Christopher Walich, Herr Orhan Yilmaz",
   street: "Carl-Kühne-Straße 4",
   city: "47638 Straelen",
   country: "Deutschland",
