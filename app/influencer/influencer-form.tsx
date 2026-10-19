@@ -133,7 +133,11 @@ export function InfluencerForm({ platforms, followers }: { platforms: string[]; 
           <Link className="underline" href="/datenschutz" target="_blank">
             Datenschutzerklärung
           </Link>{" "}
-          gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung der Bewerbung und zur Abrechnung gespeichert werden. *
+          gelesen, bin einverstanden, dass meine Angaben zur Bearbeitung der Bewerbung und zur Abrechnung gespeichert werden, und akzeptiere die{" "}
+          <Link className="underline" href="/influencer/bedingungen" target="_blank">
+            Teilnahmebedingungen
+          </Link>{" "}
+          (inkl. Abrechnung per Gutschrift). *
         </span>
       </label>
       <label className="flex items-start gap-3 rounded-2xl border border-accent/30 bg-accent/5 p-4 text-sm sm:col-span-2">

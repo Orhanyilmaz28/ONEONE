@@ -131,7 +131,12 @@ export function HaendlerForm({ branches, volumes }: { branches: string[]; volume
           <Link className="underline" href="/datenschutz" target="_blank">
             Datenschutzerklärung
           </Link>{" "}
-          gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage gespeichert werden. Der Gewerbenachweis wird nur zur Prüfung verwendet. *
+          gelesen und bin einverstanden, dass meine Angaben zur Bearbeitung meiner Anfrage gespeichert werden. Der Gewerbenachweis wird nur zur Prüfung verwendet. Für
+          Bestellungen gelten die{" "}
+          <Link className="underline" href="/haendler/bedingungen" target="_blank">
+            Händlerbedingungen
+          </Link>
+          . *
         </span>
       </label>
       {/* Werbe-Einwilligung: freiwillig und nicht vorausgewählt (sonst unwirksam) */}

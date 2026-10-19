@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { ImportedLegalPage, LegalPage, Placeholder, companyView } from "@/components/legal-page";
+import { ImportedLegalPage, LegalPage, companyView } from "@/components/legal-page";
 import { getImportedPage } from "@/lib/pages";
 import { getAccountsConfig } from "@/lib/customers";
 import { mailProvider } from "@/lib/mail";
@@ -42,10 +42,6 @@ export default async function Page() {
         : null;
   return (
     <LegalPage title="Datenschutzerklärung">
-      <p className="rounded-xl bg-accent/10 p-4 text-ink!">
-        Vorlage – bitte vor dem Livegang von einer Anwältin, einem Anwalt oder einem Rechtstexte-Dienst (z. B. IT-Recht Kanzlei, Händlerbund oder Trusted Shops)
-        prüfen lassen und an die tatsächlich genutzten Dienste anpassen. Gelb markierte Stellen müssen noch ergänzt werden.
-      </p>
 
       <h2>1. Verantwortlicher</h2>
       <p>
@@ -191,7 +187,7 @@ export default async function Page() {
         löschen wir deine Adresse.
       </p>
       <p>
-        Newsletter-Dienstleister: {mailService ? mailService.name : <Placeholder>[Anbieter eintragen, z. B. Brevo]</Placeholder>}
+        {mailService ? <>Newsletter-Dienstleister: {mailService.name}</> : "Einen externen Newsletter-Dienstleister setzen wir derzeit nicht ein; vor dem ersten Versand nennen wir ihn hier."}
       </p>
       {mailService ? (
         <>
@@ -245,7 +241,19 @@ export default async function Page() {
         <strong>Widerspruchsrecht:</strong> Verarbeiten wir Daten auf Grundlage unseres berechtigten Interesses (<Basis>Art. 6 Abs. 1 lit. f DSGVO</Basis>), kannst
         du dem aus Gründen, die sich aus deiner besonderen Situation ergeben, jederzeit widersprechen (Art. 21 DSGVO).
       </p>
-      <p>Außerdem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO).</p>
+      <p>
+        <strong>Werbung:</strong> Der Verarbeitung deiner Daten für Direktwerbung (z. B. Newsletter) kannst du jederzeit ohne Angabe von Gründen widersprechen
+        (Art. 21 Abs. 2 DSGVO) – wir nutzen deine Daten dann nicht mehr dafür.
+      </p>
+      <p>
+        Außerdem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO). Für uns zuständig ist die Landesbeauftragte für
+        Datenschutz und Informationsfreiheit Nordrhein-Westfalen, Kavalleriestraße 2–4, 40213 Düsseldorf (<Ext href="https://www.ldi.nrw.de" />).
+      </p>
+      <p>
+        Die Bereitstellung deiner Daten ist weder gesetzlich noch vertraglich vorgeschrieben. Ohne die für eine Bestellung nötigen Angaben (Name, Anschrift,
+        E-Mail-Adresse, Zahlungsdaten) können wir den Vertrag jedoch nicht abschließen. Eine automatisierte Entscheidungsfindung im Sinne von Art. 22 DSGVO findet
+        bei uns nicht statt; zur Bonitätsprüfung bei Klarna siehe Abschnitt 5.
+      </p>
 
       <h2>{n(14)}. Verschlüsselung</h2>
       <p>Diese Website nutzt aus Sicherheitsgründen eine SSL- bzw. TLS-Verschlüsselung. Du erkennst sie am „https://“ in der Adresszeile deines Browsers.</p>

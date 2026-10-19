@@ -30,7 +30,7 @@ export default async function Page() {
       <h2>Liefergebiete</h2>
       <p>Deutschland, Österreich, Niederlande, Belgien, Luxemburg, Frankreich, Italien, Dänemark.</p>
       <h2>Zahlungsarten</h2>
-      <p>Kreditkarte, PayPal, Apple Pay, Google Pay, Klarna und SEPA-Lastschrift – sicher abgewickelt über Stripe.</p>
+      <p>Es stehen die Zahlungsarten zur Verfügung, die auf der Bezahlseite angezeigt werden (z. B. Kreditkarte, PayPal, Apple Pay, Google Pay, Klarna) – sicher abgewickelt über Stripe.</p>
     </LegalPage>
   );
 }
