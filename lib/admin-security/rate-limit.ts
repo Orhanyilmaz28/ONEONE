@@ -15,6 +15,8 @@ export const LIMITS = {
   secondFactorGlobal: { max: 30, window: 15 * 60 },
   /** Sicherheitsaktionen im Dashboard (2FA einrichten/ändern, Sitzungen beenden): je IP 20 pro Stunde */
   securityAction: { max: 20, window: 60 * 60 },
+  /** Datensicherung (sichern, prüfen, Testwiederherstellung): je IP 12 pro Stunde */
+  backupAction: { max: 12, window: 60 * 60 },
 } as const;
 
 export type LimitName = keyof typeof LIMITS;

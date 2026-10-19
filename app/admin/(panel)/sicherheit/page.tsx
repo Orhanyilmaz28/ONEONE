@@ -27,6 +27,9 @@ const EVENT_LABEL: Record<SecurityEventType, string> = {
   logout: "Abgemeldet",
   session_revoked: "Sitzung beendet",
   sessions_revoked_all: "Sitzungen beendet",
+  backup_manual: "Datensicherung gestartet",
+  backup_verified: "Datensicherung geprüft",
+  restore_test: "Testwiederherstellung",
 };
 const BAD: SecurityEventType[] = ["login_failed", "second_factor_failed", "rate_limited", "twofa_disabled"];
 

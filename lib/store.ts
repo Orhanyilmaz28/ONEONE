@@ -1,6 +1,7 @@
 import { AsyncLocalStorage } from "node:async_hooks";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { reportIncident } from "./monitoring/signal";
 
 /**
  * Kleiner Datenspeicher für alles, was im Dashboard geändert wird
@@ -130,17 +131,28 @@ async function redis<T>(command: (string | number)[]): Promise<T> {
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
   } catch (e) {
-    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) throw new StoreTimeoutError();
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      reportIncident("redis_timeout", String(command[0]));
+      throw new StoreTimeoutError();
+    }
+    reportIncident("redis_unreachable", "Netzwerk");
     throw new StoreUnreachableError("Netzwerk");
   }
-  if (!res.ok) throw new StoreUnreachableError(`HTTP ${res.status}`);
+  if (!res.ok) {
+    reportIncident("redis_unreachable", `HTTP ${res.status}`);
+    throw new StoreUnreachableError(`HTTP ${res.status}`);
+  }
   let body: { result?: T; error?: string };
   try {
     body = (await res.json()) as { result?: T; error?: string };
   } catch {
+    reportIncident("redis_unreachable", "ungültige Antwort");
     throw new StoreUnreachableError("ungültige Antwort");
   }
-  if (body.error) throw new StoreUnreachableError("Redis-Fehler");
+  if (body.error) {
+    reportIncident("redis_unreachable", `Redis-Fehler bei ${String(command[0])}`);
+    throw new StoreUnreachableError("Redis-Fehler");
+  }
   return body.result as T;
 }
 
@@ -148,6 +160,7 @@ function parse<T>(key: string, raw: string): T {
   try {
     return JSON.parse(raw) as T;
   } catch {
+    reportIncident("data_corrupt", key);
     throw new StoreDataError(key);
   }
 }
@@ -167,6 +180,7 @@ async function readFileStore(): Promise<Record<string, unknown>> {
   try {
     return JSON.parse(text) as Record<string, unknown>;
   } catch {
+    reportIncident("data_corrupt", "lokale Datei");
     throw new StoreDataError(FILE);
   }
 }
@@ -307,6 +321,7 @@ export async function updateJSON<T>(key: string, fallback: T, change: (current: 
       await sleep(backoff(attempt));
     }
     console.error(`[store] Schreibkonflikt bei ${key} – ${MAX_ATTEMPTS} Versuche`);
+    reportIncident("write_conflict", key);
     throw new WriteConflictError(key);
   });
 }

@@ -18,7 +18,10 @@ export type SecurityEventType =
   | "recovery_codes_regenerated"
   | "logout"
   | "session_revoked"
-  | "sessions_revoked_all";
+  | "sessions_revoked_all"
+  | "backup_manual"
+  | "backup_verified"
+  | "restore_test";
 
 export type SecurityEvent = { at: string; type: SecurityEventType; ip: string; ua: string; detail?: string };
 

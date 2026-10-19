@@ -1,6 +1,6 @@
 import { createHash, createHmac, randomBytes, scrypt, timingSafeEqual } from "node:crypto";
 import { promisify } from "node:util";
-import { KEYS, getJSON } from "./store";
+import { KEYS, getJSON, getJSONStrict, storeKind } from "./store";
 
 /**
  * Passwortschutz für den ganzen Shop (z. B. vor dem Start).
@@ -20,13 +20,62 @@ export type SiteLock = {
   updatedAt?: string;
 };
 
-export async function getSiteLock(): Promise<SiteLock> {
-  const raw = await getJSON<Partial<SiteLock>>(KEYS.siteLock, {});
+/** Gespeicherten Datensatz deuten. „An“ ohne gültiges Passwort bleibt „an“ (niemand kommt ohne Admin hinein) – nie stillschweigend offen. */
+export function parseSiteLock(raw: Partial<SiteLock> | null | undefined): SiteLock {
+  const r = raw && typeof raw === "object" ? raw : {};
   return {
-    enabled: raw.enabled === true && typeof raw.hash === "string",
-    hash: typeof raw.hash === "string" ? raw.hash : undefined,
-    message: typeof raw.message === "string" ? raw.message : undefined,
-    updatedAt: typeof raw.updatedAt === "string" ? raw.updatedAt : undefined,
+    enabled: r.enabled === true,
+    hash: typeof r.hash === "string" && r.hash.startsWith("scrypt$") ? r.hash : undefined,
+    message: typeof r.message === "string" ? r.message : undefined,
+    updatedAt: typeof r.updatedAt === "string" ? r.updatedAt : undefined,
+  };
+}
+
+/** Für Anzeigen im Dashboard – bei einer Störung „aus“ (nur Anzeige, keine Zugangsentscheidung) */
+export async function getSiteLock(): Promise<SiteLock> {
+  return parseSiteLock(await getJSON<Partial<SiteLock>>(KEYS.siteLock, {}));
+}
+
+/**
+ * Für Zugangsentscheidungen: wirft bei Störung oder beschädigten Daten (statt „offen“ zu liefern).
+ * Ohne verbundenen Datenspeicher kann kein Schutz eingeschaltet worden sein → offen.
+ */
+export async function getSiteLockStrict(): Promise<SiteLock> {
+  if (storeKind() === "none") return { enabled: false };
+  return parseSiteLock(await getJSONStrict<Partial<SiteLock>>(KEYS.siteLock, {}));
+}
+
+/**
+ * Fail-Closed-Strategie für den Passwortschutz, wenn der Datenspeicher gestört ist:
+ * 1. Frischer Stand (höchstens `cacheMs` alt) → verwenden.
+ * 2. Lesen schlägt fehl → letzter bekannter Stand dieses Servers (egal wie alt): geschützter Shop bleibt geschützt,
+ *    öffentlicher Shop bleibt öffentlich.
+ * 3. Kein bekannter Stand (z. B. Server frisch gestartet während des Ausfalls) →
+ *    SHOP_PUBLIC=1 gesetzt: Shop ist bewusst öffentlich → offen. Sonst: „unavailable“ (Besucher sehen eine Hinweisseite).
+ */
+export type LockResolution = SiteLock | "unavailable";
+
+export function createLockResolver(read: () => Promise<SiteLock>, opts: { cacheMs?: number; now?: () => number; publicFallback?: () => boolean; onError?: (e: unknown) => void } = {}) {
+  const cacheMs = opts.cacheMs ?? 10_000;
+  const now = opts.now ?? Date.now;
+  const publicFallback = opts.publicFallback ?? (() => process.env.SHOP_PUBLIC === "1");
+  let last: { lock: SiteLock; at: number } | null = null;
+  return {
+    async resolve(): Promise<LockResolution> {
+      if (last && now() - last.at < cacheMs) return last.lock;
+      try {
+        const lock = await read();
+        last = { lock, at: now() };
+        return lock;
+      } catch (e) {
+        opts.onError?.(e);
+        if (last) return last.lock;
+        return publicFallback() ? { enabled: false } : "unavailable";
+      }
+    },
+    reset() {
+      last = null;
+    },
   };
 }
 
