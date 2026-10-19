@@ -1,11 +1,11 @@
 /**
  * Firmendaten für Impressum, AGB, Widerruf & Datenschutz.
- * ⚠️ Felder in [eckigen Klammern] bitte noch ergänzen.
+ * Die Domain im Impressum kommt aus NEXT_PUBLIC_SITE_URL; „domain“ ist nur der Ersatz, falls die Variable fehlt.
  */
 export const company = {
   name: "exstase Großhandel GmbH",
   brand: "EXSTASE Energy",
-  domain: "exstase-energy.de",
+  domain: "exstaseshop.com",
   owner: "Geschäftsführer: Herr Christopher Walich",
   street: "Carl-Kühne-Straße 4",
   city: "47638 Straelen",

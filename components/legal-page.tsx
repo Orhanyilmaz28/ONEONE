@@ -64,7 +64,7 @@ export function MissingValue({ label }: { label: string }) {
 }
 
 export type CompanyView = Record<CompanyKey, ReactNode> & {
-  /** Domain des Shops (fest, z. B. exstase-energy.de) */
+  /** Domain des Shops (aus NEXT_PUBLIC_SITE_URL) */
   domain: string;
   /** Name der verantwortlichen Person, z. B. „Christopher Walich“ aus „Geschäftsführer: Christopher Walich“ */
   person: ReactNode;
@@ -83,7 +83,15 @@ export function companyView(company: Settings["company"]): CompanyView {
   const owner = String(company.owner ?? "").trim();
   // „Geschäftsführer: Christopher Walich“ → „Christopher Walich“
   const person = isMissing(owner) ? <MissingValue label="Verantwortliche Person" /> : owner.replace(/^[^:]*:\s*/, "");
-  return { ...view, domain: staticCompany.domain, person };
+  // Domain aus der Shop-Adresse (NEXT_PUBLIC_SITE_URL), sonst die feste Angabe
+  let domain = staticCompany.domain;
+  try {
+    const host = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "").hostname.replace(/^www\./, "");
+    if (host && host !== "localhost") domain = host;
+  } catch {
+    // feste Angabe behalten
+  }
+  return { ...view, domain, person };
 }
 
 /* ───────────────────────── Widerrufsbelehrung & Muster-Widerrufsformular ───────────────────────── */

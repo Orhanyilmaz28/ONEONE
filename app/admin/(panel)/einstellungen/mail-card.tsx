@@ -72,7 +72,7 @@ export function MailCard({ settings, status, fallbackEmail }: Props) {
             <label className={label} htmlFor="adminEmail">
               Adresse für Benachrichtigungen <span className="font-normal text-muted">(leer = {fallbackEmail || "E-Mail aus den Firmendaten"})</span>
             </label>
-            <input className={input} defaultValue={settings.adminEmail} id="adminEmail" name="adminEmail" placeholder={fallbackEmail || "du@exstase-energy.de"} type="email" />
+            <input className={input} defaultValue={settings.adminEmail} id="adminEmail" name="adminEmail" placeholder={fallbackEmail || "du@exstase.com"} type="email" />
           </div>
           <div className="flex flex-wrap items-center gap-3 pt-2">
             <button className={btn} disabled={pending} type="submit">

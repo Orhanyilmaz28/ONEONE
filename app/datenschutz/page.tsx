@@ -80,7 +80,8 @@ export default async function Page() {
         {accounts ? <li>Kundenkonten (Name, E-Mail-Adresse, Passwort-Hash, ggf. Lieferadresse, siehe Abschnitt 9),</li> : null}
         <li>Newsletter-Anmeldungen (E-Mail-Adresse und Zeitpunkt der Anmeldung, siehe Abschnitt {n(9)}),</li>
         <li>eingereichte Produktbewertungen einschließlich Vorname, E-Mail-Adresse und ggf. Bestellnummer (siehe Abschnitt 8),</li>
-        <li>der Versandstatus von Bestellungen (z. B. „versendet“, Versanddienstleister und Sendungsnummer).</li>
+        <li>der Versandstatus von Bestellungen (z. B. „versendet“, Versanddienstleister und Sendungsnummer),</li>
+        <li>Angaben aus Händler- und Influencer-Registrierungen samt Bestellungen, Rechnungen, Provisionen und Gutschriften (siehe Abschnitt {n(10)}).</li>
       </ul>
       <p>
         Mit Upstash haben wir einen Vertrag über Auftragsverarbeitung (<Basis>Art. 28 DSGVO</Basis>) geschlossen. Sollten dabei Daten in die USA übermittelt
@@ -99,6 +100,15 @@ export default async function Page() {
           verschlüsselt signierte Kennung und läuft nach 30 Tagen oder beim Abmelden ab (<Basis>§ 25 Abs. 2 Nr. 2 TDDDG</Basis>).
         </p>
       ) : null}
+      <p>
+        Wer sich im Händler- oder Influencer-Bereich anmeldet, erhält ein technisch notwendiges Cookie („tt_haendler“ bzw. „tt_influencer“), damit die Anmeldung
+        bestehen bleibt. Es enthält nur eine signierte Kennung und läuft nach 14 bzw. 30 Tagen oder beim Abmelden ab (<Basis>§ 25 Abs. 2 Nr. 2 TDDDG</Basis>).
+      </p>
+      <p>
+        Kommst du über den Link eines Influencers (z. B. „…/?code=NAME10“) in den Shop, merken wir uns den Rabattcode lokal in deinem Browser (localStorage),
+        damit er im Warenkorb eingetragen ist. Du kannst ihn dort jederzeit entfernen. Löst du ihn bei einer Bestellung ein, speichern wir zur Abrechnung der
+        Provision Bestellnummer, Datum und Warenwert – dem Influencer zeigen wir keine Namen, Adressen oder sonstigen Daten von dir.
+      </p>
 
       <h2>5. Bestellung und Zahlung</h2>
       <p>
@@ -195,17 +205,37 @@ export default async function Page() {
         </>
       ) : null}
 
-      <h2>{n(10)}. Schriftarten</h2>
-      <p>Schriftarten werden lokal von unserem Server ausgeliefert; es findet keine Verbindung zu Google oder anderen Schriftanbietern statt.</p>
-
-      <h2>{n(11)}. Speicherdauer</h2>
+      <h2>{n(10)}. Händler- und Influencer-Programm</h2>
       <p>
-        Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck nötig ist. Bestell- und Rechnungsdaten müssen wir aus steuer- und
-        handelsrechtlichen Gründen bis zu zehn Jahre aufbewahren (§ 147 AO, § 257 HGB). Newsletter-Adressen löschen wir nach deiner Abmeldung, Bewertungen auf
-        Wunsch.
+        <strong>Händler:</strong> Bei der Registrierung als Händler verarbeiten wir Firma, Ansprechperson, Kontaktdaten, Anschrift, USt-IdNr., Branche, geplante
+        Menge, deine Nachricht und den hochgeladenen Gewerbenachweis. Nach der Freischaltung kommen Zugangsdaten (Passwort nur als Hash), Bestellungen auf
+        Rechnung, Rechnungen und Nachrichten im Händlerbereich hinzu.
+      </p>
+      <p>
+        <strong>Influencer:</strong> Bei der Bewerbung verarbeiten wir Name, Künstler- bzw. Kanalname, Kontaktdaten, Plattform, Link zum Kanal, Reichweite,
+        Wunsch-Code und Anschrift. Nach der Freischaltung kommen Zugangsdaten (Passwort nur als Hash), die über deinen Code vermittelten Bestellungen (Nummer,
+        Datum, Warenwert – ohne Kundendaten), Provisionen und Gutschriften sowie – wenn du sie einträgst – Steuernummer bzw. USt-IdNr. und Bankverbindung für die
+        Auszahlung hinzu.
+      </p>
+      <p>
+        Rechtsgrundlage ist die Anbahnung und Durchführung der Geschäftsbeziehung (<Basis>Art. 6 Abs. 1 lit. b DSGVO</Basis>), für Rechnungen und Gutschriften
+        unsere gesetzlichen Aufbewahrungspflichten (<Basis>Art. 6 Abs. 1 lit. c DSGVO</Basis>). Werbung per E-Mail schicken wir nur mit deiner ausdrücklichen
+        Einwilligung (<Basis>Art. 6 Abs. 1 lit. a DSGVO</Basis>), die du jederzeit im Konto oder per E-Mail an {c.email} widerrufen kannst. Die Daten liegen in
+        unserer Datenbank (Abschnitt 3); E-Mails zur Registrierung und Freischaltung verschicken wir über den in Abschnitt {n(9)} genannten E-Mail-Dienst.
       </p>
 
-      <h2>{n(12)}. Deine Rechte</h2>
+      <h2>{n(11)}. Schriftarten</h2>
+      <p>Schriftarten werden lokal von unserem Server ausgeliefert; es findet keine Verbindung zu Google oder anderen Schriftanbietern statt.</p>
+
+      <h2>{n(12)}. Speicherdauer</h2>
+      <p>
+        Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck nötig ist. Bestell- und Rechnungsdaten müssen wir aus steuer- und
+        handelsrechtlichen Gründen bis zu zehn Jahre aufbewahren (§ 147 AO, § 257 HGB) – das gilt auch für Händler-Rechnungen und Provisionsgutschriften.
+        Abgelehnte Händler- und Influencer-Bewerbungen löschen wir, sobald wir sie für die Bearbeitung nicht mehr brauchen. Newsletter-Adressen löschen wir nach deiner Abmeldung,
+        Bewertungen auf Wunsch.
+      </p>
+
+      <h2>{n(13)}. Deine Rechte</h2>
       <p>
         Du hast das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO)
         und Datenübertragbarkeit (Art. 20 DSGVO). Eine Einwilligung kannst du jederzeit mit Wirkung für die Zukunft widerrufen (Art. 7 Abs. 3 DSGVO). Schreib uns
@@ -217,7 +247,7 @@ export default async function Page() {
       </p>
       <p>Außerdem hast du das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren (Art. 77 DSGVO).</p>
 
-      <h2>{n(13)}. Verschlüsselung</h2>
+      <h2>{n(14)}. Verschlüsselung</h2>
       <p>Diese Website nutzt aus Sicherheitsgründen eine SSL- bzw. TLS-Verschlüsselung. Du erkennst sie am „https://“ in der Adresszeile deines Browsers.</p>
 
       <p className="mt-8 text-sm">Stand: Oktober 2026</p>

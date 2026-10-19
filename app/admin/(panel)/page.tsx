@@ -231,7 +231,7 @@ export default async function AdminHome() {
       todo: (
         <>
           Bei Vercel unter <b>Settings → Environment Variables</b> die Variable <Env>NEXT_PUBLIC_SITE_URL</Env> mit deiner Adresse anlegen, z. B.{" "}
-          <Env>https://exstase-energy.de</Env> – dann neu bereitstellen.
+          <Env>https://exstaseshop.vercel.app</Env> – dann neu bereitstellen.
         </>
       ),
     },
@@ -268,16 +268,29 @@ export default async function AdminHome() {
       id: "mail",
       title: "E-Mail-Versand eingerichtet",
       done: mailOk,
-      status: mailOk ? (process.env.STRIPE_WEBHOOK_SECRET ? "Erledigt" : "Webhook fehlt") : "Offen",
+      status: mailOk ? "Erledigt" : "Offen",
       explanation:
         "Damit verschickt der Shop Bestellbestätigung, Versand-E-Mail, Newsletter-Bestätigung (Pflicht für Newsletter) und „Passwort vergessen“ selbst.",
-      detail: mailOk && !process.env.STRIPE_WEBHOOK_SECRET ? "Empfohlen: Stripe-Webhook verbinden – dann kommt die Bestellbestätigung auch, wenn jemand die Danke-Seite schließt." : undefined,
       todo: (
         <>
           Kostenloses Konto bei Brevo anlegen, deine Domain dort bestätigen und in Vercel <Env>BREVO_API_KEY</Env> und <Env>MAIL_FROM</Env> eintragen – dann neu bereitstellen.
         </>
       ),
       link: { href: "/admin/einstellungen#emails", label: mailOk ? "E-Mail-Einstellungen" : "Zu den E-Mail-Einstellungen" },
+    },
+    {
+      id: "webhook",
+      title: "Stripe-Webhook verbunden",
+      done: Boolean(process.env.STRIPE_WEBHOOK_SECRET),
+      explanation:
+        "Stripe meldet dem Shop jede bezahlte Bestellung – auch wenn jemand die Danke-Seite sofort schließt oder später zahlt (Klarna). Ohne Webhook fehlen dann Bestellbestätigung und Influencer-Provision, Erstattungen werden nicht verrechnet.",
+      todo: (
+        <>
+          In Stripe unter <b>Entwickler → Webhooks</b> den Endpunkt <Env>{`${siteOk ? siteUrl.replace(/\/$/, "") : "https://exstaseshop.vercel.app"}/api/stripe/webhook`}</Env> mit den Ereignissen{" "}
+          <Env>checkout.session.completed</Env>, <Env>checkout.session.async_payment_succeeded</Env> und <Env>charge.refunded</Env> anlegen. Das Signaturgeheimnis
+          (<Env>whsec_…</Env>) in Vercel als <Env>STRIPE_WEBHOOK_SECRET</Env> eintragen – dann neu bereitstellen.
+        </>
+      ),
     },
     {
       id: "password",
