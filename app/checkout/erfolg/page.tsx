@@ -50,7 +50,7 @@ export default async function SuccessPage({ searchParams }: Props) {
                 <span>
                   {item.quantity} × {item.description}
                 </span>
-                <span>{formatPrice(item.amount_total)}</span>
+                <span>{formatPrice(item.amount_subtotal)}</span>
               </li>
             ))}
             {session.shipping_cost ? (
