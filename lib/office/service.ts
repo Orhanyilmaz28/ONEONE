@@ -5,7 +5,7 @@ import { SITE_URL } from "../format";
 import { KEYS, updateJSON } from "../store";
 import type { Product } from "../types";
 import { type ExportType, EXPORT_TYPES, buildSheets, exportFilename, exportLabel, isExportType } from "./export";
-import { type Filters, applyFilters, describeFilters, filterSummaryForLog, parseFilters } from "./filters";
+import { type Filters, applyFilters, describeFilters, filterSummaryForLog, lineFilter, parseFilters } from "./filters";
 import type { OfficeOrder } from "./model";
 import { type Principal, principalLabel } from "./roles";
 import { loadOfficeOrders } from "./source";
@@ -82,7 +82,7 @@ export async function runExport(req: ExportRequest, who: Principal, origin: { ip
   if (!limit.ok) return { ok: false, status: 429, error: "Zu viele Exporte in kurzer Zeit. Bitte später erneut versuchen." };
   const p = await prepare(req);
   if (!p.complete) return { ok: false, status: 503, error: `Export abgebrochen, weil Daten fehlen: ${p.errors.join(" ")}` };
-  const sheets = buildSheets(req.type, p.orders, { range: req.range, filters: describeFilters(req.filters, p.products), createdBy: principalLabel(who), now, siteUrl: SITE_URL, products: p.products });
+  const sheets = buildSheets(req.type, p.orders, { range: req.range, filters: describeFilters(req.filters, p.products), createdBy: principalLabel(who), now, siteUrl: SITE_URL, products: p.products, lineMatch: lineFilter(req.filters, p.products) });
   const file = buildXlsx(sheets, { title: `${exportLabel(req.type)} – ${req.range.label}`, created: new Date(now) });
   const at = new Date(now).toISOString();
   try {

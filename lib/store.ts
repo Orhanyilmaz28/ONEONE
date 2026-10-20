@@ -67,6 +67,8 @@ export const KEYS = {
   officeUsers: "tt:office-users",
   /** Büroverwaltung: welche Bestellung wann in einen Excel-Export aufgenommen wurde */
   officeExported: "tt:office-exported",
+  /** Büroverwaltung: Lieferscheinnummern (je Bestellung) und deren Historie */
+  officeDeliveryNotes: "tt:office-delivery-notes",
 } as const;
 
 export function storeKind(): StoreKind {

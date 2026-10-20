@@ -37,6 +37,7 @@ const LABELS: Record<string, string> = {
   [KEYS.influencerStatements]: "Provisionen & Gutschriften",
   [KEYS.officeUsers]: "Büroverwaltung",
   [KEYS.officeExported]: "Büroverwaltung",
+  [KEYS.officeDeliveryNotes]: "Büroverwaltung",
 };
 
 /** Alle festen Geschäftsdaten-Schlüssel (JSON) – werden immer abgefragt, auch wenn SCAN sie nicht liefert */

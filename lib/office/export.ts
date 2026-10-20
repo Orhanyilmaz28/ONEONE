@@ -11,6 +11,7 @@ import {
   splitUnits,
   unitsBySort,
 } from "./model";
+import { shippingRows } from "./shipping";
 import { type Range, berlinParts } from "./time";
 import type { Column, Row, Sheet } from "./xlsx";
 import type { Product } from "../types";
@@ -32,7 +33,7 @@ export type ExportType = (typeof EXPORT_TYPES)[number]["key"];
 export const isExportType = (v: unknown): v is ExportType => EXPORT_TYPES.some((t) => t.key === v);
 export const exportLabel = (t: ExportType) => EXPORT_TYPES.find((x) => x.key === t)?.label ?? t;
 
-export type ExportContext = { range: Range; filters: string[]; createdBy: string; now: number; siteUrl: string; products: Map<string, Product> };
+export type ExportContext = { range: Range; filters: string[]; createdBy: string; now: number; siteUrl: string; products: Map<string, Product>; lineMatch?: LineMatch };
 
 const addrCells = (a: OfficeAddress | null) => (a ? [a.name, a.company, a.line1, a.line2, a.zip, a.city, a.country] : ["", "", "", "", "", "", ""]);
 const addrCols = (prefix: string): Column[] => [
@@ -169,10 +170,11 @@ export function linesSheet(orders: OfficeOrder[]): Sheet {
   return { name: "Artikelpositionen", columns, rows };
 }
 
-const itemsText = (o: OfficeOrder) => o.lines.map((l) => `${l.quantity}× ${l.product}${l.unit ? ` (${l.unit})` : ""}`).join("; ");
-
-/** Versandliste – bewusst ohne Preise, Provisionen und interne Finanzdaten */
-export function shippingSheet(orders: OfficeOrder[]): Sheet {
+/**
+ * Versandliste: eine Zeile je Artikelposition mit zugehöriger Lieferadresse (Straße und Hausnummer getrennt).
+ * Bewusst ohne Preise, Provisionen und interne Finanzdaten. Gleiche Daten wie die PDF-Versandliste (shipping.ts).
+ */
+export function shippingSheet(orders: OfficeOrder[], products: Map<string, Product>): Sheet {
   const columns: Column[] = [
     { header: "Bestellnummer", type: "code", width: 14 },
     { header: "Datum/Uhrzeit", type: "datetime" },
@@ -180,56 +182,64 @@ export function shippingSheet(orders: OfficeOrder[]): Sheet {
     { header: "Empfänger" },
     { header: "Firma" },
     { header: "Straße" },
-    { header: "Zusatz" },
+    { header: "Hausnummer", type: "code", width: 11 },
+    { header: "Adresszusatz" },
     { header: "PLZ", type: "code", width: 9 },
     { header: "Ort" },
     { header: "Land", width: 7 },
     { header: "Telefon", type: "code" },
-    { header: "Artikel", width: 60 },
-    { header: "Packungen gesamt", type: "int" },
-    { header: "Dosen/Flaschen gesamt", type: "int" },
-    { header: "Kundenhinweise", width: 40 },
+    { header: "Artikelnummer", type: "code" },
+    { header: "Produkt" },
+    { header: "Sorte" },
+    { header: "Menge", type: "int" },
+    { header: "Verpackungseinheit" },
+    { header: "Inhalt (Dosen/Flaschen)", width: 28 },
+    { header: "Versandhinweise", width: 40 },
     { header: "Versandstatus" },
-    { header: "Versanddienst" },
-    { header: "Sendungsnummer", type: "code" },
   ];
-  const rows: Row[] = orders.map((o) => {
-    const a = o.delivery ?? o.billing;
-    const known = o.lines.every((l) => l.unitsPerPack !== null);
-    return [
-      o.number,
-      o.createdAt,
-      CHANNEL_LABEL[o.channel],
-      a?.name || o.customerName,
-      a?.company || o.company,
-      a?.line1,
-      a?.line2,
-      a?.zip,
-      a?.city,
-      a?.country,
-      o.phone,
-      itemsText(o),
-      o.lines.reduce((n, l) => n + l.quantity, 0),
-      known ? o.lines.reduce((n, l) => n + (l.unitsPerPack ?? 0) * l.quantity, 0) : null,
-      o.customerNote,
-      SHIPPING_LABEL[o.shippingStatus],
-      o.carrier,
-      o.tracking,
-    ];
-  });
+  const rows: Row[] = shippingRows(orders, products).map((r) => [
+    r.number,
+    r.createdAt,
+    r.channel,
+    r.recipient,
+    r.company,
+    r.street,
+    r.houseNo,
+    r.extra,
+    r.zip,
+    r.city,
+    r.country,
+    r.phone,
+    r.sku,
+    r.product,
+    r.sort,
+    r.quantity,
+    r.unit,
+    r.contents,
+    r.note,
+    r.status,
+  ]);
   return { name: "Versandliste", columns, rows };
 }
 
 export type CollectRow = { handle: string; sku: string; sort: string; units: number; privat: number; haendler: number; orders: number };
 
-/** Mengen je Sorte (Mixpakete in Sorten zerlegt). Stornierte Bestellungen zählen nicht. */
-export function collectUnits(orders: OfficeOrder[], products: Map<string, Product>) {
+/** Zählt eine Sorte einer Position mit? (bei Produkt-, Sorten- oder Gruppenfilter, siehe filters.lineFilter) */
+export type LineMatch = (lineHandle: string | undefined, sortHandle: string) => boolean;
+
+/**
+ * Mengen je Sorte (Mixpakete laut Produktdaten in Sorten zerlegt). Stornierte Bestellungen zählen nicht.
+ * Mit `match` zählen nur die passenden Positionen/Sorten (z. B. nur „Classic“, auch aus Mixpaketen).
+ */
+export function collectUnits(orders: OfficeOrder[], products: Map<string, Product>, match?: LineMatch) {
   const map = new Map<string, CollectRow & { seen: Set<string> }>();
   const unknown: { number: string; product: string; quantity: number; unit: string }[] = [];
   for (const o of orders) {
     if (o.processing === "storniert") continue;
     for (const l of o.lines) {
-      const parts = unitsBySort(l, products);
+      const all = unitsBySort(l, products);
+      const parts = all && match ? all.filter((p) => match(l.handle, p.handle)) : all;
+      if (!parts && match && l.handle && !match(l.handle, l.handle)) continue;
       if (!parts) {
         unknown.push({ number: o.number, product: l.product, quantity: l.quantity, unit: l.unit });
         continue;
@@ -251,7 +261,7 @@ export function collectUnits(orders: OfficeOrder[], products: Map<string, Produc
   return { rows, unknown };
 }
 
-export function collectSheet(orders: OfficeOrder[], products: Map<string, Product>): Sheet {
+export function collectSheet(orders: OfficeOrder[], products: Map<string, Product>, match?: LineMatch): Sheet {
   const columns: Column[] = [
     { header: "SKU", type: "code" },
     { header: "Sorte" },
@@ -266,7 +276,7 @@ export function collectSheet(orders: OfficeOrder[], products: Map<string, Produc
     { header: "davon Privat (Stück)", type: "int" },
     { header: "davon Händler (Stück)", type: "int" },
   ];
-  const { rows: collected, unknown } = collectUnits(orders, products);
+  const { rows: collected, unknown } = collectUnits(orders, products, match);
   const rows: Row[] = collected.map((r) => {
     const info = packInfo(r.handle);
     const split = splitUnits(r.units, info);
@@ -377,13 +387,13 @@ export function buildSheets(type: ExportType, orders: OfficeOrder[], ctx: Export
     case "einfach":
       return [simpleSheet(orders)];
     case "versand":
-      return [shippingSheet(orders)];
+      return [shippingSheet(orders, ctx.products)];
     case "sammel":
-      return [collectSheet(orders, ctx.products)];
+      return [collectSheet(orders, ctx.products, ctx.lineMatch)];
     case "tag":
       return [dailySheet(orders, ctx.range), simpleSheet(orders)];
     default:
-      return [ordersSheet(orders, ctx), linesSheet(orders), shippingSheet(orders), collectSheet(orders, ctx.products), summarySheet(orders, ctx, type)];
+      return [ordersSheet(orders, ctx), linesSheet(orders), shippingSheet(orders, ctx.products), collectSheet(orders, ctx.products, ctx.lineMatch), summarySheet(orders, ctx, type)];
   }
 }
 

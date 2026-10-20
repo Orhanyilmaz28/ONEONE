@@ -83,6 +83,8 @@ export type OfficeOrder = {
   customerNote: string;
   internalNote: string;
   invoiceNumber: string;
+  /** Versanddatum, nur wenn es tatsächlich erfasst wurde (Millisekunden) */
+  shippedAt?: number;
   /** Wann zuletzt in einen Excel-Export aufgenommen (ISO) */
   exportedAt?: string;
   /** Hinweise zu fehlenden oder unsicheren Angaben */
@@ -101,7 +103,7 @@ export function slugToKey(slug: string): string | null {
 
 /** Link zur Originalbestellung im Dashboard (nur für Administrator:innen sichtbar) */
 export function originalUrl(o: Pick<OfficeOrder, "key">) {
-  return o.key.startsWith("s:") ? `/admin/bestellungen/${encodeURIComponent(o.key.slice(2))}` : `/admin/haendler/bestellungen/${encodeURIComponent(o.key.slice(2))}`;
+  return o.key.startsWith("s:") ? `/admin/bestellungen/${encodeURIComponent(o.key.slice(2))}` : `/admin/haendler/bestellungen#${encodeURIComponent(o.key.slice(2))}`;
 }
 export const officeUrl = (o: Pick<OfficeOrder, "key">) => `/admin/buero/bestellungen/${keyToSlug(o.key)}`;
 
@@ -252,6 +254,7 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
     shippingStatus: status === "storniert" ? "storniert" : status === "versendet" || status === "erledigt" ? "versendet" : "nicht_versendet",
     tracking: s(meta?.tracking),
     carrier: s(meta?.carrier),
+    ...(meta?.shippedAt && Number.isFinite(Date.parse(meta.shippedAt)) ? { shippedAt: Date.parse(meta.shippedAt) } : {}),
     customerNote: "",
     internalNote: s(meta?.note),
     invoiceNumber: "",
@@ -264,6 +267,13 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
 function invoiceSums(inv: DealerInvoice) {
   const t = invoiceTotals(inv);
   return { goods: t.goodsNet, discount: inv.discountNet, deposit: t.depositNet, depositUnits: t.depositUnits, shipping: inv.shippingNet, net: t.net, vat: t.vat, gross: t.gross };
+}
+
+function shippedOf(o: DealerOrder): { shippedAt?: number } {
+  if (o.status !== "versendet") return {};
+  const at = [...(o.history ?? [])].reverse().find((h) => h.status === "versendet")?.at;
+  const t = at ? Date.parse(at) : Number.NaN;
+  return Number.isFinite(t) ? { shippedAt: t } : {};
 }
 
 export function fromDealer(o: DealerOrder, dealer: Dealer | undefined, products: Map<string, Product>): OfficeOrder {
@@ -330,6 +340,7 @@ export function fromDealer(o: DealerOrder, dealer: Dealer | undefined, products:
     shippingStatus: o.status === "storniert" ? "storniert" : o.status === "versendet" ? "versendet" : "nicht_versendet",
     tracking: "",
     carrier: "",
+    ...shippedOf(o),
     customerNote: note,
     internalNote: "",
     invoiceNumber: o.invoice?.number ?? "",

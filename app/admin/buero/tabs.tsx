@@ -3,15 +3,15 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-/** Unterpunkte der Büroverwaltung (Phase 3B/3C sind schon sichtbar, aber noch als „bald“ markiert) */
+/** Unterpunkte der Büroverwaltung (Phase 3C ist schon sichtbar, aber noch als „bald“ markiert) */
 export const OFFICE_NAV = [
   { href: "/admin/buero", label: "Übersicht" },
   { href: "/admin/buero/bestellungen", label: "Alle Bestellungen" },
   { href: "/admin/buero/export", label: "Excel-Export" },
-  { href: "/admin/buero/lieferscheine", label: "Lieferscheine", soon: true },
-  { href: "/admin/buero/versandlisten", label: "Versandlisten", soon: true },
-  { href: "/admin/buero/sammellisten", label: "Artikel-Sammellisten", soon: true },
-  { href: "/admin/buero/tagesberichte", label: "Tagesberichte", soon: true },
+  { href: "/admin/buero/lieferscheine", label: "Lieferscheine" },
+  { href: "/admin/buero/versandlisten", label: "Versandlisten" },
+  { href: "/admin/buero/sammellisten", label: "Artikel-Sammellisten" },
+  { href: "/admin/buero/tagesberichte", label: "Tagesberichte" },
   { href: "/admin/buero/exporthistorie", label: "Exporthistorie", soon: true },
   { href: "/admin/buero/einstellungen", label: "Einstellungen" },
 ] as const;

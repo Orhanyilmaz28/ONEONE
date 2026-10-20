@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Badge, Card, Notice, PageHeader, Table, btnSecondary, formatDateTime } from "@/components/admin/ui";
+import { Badge, Card, Notice, PageHeader, Table, btn, btnSecondary, formatDateTime, input, label } from "@/components/admin/ui";
 import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
 import { requireOffice } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
 import { CHANNEL_LABEL, type OfficeAddress, originalUrl, slugToKey } from "@/lib/office/model";
+import { MAX_REMARK, type StoredNote, readNotes } from "@/lib/office/delivery-notes";
+import { deliveryNoteIssues, missingCompanyFields } from "@/lib/office/documents";
+import { companyInfo } from "@/lib/office/documents-service";
+import { can } from "@/lib/office/roles";
 import { loadOfficeOrder } from "@/lib/office/source";
 import { PaymentBadge, ProcessingBadge, ShippingBadge } from "../../shared";
 
@@ -40,9 +44,12 @@ function Address({ a }: { a: OfficeAddress | null }) {
 
 const money = (v: number | null) => (v === null ? "nach Absprache" : formatPrice(v));
 
-export default async function OfficeOrderPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function OfficeOrderPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const me = await requireOffice();
-  const key = slugToKey((await params).slug);
+  const slug = (await params).slug;
+  const sp = await searchParams;
+  const fehler = typeof sp.fehler === "string" ? sp.fehler.slice(0, 300) : "";
+  const key = slugToKey(slug);
   if (!key) notFound();
   const { order: o, error } = await loadOfficeOrder(key, await productLookup());
   if (error)
@@ -52,6 +59,18 @@ export default async function OfficeOrderPage({ params }: { params: Promise<{ sl
       </Notice>
     );
   if (!o) notFound();
+  let note: StoredNote | undefined;
+  let notesOk = true;
+  try {
+    note = (await readNotes()).notes[o.key];
+  } catch {
+    notesOk = false;
+  }
+  const company = await companyInfo();
+  const companyMissing = missingCompanyFields(company);
+  const issues = deliveryNoteIssues(o);
+  const write = can(me.role, "office.documents");
+  const back = `/admin/buero/bestellungen/${slug}`;
   const basis = o.priceBasis === "brutto" ? "inkl. USt" : "netto";
   const rows: [string, string][] = [
     [`Warenwert (${basis})`, formatPrice(o.goods)],
@@ -89,6 +108,13 @@ export default async function OfficeOrderPage({ params }: { params: Promise<{ sl
         {o.paymentMethod ? <Badge>{o.paymentMethod}</Badge> : null}
         {o.invoiceNumber ? <Badge tone="blue">Rechnung {o.invoiceNumber}</Badge> : null}
       </div>
+      {fehler ? (
+        <div className="mb-6">
+          <Notice title="Lieferschein nicht erstellt" tone="red">
+            {fehler}
+          </Notice>
+        </div>
+      ) : null}
       {o.warnings.length ? (
         <div className="mb-6">
           <Notice title="Hinweise">{o.warnings.join(" · ")}</Notice>
@@ -157,6 +183,88 @@ export default async function OfficeOrderPage({ params }: { params: Promise<{ sl
           <p className="whitespace-pre-line">{o.internalNote || "—"}</p>
         </Card>
       </div>
+
+      <Card className="mt-6" title="Lieferschein">
+        {o.processing === "storniert" ? (
+          <p className="text-[14px] text-muted">Für stornierte Bestellungen wird kein Lieferschein erstellt.</p>
+        ) : (
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3 text-[14px]">
+              {!notesOk ? (
+                <Notice title="Lieferscheinnummern nicht lesbar" tone="red">
+                  Der Datenspeicher ist gerade nicht erreichbar.
+                </Notice>
+              ) : note ? (
+                <>
+                  <p>
+                    <span className="text-muted">Nummer: </span>
+                    <b className="font-medium tabular-nums">{note.number}</b>
+                    {note.version > 1 ? <span className="text-muted"> · Version {note.version}</span> : null}
+                  </p>
+                  <p className="text-muted">
+                    Erstellt {formatDateTime(note.createdAt)} von {note.createdBy}
+                  </p>
+                  {note.remark ? <p>Bemerkung: {note.remark}</p> : null}
+                  <div>
+                    <p className="mb-1 text-[13px] text-muted">Verlauf</p>
+                    <ul className="space-y-0.5 text-[13px]">
+                      {[...note.events].reverse().map((e, i) => (
+                        // biome-ignore lint/suspicious/noArrayIndexKey: feste Reihenfolge
+                        <li key={i}>
+                          {formatDateTime(e.at)} · {e.action}
+                          {e.version > 1 ? ` (Version ${e.version})` : ""} · {e.by}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </>
+              ) : (
+                <p className="text-muted">Noch kein Lieferschein. Die Nummer wird beim ersten Herunterladen oder Drucken vergeben – die Vorschau vergibt keine.</p>
+              )}
+              {issues.length ? (
+                <Notice title="Bitte prüfen">
+                  <ul className="list-disc pl-5">
+                    {issues.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </Notice>
+              ) : null}
+              {companyMissing.length ? (
+                <Notice title="Firmendaten unvollständig">
+                  Auf dem Lieferschein fehlt: {companyMissing.join(", ")}. {me.role === "admin" ? "Bitte unter Einstellungen → Firmendaten ergänzen." : "Bitte den Administrator informieren."}
+                </Notice>
+              ) : null}
+            </div>
+            {write && notesOk ? (
+              <form action="/api/admin/buero/dokument" className="space-y-3" method="post">
+                <input name="art" type="hidden" value="lieferschein" />
+                <input name="auswahl" type="hidden" value={o.key} />
+                <input name="zurueck" type="hidden" value={back} />
+                <div>
+                  <label className={label} htmlFor="ls-bemerkung">
+                    Bemerkung auf dem Lieferschein (optional)
+                  </label>
+                  <textarea className={`${input} min-h-20`} defaultValue={note?.remark ?? ""} id="ls-bemerkung" maxLength={MAX_REMARK} name="bemerkung" placeholder="z. B. Palette oben leicht" />
+                  <p className="mt-1 text-[12px] text-muted">Eine geänderte Bemerkung ergibt eine neue Version mit derselben Nummer. Keine Preise.</p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button className={btnSecondary} formTarget="_blank" name="modus" type="submit" value="vorschau">
+                    Ansehen (Vorschau)
+                  </button>
+                  <button className={btnSecondary} name="modus" type="submit" value="download">
+                    PDF herunterladen
+                  </button>
+                  <button className={btn} formTarget="_blank" name="modus" type="submit" value="druck">
+                    Drucken
+                  </button>
+                </div>
+                <p className="text-[12px] text-muted">Der Lieferschein ändert weder Versandstatus noch Rechnung.</p>
+              </form>
+            ) : null}
+          </div>
+        )}
+      </Card>
     </>
   );
 }
