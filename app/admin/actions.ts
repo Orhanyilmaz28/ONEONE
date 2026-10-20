@@ -24,7 +24,7 @@ export async function login(_: FormState, form: FormData): Promise<FormState> {
   const o = await requestOrigin();
   let r: Awaited<ReturnType<typeof passwordStep>>;
   try {
-    r = await passwordStep(String(form.get("password") ?? ""), o);
+    r = await passwordStep(String(form.get("password") ?? ""), o, String(form.get("username") ?? ""));
   } catch (e) {
     if (!(e instanceof KvUnavailableError)) console.error("[admin] Anmeldung fehlgeschlagen (interner Fehler)");
     return storeDown;
@@ -69,7 +69,7 @@ export async function startForcedSetup(): Promise<void> {
   if (!s || s.stage !== "setup") redirect("/admin/login");
   const o = await requestOrigin();
   if (!(await hitLimit("securityAction", o.ip)).ok) redirect("/admin/login/einrichten?zuviele=1");
-  await startSetup(s.id, "Dashboard");
+  await startSetup(s.id, s.userId ? "Büro-Zugang" : "Dashboard");
   redirect("/admin/login/einrichten");
 }
 

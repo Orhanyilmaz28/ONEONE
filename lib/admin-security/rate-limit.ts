@@ -9,6 +9,8 @@ export const LIMITS = {
   /** Passwort: je IP 10 Versuche in 15 Minuten, insgesamt 50 */
   loginIp: { max: 10, window: 15 * 60 },
   loginGlobal: { max: 50, window: 15 * 60 },
+  /** Büro-Zugang: je Benutzername 10 Versuche in 15 Minuten */
+  loginUser: { max: 10, window: 15 * 60 },
   /** Zweiter Faktor (TOTP oder Wiederherstellungscode): je Anmeldevorgang 5, je IP 10 / 15 Min., insgesamt 30 */
   secondFactorSession: { max: 5, window: 10 * 60 },
   secondFactorIp: { max: 10, window: 15 * 60 },
@@ -17,6 +19,10 @@ export const LIMITS = {
   securityAction: { max: 20, window: 60 * 60 },
   /** Datensicherung (sichern, prüfen, Testwiederherstellung): je IP 12 pro Stunde */
   backupAction: { max: 12, window: 60 * 60 },
+  /** Excel-Exporte der Büroverwaltung: je Person 60 pro Stunde */
+  officeExport: { max: 60, window: 60 * 60 },
+  /** Büro-Zugänge anlegen/ändern: je IP 30 pro Stunde */
+  officeUsers: { max: 30, window: 60 * 60 },
 } as const;
 
 export type LimitName = keyof typeof LIMITS;

@@ -80,6 +80,20 @@ export async function confirmSetup(sessionId: string, code: string): Promise<{ o
   return { ok: true, recoveryCodes: await storeRecoveryCodes(salt) };
 }
 
+/**
+ * Einrichtung für einen Büro-Zugang: Code aus der App gegen das Einrichtungs-Geheimnis der Sitzung prüfen.
+ * Liefert das Geheimnis (zum Speichern beim Zugang) – das globale Administrator-2FA bleibt unberührt.
+ */
+export async function takeSetupSecret(sessionId: string, code: string): Promise<{ ok: true; secret: string; counter: number } | { ok: false; reason: "expired" | "invalid" }> {
+  const box = await kv().get(SETUP(sessionId));
+  if (!box) return { ok: false, reason: "expired" };
+  const secret = decryptSecret(box);
+  const counter = verifyTotp(secret, code, now());
+  if (counter === null) return { ok: false, reason: "invalid" };
+  await kv().del(SETUP(sessionId));
+  return { ok: true, secret, counter };
+}
+
 /** TOTP-Code prüfen – jeder Zeitschritt nur einmal (atomar in Redis) */
 export async function verifySecondFactor(code: string): Promise<boolean> {
   const s = await state();

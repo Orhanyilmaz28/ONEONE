@@ -30,8 +30,13 @@ const EVENT_LABEL: Record<SecurityEventType, string> = {
   backup_manual: "Datensicherung gestartet",
   backup_verified: "Datensicherung geprüft",
   restore_test: "Testwiederherstellung",
+  office_export: "Büro: Excel-Export",
+  office_user_created: "Büro-Zugang angelegt",
+  office_user_changed: "Büro-Zugang geändert",
+  office_user_deleted: "Büro-Zugang gelöscht",
+  office_denied: "Büro: Zugriff verweigert",
 };
-const BAD: SecurityEventType[] = ["login_failed", "second_factor_failed", "rate_limited", "twofa_disabled"];
+const BAD: SecurityEventType[] = ["login_failed", "second_factor_failed", "rate_limited", "twofa_disabled", "office_denied"];
 
 export default async function SecurityPage() {
   await requireAdmin();

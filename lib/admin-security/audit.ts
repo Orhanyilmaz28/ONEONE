@@ -21,7 +21,12 @@ export type SecurityEventType =
   | "sessions_revoked_all"
   | "backup_manual"
   | "backup_verified"
-  | "restore_test";
+  | "restore_test"
+  | "office_export"
+  | "office_user_created"
+  | "office_user_changed"
+  | "office_user_deleted"
+  | "office_denied";
 
 export type SecurityEvent = { at: string; type: SecurityEventType; ip: string; ua: string; detail?: string };
 

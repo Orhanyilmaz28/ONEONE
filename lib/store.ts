@@ -63,6 +63,10 @@ export const KEYS = {
   commissions: "tt:commissions",
   /** Monatliche Provisionsgutschriften an Influencer */
   influencerStatements: "tt:influencer-statements",
+  /** Büroverwaltung: Zugänge für Büro-Mitarbeiter:innen (Rollen, Passwort-Hash, 2FA verschlüsselt) */
+  officeUsers: "tt:office-users",
+  /** Büroverwaltung: welche Bestellung wann in einen Excel-Export aufgenommen wurde */
+  officeExported: "tt:office-exported",
 } as const;
 
 export function storeKind(): StoreKind {
