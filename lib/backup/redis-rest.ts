@@ -101,9 +101,12 @@ export function productionCredentials(): { url: string; token: string } | null {
   return url && token ? { url, token } : null;
 }
 
+/** Eingetragenen Wert bereinigen: Leerzeichen und versehentlich mitkopierte Anführungszeichen entfernen */
+export const cleanEnv = (v: string | undefined) => (v ?? "").trim().replace(/^(["'])(.*)\1$/s, "$2").trim();
+
 /** Zugang zur isolierten Testdatenbank für Wiederherstellungstests */
 export function restoreTestCredentials(): { url: string; token: string } | null {
-  const url = (process.env.BACKUP_RESTORE_TEST_URL ?? "").replace(/\/$/, "");
-  const token = process.env.BACKUP_RESTORE_TEST_TOKEN ?? "";
+  const url = cleanEnv(process.env.BACKUP_RESTORE_TEST_URL).replace(/\/$/, "");
+  const token = cleanEnv(process.env.BACKUP_RESTORE_TEST_TOKEN);
   return url && token ? { url, token } : null;
 }

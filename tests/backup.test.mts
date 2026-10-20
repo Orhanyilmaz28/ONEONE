@@ -608,6 +608,24 @@ describe("Überwachung", () => {
   });
 });
 
+describe("Eingetragene Zugangsdaten", () => {
+  test("mitkopierte Anführungszeichen und Leerzeichen werden entfernt", async () => {
+    const { cleanEnv, restoreTestCredentials } = await import("../lib/backup/redis-rest");
+    assert.equal(cleanEnv(' "https://x.upstash.io" '), "https://x.upstash.io");
+    assert.equal(cleanEnv("'abc'"), "abc");
+    assert.equal(cleanEnv('a"b'), 'a"b');
+    assert.equal(cleanEnv(undefined), "");
+    process.env.BACKUP_RESTORE_TEST_URL = '"https://ziel.upstash.io/"';
+    process.env.BACKUP_RESTORE_TEST_TOKEN = '"tok"\n';
+    try {
+      assert.deepEqual(restoreTestCredentials(), { url: "https://ziel.upstash.io", token: "tok" });
+    } finally {
+      delete process.env.BACKUP_RESTORE_TEST_URL;
+      delete process.env.BACKUP_RESTORE_TEST_TOKEN;
+    }
+  });
+});
+
 describe("S3-kompatibler Speicher (z. B. Cloudflare R2)", () => {
   test("Signatur V4 entspricht dem offiziellen AWS-Beispiel", () => {
     const h = signV4({
