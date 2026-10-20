@@ -382,6 +382,14 @@ describe("Versand und Sendungsverfolgung", () => {
     assert.ok(fails(rec2, other, { action: "versendet", confirm: true, shipment: SHIP }).blockers?.some((b) => /andere Sendungsnummer/.test(b)));
   });
 
+  test("15b Versanddatum wird als deutscher Kalendertag mit dem Bestelldatum verglichen (Bestellung kurz nach Mitternacht)", () => {
+    // 19.10.2026 22:30 UTC = 20.10.2026 0:30 Uhr in Berlin
+    const o = b2c({ created: Math.floor(Date.parse("2026-10-19T22:30:00Z") / 1000) });
+    const rec = released(o);
+    assert.ok(fails(rec, o, { action: "versendet", confirm: true, shipment: { ...SHIP, date: "2026-10-19" } }).blockers?.some((b) => /vor dem Bestelldatum/.test(b)));
+    assert.equal(run(rec, o, { action: "versendet", confirm: true, shipment: { ...SHIP, date: "2026-10-20" } }).status, "versendet");
+  });
+
   test("Versand übernimmt Status, Nummer und Dienst in die Originalbestellung – ohne E-Mail; Händler nur Status", async () => {
     await resetStore();
     const o = b2c();

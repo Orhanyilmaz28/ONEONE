@@ -48,9 +48,11 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
     { label: "Exportiert", value: k.counts.exported, href: link({ exportiert: "ja" }) },
   ];
 
-  const inPeriod = loaded.orders.filter((o) => o.createdAt >= period.from && o.createdAt < period.to);
-  const needs = loaded.orders.map((o) => ({ o, reasons: attention(o, o.office, products) })).filter((x) => x.reasons.length);
-  const problemsInPeriod = inPeriod.filter((o) => attention(o, o.office, products).length).length;
+  // Aufmerksamkeit: Kachel und Liste zählen dieselben Bestellungen (gewählter Zeitraum); ältere werden extra verlinkt
+  const needsAll = loaded.orders.map((o) => ({ o, reasons: attention(o, o.office, products) })).filter((x) => x.reasons.length);
+  const needs = needsAll.filter(({ o }) => o.createdAt >= period.from && o.createdAt < period.to);
+  const needsOlder = needsAll.length - needs.length;
+  const problemsInPeriod = needs.length;
   const office: { label: string; value: number; href: string }[] = [
     { label: "Neu eingegangen", value: k.office.neu, href: link({ buero: "neu" }) },
     { label: "In Prüfung", value: k.office.pruefung, href: link({ buero: "pruefung" }) },
@@ -104,9 +106,9 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
           </Link>
         ))}
       </div>
-      <Card className="mb-8" title={`Bestellungen, die Aufmerksamkeit benötigen (${needs.length})`}>
+      <Card className="mb-8" title={`Bestellungen, die Aufmerksamkeit benötigen (${needs.length}) · ${period.label}`}>
         {needs.length === 0 ? (
-          <p className="text-[14px] text-muted">Zurzeit nichts – alle offenen Bestellungen sind in Ordnung.</p>
+          <p className="text-[14px] text-muted">Im gewählten Zeitraum nichts – alle Bestellungen sind in Ordnung.</p>
         ) : (
           <ul className="divide-y divide-line text-[14px]">
             {needs.slice(0, 20).map(({ o, reasons }) => (
@@ -125,11 +127,18 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
             ))}
           </ul>
         )}
-        {needs.length > 20 ? (
-          <p className="mt-3 text-[13px]">
-            <Link className="underline underline-offset-4" href={`/admin/buero/bestellungen?zeitraum=jahr&aufmerksamkeit=1`}>
-              Alle {needs.length} anzeigen
-            </Link>
+        {needs.length > 20 || needsOlder > 0 ? (
+          <p className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[13px]">
+            {needs.length > 20 ? (
+              <Link className="underline underline-offset-4" href={link({ aufmerksamkeit: "1" })}>
+                Alle {needs.length} anzeigen
+              </Link>
+            ) : null}
+            {needsOlder > 0 ? (
+              <Link className="underline underline-offset-4" href="/admin/buero/bestellungen?zeitraum=jahr&aufmerksamkeit=1">
+                {needsOlder} weitere {needsOlder === 1 ? "Bestellung" : "Bestellungen"} außerhalb des Zeitraums (dieses Jahr)
+              </Link>
+            ) : null}
           </p>
         ) : null}
       </Card>

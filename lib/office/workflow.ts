@@ -4,6 +4,14 @@ import type { Product } from "../types";
 import type { OfficeAddress, OfficeOrder } from "./model";
 import type { Role } from "./roles";
 import { lineContents } from "./shipping";
+import { berlinParts } from "./time";
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+/** Kalendertag in deutscher Zeit als JJJJ-MM-TT */
+export const berlinDay = (ms: number) => {
+  const p = berlinParts(ms);
+  return `${p.y}-${pad2(p.m)}-${pad2(p.d)}`;
+};
 
 /**
  * Büro-Arbeitsablauf (Phase 3C): eigener Bearbeitungsstand je Bestellung – getrennt von Stripe-Zahlungsstatus und
@@ -248,7 +256,8 @@ export function shipmentCheck(o: OfficeOrder, rec: WfRecord | null | undefined, 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(s.date) || Number.isNaN(Date.parse(`${s.date}T12:00:00Z`))) blockers.push("Bitte ein gültiges Versanddatum angeben.");
   else {
     if (s.date > today) blockers.push("Das Versanddatum liegt in der Zukunft.");
-    if (Date.parse(`${s.date}T23:59:59Z`) < o.createdAt) blockers.push("Das Versanddatum liegt vor dem Bestelldatum.");
+    // Vergleich als Kalendertag in deutscher Zeit (Bestellung um 0:30 Uhr am 21. → frühestens der 21.)
+    if (s.date < berlinDay(o.createdAt)) blockers.push("Das Versanddatum liegt vor dem Bestelldatum.");
   }
   if (o.tracking && tracking && normalizeTracking(o.tracking) !== tracking) blockers.push(`Die Bestellung hat bereits eine andere Sendungsnummer (${o.tracking}). Bitte im Dashboard klären.`);
   if (o.carrier && carrier && o.carrier !== carrier && o.tracking) warnings.push(`In der Bestellung ist bereits „${o.carrier}“ als Versanddienstleister eingetragen.`);

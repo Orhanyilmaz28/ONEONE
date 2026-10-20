@@ -1,14 +1,13 @@
 import { randomBytes } from "node:crypto";
 import { logSecurityEvent } from "../admin-security/audit";
-import { setDealerOrderStatus } from "../dealer-orders";
+import type { DealerOrder } from "../dealer-orders";
 import { kv } from "../kv";
-import { type OrderMeta, setOrderMeta } from "../orders";
+import type { OrderMeta } from "../orders";
 import { KEYS, WriteConflictError, getJSONStrict, getManyJSONStrict, updateJSON } from "../store";
 import type { Product } from "../types";
 import type { OfficeOrder } from "./model";
 import { type Principal, principalLabel } from "./roles";
-import { berlinParts } from "./time";
-import { type ActionInput, type ActionResult, type Actor, CONFLICT_MESSAGE, type WfAction, type WfRecord, applyAction, markSynced } from "./workflow";
+import { type ActionInput, type ActionResult, type Actor, CONFLICT_MESSAGE, type WfAction, type WfRecord, applyAction, berlinDay, markSynced } from "./workflow";
 
 /**
  * Speicher des Büro-Arbeitsablaufs: ein eigener Eintrag je Bestellung (`tt:office-wf:<Bestellung>`), atomar geändert.
@@ -55,8 +54,7 @@ export type RunOutcome = ActionResult | { ok: false; code: "store"; error: strin
 
 /** Heutiges Datum in Berlin (JJJJ-MM-TT) */
 export function berlinToday(now: number) {
-  const p = berlinParts(now);
-  return `${p.y}-${String(p.m).padStart(2, "0")}-${String(p.d).padStart(2, "0")}`;
+  return berlinDay(now);
 }
 
 /**
@@ -92,32 +90,55 @@ export async function runWorkflowAction(o: OfficeOrder, input: ActionInput, who:
   return r;
 }
 
-/** Versand in die Originalbestellung übernehmen (bestehende Funktionen, keine E-Mail) */
+/**
+ * Versand in die Originalbestellung übernehmen (keine E-Mail). Prüfung und Schreiben passieren in EINEM atomaren
+ * Schritt (updateJSON): wird die Bestellung zwischendurch storniert, wird der Schritt mit dem frischen Stand
+ * wiederholt und bricht dann ab – eine Stornierung wird nie überschrieben.
+ */
 async function pushShipment(o: OfficeOrder, rec: WfRecord): Promise<string | null> {
   const s = rec.shipment;
   if (!s) return "Keine Versanddaten.";
+  const id = o.key.slice(2);
+  let problem: string | null = null;
   try {
     if (o.key.startsWith("s:")) {
-      const id = o.key.slice(2);
-      const all = await getJSONStrict<Record<string, OrderMeta>>(KEYS.orders, {});
-      const cur = all[id];
-      if (cur?.status === "storniert") return "Die Bestellung wurde inzwischen storniert.";
-      if (cur?.tracking && s.tracking && cur.tracking.replace(/\s+/g, "").toUpperCase() !== s.tracking) return `In der Bestellung steht inzwischen eine andere Sendungsnummer (${cur.tracking}).`;
-      if (cur?.status === "versendet" || cur?.status === "erledigt") {
-        // schon versendet: nur fehlende Angaben ergänzen, Status nicht zurücksetzen
-        if (!cur.tracking && s.tracking) await setOrderMeta(id, { tracking: s.tracking, carrier: s.carrier });
-        return null;
-      }
-      await setOrderMeta(id, { status: "versendet", ...(s.tracking ? { tracking: s.tracking } : {}), carrier: s.carrier, shippedAt: `${s.date}T10:00:00.000Z` });
-      return null;
+      await updateJSON<Record<string, OrderMeta>>(KEYS.orders, {}, (all) => {
+        problem = null; // bei Wiederholung nach Konflikt neu bestimmen
+        const cur = all?.[id];
+        if (cur?.status === "storniert") {
+          problem = "Die Bestellung wurde inzwischen storniert.";
+          return all;
+        }
+        if (cur?.tracking && s.tracking && cur.tracking.replace(/\s+/g, "").toUpperCase() !== s.tracking) {
+          problem = `In der Bestellung steht inzwischen eine andere Sendungsnummer (${cur.tracking}).`;
+          return all;
+        }
+        const updatedAt = new Date().toISOString();
+        if (cur?.status === "versendet" || cur?.status === "erledigt") {
+          // schon versendet: nur fehlende Angaben ergänzen, Status nicht zurücksetzen
+          return !cur.tracking && s.tracking ? { ...all, [id]: { ...cur, tracking: s.tracking, carrier: s.carrier, updatedAt } } : all;
+        }
+        const patch: Partial<OrderMeta> = { status: "versendet", ...(s.tracking ? { tracking: s.tracking } : {}), carrier: s.carrier, shippedAt: `${s.date}T10:00:00.000Z` };
+        return { ...all, [id]: { ...(cur ?? { status: "offen" }), ...patch, updatedAt } as OrderMeta };
+      });
+      return problem;
     }
-    const id = o.key.slice(2);
-    const list = await getJSONStrict<{ id: string; status: string }[]>(KEYS.dealerOrders, []);
-    const cur = (Array.isArray(list) ? list : []).find((x) => x.id === id);
-    if (!cur) return "Händlerbestellung nicht gefunden.";
-    if (cur.status === "storniert") return "Die Bestellung wurde inzwischen storniert.";
-    if (cur.status !== "versendet") await setDealerOrderStatus(id, "versendet");
-    return null;
+    await updateJSON<DealerOrder[]>(KEYS.dealerOrders, [], (all) => {
+      problem = null;
+      const list = Array.isArray(all) ? all : [];
+      const cur = list.find((x) => x.id === id);
+      if (!cur) {
+        problem = "Händlerbestellung nicht gefunden.";
+        return all;
+      }
+      if (cur.status === "storniert") {
+        problem = "Die Bestellung wurde inzwischen storniert.";
+        return all;
+      }
+      if (cur.status === "versendet") return all;
+      return list.map((x) => (x.id === id ? { ...x, status: "versendet" as const, history: [...x.history, { status: "versendet" as const, at: new Date().toISOString() }] } : x));
+    });
+    return problem;
   } catch {
     return "Die Originalbestellung konnte gerade nicht aktualisiert werden (Datenspeicher nicht erreichbar).";
   }
