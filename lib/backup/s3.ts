@@ -76,10 +76,27 @@ export class S3Error extends Error {
   }
 }
 
+const HINTS: Record<string, string> = {
+  InvalidAccessKeyId: "Zugangsschlüssel unbekannt – Token gelöscht oder falsch eingetragen",
+  SignatureDoesNotMatch: "Geheimer Schlüssel passt nicht zum Zugangsschlüssel",
+  AccessDenied: "Token hat keinen Zugriff auf diesen Bucket",
+  NoSuchBucket: "Bucket nicht gefunden – Name oder Endpoint prüfen (bei EU-Buckets enthält der Endpoint „.eu.“)",
+};
+
+/** Verständliche Fehlermeldung mit dem Fehlercode des Speichers (z. B. AccessDenied) – nie mit Zugangsdaten */
+async function failure(action: string, res: Response): Promise<S3Error> {
+  const body = await res.text().catch(() => "");
+  const code = body.match(/<Code>([A-Za-z]{1,64})<\/Code>/)?.[1];
+  const hint = code ? (HINTS[code] ? `${code}: ${HINTS[code]}` : code) : "";
+  return new S3Error(`${action} fehlgeschlagen (HTTP ${res.status}${hint ? ` – ${hint}` : ""})`, res.status);
+}
+
 const TIMEOUT = () => Number(process.env.BACKUP_S3_TIMEOUT_MS) || 60_000;
 
 export function s3Client(cfg: S3Config) {
   const base = new URL(cfg.endpoint.replace(/\/$/, ""));
+  // Häufiger Eintragungsfehler: Endpoint mit angehängtem Bucket-Namen (so zeigt ihn Cloudflare an) → Bucket-Namen entfernen
+  if (base.pathname.replace(/\/$/, "").endsWith(`/${cfg.bucket}`)) base.pathname = base.pathname.replace(/\/$/, "").slice(0, -(cfg.bucket.length + 1)) || "/";
   const objectUrl = (key: string, params?: Record<string, string>) => {
     const u = new URL(`${base.origin}${base.pathname.replace(/\/$/, "")}/${awsEncode(cfg.bucket)}/${key.split("/").map((s) => awsEncode(s)).join("/")}`);
     for (const [k, v] of Object.entries(params ?? {})) u.searchParams.set(k, v);
@@ -100,18 +117,18 @@ export function s3Client(cfg: S3Config) {
   return {
     async put(key: string, data: Buffer, contentType = "application/octet-stream") {
       const res = await request("PUT", objectUrl(key), data, { "content-type": contentType, "content-length": String(data.length) });
-      if (!res.ok) throw new S3Error(`Hochladen fehlgeschlagen (HTTP ${res.status})`, res.status);
+      if (!res.ok) throw await failure("Hochladen", res);
       await res.arrayBuffer().catch(() => undefined);
     },
     async get(key: string): Promise<Buffer | null> {
       const res = await request("GET", objectUrl(key));
       if (res.status === 404) return null;
-      if (!res.ok) throw new S3Error(`Herunterladen fehlgeschlagen (HTTP ${res.status})`, res.status);
+      if (!res.ok) throw await failure("Herunterladen", res);
       return Buffer.from(await res.arrayBuffer());
     },
     async del(key: string) {
       const res = await request("DELETE", objectUrl(key));
-      if (!res.ok && res.status !== 404) throw new S3Error(`Löschen fehlgeschlagen (HTTP ${res.status})`, res.status);
+      if (!res.ok && res.status !== 404) throw await failure("Löschen", res);
       await res.arrayBuffer().catch(() => undefined);
     },
     async list(prefix: string): Promise<{ key: string; size: number; lastModified: string }[]> {
@@ -123,7 +140,7 @@ export function s3Client(cfg: S3Config) {
         const u = new URL(`${base.origin}${base.pathname.replace(/\/$/, "")}/${awsEncode(cfg.bucket)}`);
         for (const [k, v] of Object.entries(params)) u.searchParams.set(k, v);
         const res = await request("GET", u);
-        if (!res.ok) throw new S3Error(`Auflisten fehlgeschlagen (HTTP ${res.status})`, res.status);
+        if (!res.ok) throw await failure("Auflisten", res);
         const xml = await res.text();
         for (const m of xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)) {
           const tag = (n: string) => m[1].match(new RegExp(`<${n}>([\\s\\S]*?)</${n}>`))?.[1] ?? "";
