@@ -712,3 +712,11 @@ describe("Administratorberechtigung", () => {
     await assert.rejects(actions.restoreTestAction(undefined, form));
   });
 });
+
+describe("Verständliche Netzwerkfehler", () => {
+  test("Adresse ohne https:// wird benannt", async () => {
+    const { restClient } = await import("../lib/backup/redis-rest");
+    const c = restClient("ziel.upstash.io", "t", { retries: 0 });
+    await assert.rejects(c.cmd(["PING"]), /https:\/\//);
+  });
+});
