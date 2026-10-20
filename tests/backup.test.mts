@@ -642,7 +642,7 @@ describe("S3-kompatibler Speicher (z. B. Cloudflare R2)", () => {
       });
       if (expected.authorization !== req.headers.authorization) {
         res.writeHead(403);
-        return res.end();
+        return res.end("<Error><Code>SignatureDoesNotMatch</Code><Message>x</Message></Error>");
       }
       const key = decodeURIComponent(url.pathname.replace("/sicherung/", ""));
       if (req.method === "PUT") objects.set(key, body);
@@ -672,7 +672,11 @@ describe("S3-kompatibler Speicher (z. B. Cloudflare R2)", () => {
       await c.del("exstase-backups/a b.exb");
       assert.deepEqual(await c.list("exstase-backups/"), []);
       const wrong = s3Client({ ...cfg, secretAccessKey: "falsch" });
-      await assert.rejects(wrong.put("x", Buffer.from("y")), /HTTP 403/);
+      await assert.rejects(wrong.put("x", Buffer.from("y")), /HTTP 403 – SignatureDoesNotMatch: Geheimer Schlüssel passt nicht/);
+      // Endpoint mit angehängtem Bucket-Namen (wie in Cloudflare angezeigt) funktioniert trotzdem
+      const withBucket = s3Client({ ...cfg, endpoint: `${cfg.endpoint}/sicherung/` });
+      await withBucket.put("exstase-backups/b.exb", Buffer.from("zwei"));
+      assert.deepEqual((await withBucket.list("exstase-backups/")).map((o) => o.key), ["exstase-backups/b.exb"]);
     } finally {
       server.close();
     }
