@@ -123,27 +123,29 @@ export async function setInfluencerTerms(id: string, terms: { code: string; disc
 /** Status ändern. Bei „freigegeben“ entsteht ein Aktivierungs-Link (14 Tage); sonst wird der Zugang gesperrt. */
 export async function setInfluencerStatus(id: string, status: InfluencerStatus): Promise<boolean> {
   let found = false;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).map((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    found = false; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).map((i) => {
       if (i.id !== id) return i;
       found = true;
       if (status === "freigegeben") return { ...i, status, approvedAt: i.approvedAt ?? new Date().toISOString(), ...(i.passwordHash ? {} : token()) };
       return { ...i, status, activationToken: undefined, activationExpires: undefined, sessionVersion: (i.sessionVersion ?? 0) + 1 };
-    }),
-  );
+    });
+  });
   return found;
 }
 
 /** Neuer Aktivierungs-Link (abgelaufen oder Passwort vergessen) */
 export async function renewInfluencerActivation(id: string): Promise<boolean> {
   let found = false;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).map((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    found = false; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).map((i) => {
       if (i.id !== id || i.status !== "freigegeben") return i;
       found = true;
       return { ...i, ...token() };
-    }),
-  );
+    });
+  });
   return found;
 }
 
@@ -160,13 +162,14 @@ export async function completeInfluencerActivation(id: string, t: string, passwo
   if (!(await checkInfluencerActivation(id, t))) return null;
   const passwordHash = await hashPassword(password);
   let result: Influencer | null = null;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).map((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    result = null; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).map((i) => {
       if (i.id !== id || i.activationToken !== t) return i;
       result = { ...i, passwordHash, activationToken: undefined, activationExpires: undefined, sessionVersion: (i.sessionVersion ?? 0) + 1, failedLogins: 0, lockedUntil: undefined };
       return result;
-    }),
-  );
+    });
+  });
   return result;
 }
 
@@ -182,15 +185,16 @@ export async function checkInfluencerLogin(emailRaw: string, password: string): 
   if (found.lockedUntil && Date.parse(found.lockedUntil) > Date.now()) return { error: "locked", minutes: Math.ceil((Date.parse(found.lockedUntil) - Date.now()) / 60_000) };
   const ok = await verifyPassword(password, found.passwordHash);
   let updated: Influencer | undefined;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).map((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    updated = undefined; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).map((i) => {
       if (i.id !== found.id) return i;
       if (ok) return (updated = { ...i, failedLogins: 0, lockedUntil: undefined, lastLoginAt: new Date().toISOString() });
       const failed = (i.failedLogins ?? 0) + 1;
       const lock = failed >= MAX_FAILED ? new Date(Date.now() + LOCK_MINUTES * 60_000).toISOString() : undefined;
       return (updated = { ...i, failedLogins: lock ? 0 : failed, lockedUntil: lock });
-    }),
-  );
+    });
+  });
   if (!ok) return updated?.lockedUntil ? { error: "locked", minutes: LOCK_MINUTES } : { error: "invalid" };
   return { influencer: updated ?? found };
 }
@@ -200,13 +204,14 @@ export type InfluencerProfile = Pick<Influencer, "name" | "alias" | "phone" | "s
 
 export async function updateInfluencerProfile(id: string, patch: Partial<InfluencerProfile>): Promise<boolean> {
   let found = false;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).map((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    found = false; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).map((i) => {
       if (i.id !== id) return i;
       found = true;
       return { ...i, ...patch };
-    }),
-  );
+    });
+  });
   return found;
 }
 
@@ -218,11 +223,12 @@ export async function setInfluencerMarketing(id: string, granted: boolean) {
 
 export async function deleteInfluencer(id: string): Promise<boolean> {
   let found = false;
-  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) =>
-    list(current).filter((i) => {
+  await updateJSON<Influencer[]>(KEYS.influencers, [], (current) => {
+    found = false; // Callback kann bei Schreibkonflikt erneut laufen
+    return list(current).filter((i) => {
       if (i.id === id) found = true;
       return i.id !== id;
-    }),
-  );
+    });
+  });
   return found;
 }

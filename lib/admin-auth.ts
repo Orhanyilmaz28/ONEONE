@@ -1,26 +1,35 @@
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
-import { ADMIN_COOKIE, adminConfigured, safeEqual, signAdmin, verifyAdminToken } from "./admin-token";
+import { cache } from "react";
+import { ADMIN_COOKIE, adminConfigured } from "./admin-token";
+import { type Origin } from "./admin-security/flow";
+import { clientIp, userAgent } from "./admin-security/request-info";
+import { type AdminSession, PENDING_TTL, SESSION_ABSOLUTE, readSession, touchSession } from "./admin-security/sessions";
+import { KvUnavailableError } from "./kv";
 
 /**
- * Dashboard-Zugang: ein Passwort aus der Umgebungsvariable ADMIN_PASSWORD (mind. 8 Zeichen).
- * Nach dem Login liegt ein signiertes, httpOnly-Cookie im Browser (7 Tage gültig).
- * Wird das Passwort geändert, sind alle bestehenden Logins automatisch ungültig.
+ * Dashboard-Zugang: Passwort (ADMIN_PASSWORD) + optional/verpflichtend TOTP-Zwei-Faktor.
+ * Sitzungen liegen serverseitig in Redis und sind jederzeit widerrufbar (Dashboard → Sicherheit).
+ * Ohne erreichbaren Datenspeicher gilt niemand als angemeldet.
  */
-const COOKIE = ADMIN_COOKIE;
-const DAYS = 7;
-
 export { adminConfigured };
 
-export function checkPassword(input: string) {
-  return adminConfigured() && safeEqual(input, process.env.ADMIN_PASSWORD ?? "");
-}
+/** Aktuelle Sitzung (pro Anfrage nur einmal aus Redis gelesen) */
+export const currentAdminSession = cache(async (): Promise<AdminSession | null> => {
+  try {
+    return await readSession((await cookies()).get(ADMIN_COOKIE)?.value);
+  } catch (error) {
+    if (!(error instanceof KvUnavailableError)) console.error("[admin-auth] Sitzung konnte nicht geprüft werden");
+    return null;
+  }
+});
 
-const verifyToken = verifyAdminToken;
-const sign = signAdmin;
-
+/** Voll angemeldet (Passwort und – falls eingerichtet – zweiter Faktor)? */
 export async function isAdmin() {
-  return verifyToken((await cookies()).get(COOKIE)?.value);
+  const s = await currentAdminSession();
+  if (s?.stage !== "full") return false;
+  await touchSession(s).catch(() => undefined);
+  return true;
 }
 
 /** Für Seiten im Dashboard: nicht angemeldet → zur Anmeldung */
@@ -33,17 +42,27 @@ export async function assertAdmin() {
   if (!(await isAdmin())) throw new Error("Nicht angemeldet");
 }
 
-export async function startAdminSession() {
-  const exp = Date.now() + DAYS * 86_400_000;
-  (await cookies()).set(COOKIE, `${exp}.${sign(exp)}`, {
+/** Herkunft der aktuellen Anfrage (für Begrenzung und Protokoll) */
+export async function requestOrigin(): Promise<Origin> {
+  const h = await headers();
+  return { ip: clientIp(h), ua: userAgent(h) };
+}
+
+/** Sitzungs-Cookie setzen – httpOnly, nur HTTPS (online), nur eigene Seite (SameSite=Strict) */
+export async function setAdminCookie(token: string, stage: "full" | "pending") {
+  (await cookies()).set(ADMIN_COOKIE, token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
-    maxAge: DAYS * 86_400,
+    maxAge: stage === "full" ? SESSION_ABSOLUTE : PENDING_TTL,
+    priority: "high",
   });
 }
 
-export async function endAdminSession() {
-  (await cookies()).delete(COOKIE);
+export async function clearAdminCookie() {
+  const jar = await cookies();
+  jar.delete(ADMIN_COOKIE);
+  // altes Cookie aus der Zeit vor den Server-Sitzungen ebenfalls entfernen
+  if (ADMIN_COOKIE !== "tt_admin") jar.delete("tt_admin");
 }

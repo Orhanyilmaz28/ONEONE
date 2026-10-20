@@ -1,5 +1,7 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { reportIncident } from "./monitoring/signal";
 
 /**
  * Kleiner Datenspeicher für alles, was im Dashboard geändert wird
@@ -70,85 +72,258 @@ export function storeKind(): StoreKind {
   return "file";
 }
 
-export class StoreUnavailableError extends Error {
+/* ───────────── Fehlerarten ─────────────
+ * Ein Ausfall darf nie wie eine leere Datenbank behandelt werden. Deshalb unterscheiden wir:
+ * - Datensatz existiert nicht      → Standardwert (fallback), kein Fehler
+ * - kein Speicher verbunden        → StoreUnavailableError
+ * - Redis nicht erreichbar/Fehler  → StoreUnreachableError
+ * - Zeitüberschreitung             → StoreTimeoutError
+ * - gespeicherte Daten ungültig    → StoreDataError (wird nie überschrieben)
+ * - Schreibkonflikt nach Versuchen → WriteConflictError
+ */
+export class StoreError extends Error {
+  override name = "StoreError";
+}
+
+export class StoreUnavailableError extends StoreError {
+  override name = "StoreUnavailableError";
   constructor() {
     super("Kein Datenspeicher verbunden. Bitte in Vercel unter „Storage“ eine Upstash-Redis-Datenbank verbinden.");
   }
 }
-
-async function readFileStore(): Promise<Record<string, unknown>> {
-  try {
-    return JSON.parse(await fs.readFile(FILE, "utf8")) as Record<string, unknown>;
-  } catch {
-    return {};
+export class StoreUnreachableError extends StoreError {
+  override name = "StoreUnreachableError";
+  constructor(detail?: string) {
+    super(`Datenspeicher nicht erreichbar${detail ? ` (${detail})` : ""}. Bitte gleich noch einmal versuchen.`);
+  }
+}
+export class StoreTimeoutError extends StoreError {
+  override name = "StoreTimeoutError";
+  constructor() {
+    super("Der Datenspeicher antwortet nicht rechtzeitig. Bitte gleich noch einmal versuchen.");
+  }
+}
+export class StoreDataError extends StoreError {
+  override name = "StoreDataError";
+  constructor(public readonly key: string) {
+    super(`Gespeicherte Daten unter „${key}“ sind beschädigt – es wurde nichts geändert.`);
+  }
+}
+export class WriteConflictError extends StoreError {
+  override name = "WriteConflictError";
+  constructor(public readonly key: string) {
+    super("Gerade wurden dieselben Daten gleichzeitig geändert. Bitte noch einmal versuchen.");
   }
 }
 
-let fileQueue: Promise<unknown> = Promise.resolve();
+/** Zeitlimit je Redis-Anfrage */
+const TIMEOUT_MS = Number(process.env.STORE_TIMEOUT_MS) || 8000;
 
-/** Liest einen Wert; wirft bei Lesefehlern (statt still den Standardwert zu liefern) */
-async function readStrict<T>(key: string, fallback: T, fresh: boolean): Promise<T> {
+/** Ein Redis-Befehl über die Upstash-REST-Schnittstelle – mit Zeitlimit und klaren Fehlerarten */
+async function redis<T>(command: (string | number)[]): Promise<T> {
+  let res: Response;
+  try {
+    res = await fetch(REDIS_URL, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+      body: JSON.stringify(command),
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+  } catch (e) {
+    if (e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError")) {
+      reportIncident("redis_timeout", String(command[0]));
+      throw new StoreTimeoutError();
+    }
+    reportIncident("redis_unreachable", "Netzwerk");
+    throw new StoreUnreachableError("Netzwerk");
+  }
+  if (!res.ok) {
+    reportIncident("redis_unreachable", `HTTP ${res.status}`);
+    throw new StoreUnreachableError(`HTTP ${res.status}`);
+  }
+  let body: { result?: T; error?: string };
+  try {
+    body = (await res.json()) as { result?: T; error?: string };
+  } catch {
+    reportIncident("redis_unreachable", "ungültige Antwort");
+    throw new StoreUnreachableError("ungültige Antwort");
+  }
+  if (body.error) {
+    reportIncident("redis_unreachable", `Redis-Fehler bei ${String(command[0])}`);
+    throw new StoreUnreachableError("Redis-Fehler");
+  }
+  return body.result as T;
+}
+
+function parse<T>(key: string, raw: string): T {
+  try {
+    return JSON.parse(raw) as T;
+  } catch {
+    reportIncident("data_corrupt", key);
+    throw new StoreDataError(key);
+  }
+}
+
+/* ───────────── Lokale Datei ─────────────
+ * Alle Dateizugriffe (Werte, Einmal-Sperren) laufen über EINE Warteschlange – Lesen, Ändern und Schreiben
+ * passieren damit nie gleichzeitig. Eine beschädigte Datei wird nie überschrieben.
+ */
+async function readFileStore(): Promise<Record<string, unknown>> {
+  let text: string;
+  try {
+    text = await fs.readFile(FILE, "utf8");
+  } catch (e) {
+    if ((e as NodeJS.ErrnoException).code === "ENOENT") return {};
+    throw new StoreUnreachableError("Datei nicht lesbar");
+  }
+  try {
+    return JSON.parse(text) as Record<string, unknown>;
+  } catch {
+    reportIncident("data_corrupt", "lokale Datei");
+    throw new StoreDataError(FILE);
+  }
+}
+
+async function writeFileStore(all: Record<string, unknown>) {
+  await fs.mkdir(path.dirname(FILE), { recursive: true });
+  // erst in eine Zwischendatei, dann umbenennen – ein Abbruch hinterlässt nie eine halbe Datei
+  const tmp = `${FILE}.${process.pid}.tmp`;
+  await fs.writeFile(tmp, JSON.stringify(all, null, 2));
+  await fs.rename(tmp, FILE);
+}
+
+let fileQueue: Promise<unknown> = Promise.resolve();
+function withFile<R>(fn: () => Promise<R>): Promise<R> {
+  const run = fileQueue.then(fn);
+  fileQueue = run.catch(() => undefined);
+  return run;
+}
+
+/* ───────────── Versionierte JSON-Werte (Redis) ─────────────
+ * Jeder JSON-Wert bekommt einen Versionszähler (tt:ver:<schlüssel>). Ändern = Wert + Version gemeinsam lesen (MGET, atomar),
+ * neu berechnen und nur speichern, wenn die Version noch dieselbe ist (Lua-Skript, atomar). Sonst neu lesen und erneut
+ * versuchen – höchstens MAX_ATTEMPTS-mal. Der Wert selbst bleibt unverändert im bisherigen Format.
+ */
+const versionKey = (key: string) => `tt:ver:${key}`;
+const MAX_ATTEMPTS = 12;
+
+const CAS_SCRIPT =
+  "local v = redis.call('GET', KEYS[2]) if (v or '0') ~= ARGV[1] then return 0 end redis.call('SET', KEYS[1], ARGV[2]) redis.call('INCR', KEYS[2]) return 1";
+const SET_SCRIPT = "redis.call('SET', KEYS[1], ARGV[1]) return redis.call('INCR', KEYS[2])";
+
+/** Änderungen am selben Schlüssel innerhalb eines Servers nacheinander ausführen (weniger Konflikte) */
+const keyQueues = new Map<string, Promise<unknown>>();
+function serialize<R>(key: string, fn: () => Promise<R>): Promise<R> {
+  const prev = keyQueues.get(key) ?? Promise.resolve();
+  const run = prev.then(fn, fn);
+  const tail = run.catch(() => undefined);
+  keyQueues.set(key, tail);
+  void tail.then(() => {
+    if (keyQueues.get(key) === tail) keyQueues.delete(key);
+  });
+  return run;
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const backoff = (attempt: number) => Math.min(250, 10 * 2 ** attempt) * (0.5 + Math.random());
+
+/** Liest einen Wert; wirft bei Lese- oder Datenfehlern (statt still den Standardwert zu liefern) */
+async function readStrict<T>(key: string, fallback: T): Promise<T> {
   const kind = storeKind();
   if (kind === "redis") {
-    const res = await fetch(`${REDIS_URL}/get/${encodeURIComponent(key)}`, {
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
-      ...(fresh ? { cache: "no-store" as const } : {}),
-    });
-    if (!res.ok) throw new Error(`Redis ${res.status}`);
-    const { result } = (await res.json()) as { result: string | null };
-    return result ? (JSON.parse(result) as T) : fallback;
+    const raw = await redis<string | null>(["GET", key]);
+    return raw === null ? fallback : parse<T>(key, raw);
   }
   if (kind === "file") {
-    const all = await readFileStore();
+    const all = await withFile(readFileStore);
     return key in all ? (all[key] as T) : fallback;
   }
   return fallback;
 }
 
-/** Wert lesen; bei Fehlern oder fehlendem Speicher wird `fallback` geliefert */
+/**
+ * Wert lesen – für Anzeigen: bei fehlendem Datensatz ODER Fehler kommt `fallback` (Fehler werden protokolliert).
+ * Für Entscheidungen, die auf vollständigen Daten beruhen müssen, `getJSONStrict` verwenden.
+ */
 export async function getJSON<T>(key: string, fallback: T): Promise<T> {
   try {
-    return await readStrict(key, fallback, false);
+    return await readStrict(key, fallback);
   } catch (error) {
-    console.error(`[store] Lesen von ${key} fehlgeschlagen`, error);
+    console.error(`[store] Lesen von ${key} fehlgeschlagen: ${(error as Error).name}`);
+    if (strictContext.getStore()) throw error;
     return fallback;
   }
 }
 
-/** Wert speichern (wirft StoreUnavailableError, wenn kein Speicher verbunden ist) */
+const strictContext = new AsyncLocalStorage<boolean>();
+
+/**
+ * Für Bearbeitungsformulare im Dashboard: alle Lesevorgänge innerhalb von `fn` werfen bei einem Fehler,
+ * statt still Standardwerte zu liefern. So wird nie ein Formular mit Standardwerten angezeigt, dessen
+ * Speichern die echten Daten überschreiben würde (stattdessen erscheint die Fehlerseite).
+ */
+export function strictReads<R>(fn: () => Promise<R>): Promise<R> {
+  return strictContext.run(true, fn);
+}
+
+/** Wert lesen – fehlt der Datensatz, kommt `fallback`; bei Ausfall oder kaputten Daten wird ein Fehler geworfen */
+export async function getJSONStrict<T>(key: string, fallback: T): Promise<T> {
+  if (storeKind() === "none") throw new StoreUnavailableError();
+  return readStrict(key, fallback);
+}
+
+/** Wert vollständig ersetzen (ohne vorher zu lesen). Erhöht die Version, damit laufende Änderungen das bemerken. */
 export async function setJSON<T>(key: string, value: T): Promise<void> {
   const kind = storeKind();
   if (kind === "none") throw new StoreUnavailableError();
   if (kind === "redis") {
-    const res = await fetch(REDIS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["SET", key, JSON.stringify(value)]),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Speichern fehlgeschlagen (Redis ${res.status})`);
+    await serialize(key, () => redis(["EVAL", SET_SCRIPT, 2, key, versionKey(key), JSON.stringify(value)]));
     return;
   }
-  // Dateispeicher: Schreibvorgänge nacheinander ausführen
-  const run = fileQueue.then(async () => {
+  await withFile(async () => {
     const all = await readFileStore();
     all[key] = value;
-    await fs.mkdir(path.dirname(FILE), { recursive: true });
-    await fs.writeFile(FILE, JSON.stringify(all, null, 2));
+    await writeFileStore(all);
   });
-  fileQueue = run.catch(() => undefined);
-  await run;
 }
 
 /**
- * Lesen → ändern → speichern. Liest immer frisch und bricht bei Lesefehlern ab,
- * damit ein kurzer Ausfall nie gespeicherte Daten überschreibt.
+ * Lesen → ändern → speichern, atomar gegen gleichzeitige Änderungen (auch über mehrere Server hinweg).
+ *
+ * - `change` bekommt immer den frischen Stand und kann bei einem Konflikt mehrfach aufgerufen werden –
+ *   sie darf deshalb keine Nebenwirkungen haben (Ergebnisse nur über Variablen, die sie bei jedem Aufruf neu setzt).
+ * - Lesefehler oder kaputte Daten brechen ab, BEVOR etwas geschrieben wird – vorhandene Daten werden nie durch
+ *   einen Standardwert ersetzt.
+ * - Nach MAX_ATTEMPTS Konflikten: WriteConflictError (nichts geschrieben).
  */
 export async function updateJSON<T>(key: string, fallback: T, change: (current: T) => T): Promise<T> {
-  if (storeKind() === "none") throw new StoreUnavailableError();
-  const next = change(await readStrict(key, fallback, true));
-  await setJSON(key, next);
-  return next;
+  const kind = storeKind();
+  if (kind === "none") throw new StoreUnavailableError();
+  if (kind === "file") {
+    return withFile(async () => {
+      const all = await readFileStore();
+      const next = change(key in all ? (all[key] as T) : structuredClone(fallback));
+      all[key] = next;
+      await writeFileStore(all);
+      return next;
+    });
+  }
+  return serialize(key, async () => {
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
+      const [raw, version] = await redis<[string | null, string | null]>(["MGET", key, versionKey(key)]);
+      const current = raw === null ? structuredClone(fallback) : parse<T>(key, raw);
+      const next = change(current);
+      const serialized = JSON.stringify(next);
+      if (serialized === raw) return next; // nichts geändert – nichts schreiben
+      const ok = await redis<number>(["EVAL", CAS_SCRIPT, 2, key, versionKey(key), version ?? "0", serialized]);
+      if (Number(ok) === 1) return next;
+      await sleep(backoff(attempt));
+    }
+    console.error(`[store] Schreibkonflikt bei ${key} – ${MAX_ATTEMPTS} Versuche`);
+    reportIncident("write_conflict", key);
+    throw new WriteConflictError(key);
+  });
 }
 
 /* ───────────── Binärdaten (Produktbilder) ─────────────
@@ -163,13 +338,7 @@ export async function putBinary(id: string, data: Buffer): Promise<void> {
   const kind = storeKind();
   if (kind === "none") throw new StoreUnavailableError();
   if (kind === "redis") {
-    const res = await fetch(REDIS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["SET", mediaKey(id), data.toString("base64")]),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Bild speichern fehlgeschlagen (Redis ${res.status})`);
+    await redis(["SET", mediaKey(id), data.toString("base64")]);
     return;
   }
   await fs.mkdir(MEDIA_DIR, { recursive: true });
@@ -179,28 +348,19 @@ export async function putBinary(id: string, data: Buffer): Promise<void> {
 export async function getBinary(id: string): Promise<Buffer | null> {
   const kind = storeKind();
   if (kind === "redis") {
-    const res = await fetch(`${REDIS_URL}/get/${encodeURIComponent(mediaKey(id))}`, {
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}` },
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Redis ${res.status}`);
-    const { result } = (await res.json()) as { result: string | null };
+    const result = await redis<string | null>(["GET", mediaKey(id)]);
     return result ? Buffer.from(result, "base64") : null;
   }
   if (kind === "file") return fs.readFile(path.join(MEDIA_DIR, id)).catch(() => null);
   return null;
 }
 
+/** Bilder löschen – ein Fehler wird nur protokolliert (übrig gebliebene Bilder stören nicht, verlorene Daten schon) */
 export async function deleteBinary(ids: string[]): Promise<void> {
   if (!ids.length) return;
   const kind = storeKind();
   if (kind === "redis") {
-    await fetch(REDIS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["DEL", ...ids.map(mediaKey)]),
-      cache: "no-store",
-    });
+    await redis(["DEL", ...ids.map(mediaKey)]).catch((e: Error) => console.error(`[store] Löschen von Bildern fehlgeschlagen: ${e.name}`));
     return;
   }
   if (kind === "file") await Promise.all(ids.map((id) => fs.unlink(path.join(MEDIA_DIR, id)).catch(() => undefined)));
@@ -208,39 +368,26 @@ export async function deleteBinary(ids: string[]): Promise<void> {
 
 /* ───────────── Einmal-Sperre ─────────────
  * Sorgt dafür, dass etwas nur einmal passiert (z. B. die Bestellbestätigung), auch wenn zwei Wege gleichzeitig auslösen.
- * Liefert true für den ersten Aufruf, danach false (bis `ttlSeconds` abgelaufen sind).
+ * Liefert true für den ersten Aufruf, danach false (bis `ttlSeconds` abgelaufen sind). Atomar über SET NX.
  */
-let onceQueue: Promise<unknown> = Promise.resolve();
-
 export async function claimOnce(name: string, ttlSeconds = 60 * 60 * 24 * 90): Promise<boolean> {
   const key = `tt:once:${name}`;
   const kind = storeKind();
   if (kind === "none") throw new StoreUnavailableError();
   if (kind === "redis") {
-    const res = await fetch(REDIS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["SET", key, "1", "NX", "EX", String(ttlSeconds)]),
-      cache: "no-store",
-    });
-    if (!res.ok) throw new Error(`Redis ${res.status}`);
-    const { result } = (await res.json()) as { result: string | null };
+    const result = await redis<string | null>(["SET", key, "1", "NX", "EX", String(ttlSeconds)]);
     return result === "OK";
   }
-  // Datei: nacheinander prüfen und setzen
-  const run = onceQueue.then(async () => {
+  return withFile(async () => {
     const all = await readFileStore();
     const entries = (all["tt:once"] ?? {}) as Record<string, number>;
     const now = Date.now();
     if (entries[name] && entries[name] > now) return false;
     entries[name] = now + ttlSeconds * 1000;
     all["tt:once"] = entries;
-    await fs.mkdir(path.dirname(FILE), { recursive: true });
-    await fs.writeFile(FILE, JSON.stringify(all, null, 2));
+    await writeFileStore(all);
     return true;
   });
-  onceQueue = run.catch(() => undefined);
-  return run;
 }
 
 /** Sperre wieder freigeben (z. B. wenn das Senden fehlgeschlagen ist und es später erneut versucht werden soll) */
@@ -248,24 +395,17 @@ export async function releaseOnce(name: string): Promise<void> {
   const key = `tt:once:${name}`;
   const kind = storeKind();
   if (kind === "redis") {
-    await fetch(REDIS_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
-      body: JSON.stringify(["DEL", key]),
-      cache: "no-store",
-    }).catch(() => undefined);
+    await redis(["DEL", key]).catch(() => undefined);
     return;
   }
   if (kind === "file") {
-    const run = onceQueue.then(async () => {
+    await withFile(async () => {
       const all = await readFileStore();
       const entries = (all["tt:once"] ?? {}) as Record<string, number>;
       delete entries[name];
       all["tt:once"] = entries;
-      await fs.writeFile(FILE, JSON.stringify(all, null, 2));
-    });
-    onceQueue = run.catch(() => undefined);
-    await run.catch(() => undefined);
+      await writeFileStore(all);
+    }).catch(() => undefined);
   }
 }
 

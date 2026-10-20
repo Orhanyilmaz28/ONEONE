@@ -7,6 +7,7 @@ import { catalog, getBaseProducts, getOverrides } from "@/lib/catalog";
 import { htmlToText } from "../../content";
 import { ContentEditor } from "../../content-editor";
 import { BackLink, ProductTabs } from "../../product-nav";
+import { strictReads } from "@/lib/store";
 
 type Props = { params: Promise<{ handle: string }> };
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ProductContentPage({ params }: Props) {
   await requireAdmin();
   const { handle } = await params;
-  const [all, overrides, aiOverrides] = await Promise.all([getBaseProducts(), getOverrides(), getAiOverrides()]);
+  const [all, overrides, aiOverrides] = await strictReads(() => Promise.all([getBaseProducts(), getOverrides(), getAiOverrides()]));
   const product = all.find((p) => p.handle === handle);
 
   if (!product) {

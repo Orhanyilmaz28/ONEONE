@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { LogoStacked } from "@/components/logo";
-import { getSiteLock, safeTarget } from "@/lib/site-lock";
+import { type SiteLock, getSiteLockStrict, safeTarget } from "@/lib/site-lock";
 import { UnlockForm } from "./unlock-form";
 
 export const metadata: Metadata = { title: "Bald geöffnet", robots: { index: false, follow: false } };
@@ -11,9 +11,15 @@ type Props = { searchParams: Promise<Record<string, string | string[] | undefine
 export default async function AccessPage({ searchParams }: Props) {
   const sp = await searchParams;
   const target = safeTarget(Array.isArray(sp.weiter) ? sp.weiter[0] : sp.weiter);
-  const lock = await getSiteLock();
+  // Bei einer Störung des Datenspeichers: Hinweis statt Weiterleitung (Fail-Closed, keine Endlosschleife)
+  let lock: SiteLock | null = null;
+  try {
+    lock = await getSiteLockStrict();
+  } catch {
+    lock = null;
+  }
   // Schutz ist aus → direkt in den Shop
-  if (!lock.enabled) redirect(target);
+  if (lock && !lock.enabled) redirect(target);
   return (
     <div className="relative isolate flex min-h-dvh items-center justify-center overflow-hidden bg-paper px-4 py-16">
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10">
@@ -22,9 +28,18 @@ export default async function AccessPage({ searchParams }: Props) {
       </div>
       <div className="w-full max-w-sm text-center">
         <LogoStacked className="mx-auto h-28 w-auto" title="EXSTASE" />
-        <h1 className="t-h2 mt-10">Bald geöffnet</h1>
-        <p className="mt-3 text-ink/70 leading-relaxed">{lock.message?.trim() || "Unser Shop ist gerade noch in Vorbereitung. Mit dem Passwort kannst du schon einen Blick hineinwerfen."}</p>
-        <UnlockForm target={target} />
+        {lock ? (
+          <>
+            <h1 className="t-h2 mt-10">Bald geöffnet</h1>
+            <p className="mt-3 text-ink/70 leading-relaxed">{lock.message?.trim() || "Unser Shop ist gerade noch in Vorbereitung. Mit dem Passwort kannst du schon einen Blick hineinwerfen."}</p>
+            <UnlockForm target={target} />
+          </>
+        ) : (
+          <>
+            <h1 className="t-h2 mt-10">Gleich wieder da</h1>
+            <p className="mt-3 text-ink/70 leading-relaxed">Unser Shop ist gerade kurz nicht erreichbar. Bitte versuche es in ein paar Minuten noch einmal.</p>
+          </>
+        )}
       </div>
     </div>
   );

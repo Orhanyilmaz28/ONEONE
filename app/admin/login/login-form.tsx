@@ -2,10 +2,10 @@
 
 import { useActionState } from "react";
 import { btn, input, label } from "@/components/admin/ui";
-import { login } from "../actions";
+import { type FormState, login } from "../actions";
 
 export function LoginForm() {
-  const [state, action, pending] = useActionState(login, undefined);
+  const [state, action, pending] = useActionState<FormState, FormData>(login, undefined);
   return (
     <form action={action} className="mt-8 space-y-4">
       <div>

@@ -128,6 +128,7 @@ export async function checkLogin(emailRaw: string, password: string): Promise<Lo
 export async function updateCustomer(id: string, change: (c: Customer) => Customer): Promise<Customer | undefined> {
   let result: Customer | undefined;
   await updateJSON<Customers>(KEYS.customers, {}, (all) => {
+    result = undefined; // Callback kann bei Schreibkonflikt erneut laufen
     const c = all[id];
     if (!c) return all;
     result = { ...change(c), id: c.id, updatedAt: new Date().toISOString() };

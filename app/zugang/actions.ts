@@ -2,14 +2,19 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { SITE_COOKIE, SITE_COOKIE_DAYS, checkSitePassword, getSiteLock, safeTarget, siteToken } from "@/lib/site-lock";
+import { SITE_COOKIE, SITE_COOKIE_DAYS, type SiteLock, checkSitePassword, getSiteLockStrict, safeTarget, siteToken } from "@/lib/site-lock";
 
 export type UnlockState = { error?: string };
 
 export async function unlock(_prev: UnlockState, form: FormData): Promise<UnlockState> {
   const password = String(form.get("password") ?? "").slice(0, 200);
   const target = safeTarget(form.get("weiter"));
-  const lock = await getSiteLock();
+  let lock: SiteLock;
+  try {
+    lock = await getSiteLockStrict();
+  } catch {
+    return { error: "Der Shop ist gerade kurz nicht erreichbar. Bitte versuche es gleich noch einmal." };
+  }
   if (!lock.enabled) redirect(target);
   if (!password) return { error: "Bitte gib das Passwort ein." };
   if (!(await checkSitePassword(password, lock.hash))) {

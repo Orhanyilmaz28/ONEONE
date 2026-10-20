@@ -13,6 +13,8 @@ export const ADMIN_NAV = [
   { href: "/admin/haendler", label: "Händler", icon: "M3 21V8l9-5 9 5v13M9 21v-6h6v6M3 11h18" },
   { href: "/admin/influencer", label: "Influencer", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM5 19c1.4-2.4 4-3.5 7-3.5s5.6 1.1 7 3.5M4 8.5a9 9 0 0 1 16 0M7 10.5a5.5 5.5 0 0 1 10 0" },
   { href: "/admin/kunden", label: "Kunden", icon: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 10c0-3.9 3.1-6 7-6s7 2.1 7 6M16 3.3a4 4 0 0 1 0 7.4M18 15c2.4.6 4 2.6 4 6" },
+  { href: "/admin/sicherheit", label: "Sicherheit", icon: "M12 3l7 3v5c0 4.4-3 8.4-7 10-4-1.6-7-5.6-7-10V6l7-3ZM9 12l2 2 4-4" },
+  { href: "/admin/datensicherung", label: "Datensicherung", icon: "M12 3v12m0 0-4-4m4 4 4-4M4 15v3a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-3" },
   { href: "/admin/speicher", label: "Speicher", icon: "M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3Zm0 0v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3" },
   { href: "/admin/einstellungen", label: "Einstellungen", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.4-3a7.4 7.4 0 0 0-.1-1.3l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-2.2-1.3L14.3 3h-4l-.4 2.4a7.5 7.5 0 0 0-2.2 1.3l-2.4-1-2 3.4 2 1.6a7.4 7.4 0 0 0 0 2.6l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 2.2 1.3l.4 2.4h4l.4-2.4a7.5 7.5 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.6c.1-.4.1-.9.1-1.3Z" },
 ] as const;

@@ -33,11 +33,30 @@ Du brauchst dafür nur einen Browser – am Computer, Tablet oder Handy.
 
 **Gut zu wissen**
 
-- Du bleibst **7 Tage** angemeldet. Danach fragt das Dashboard wieder nach dem Passwort.
+- Du bleibst angemeldet, solange du aktiv bist – nach **2 Stunden ohne Aktivität** oder spätestens nach **12 Stunden** fragt das Dashboard wieder nach dem Passwort.
+- Ist die **Zwei-Faktor-Anmeldung** eingerichtet (siehe „Sicherheit“), kommt nach dem Passwort noch der 6-stellige Code aus deiner Authenticator-App.
+- Nach **10 falschen Passwörtern** in 15 Minuten ist die Anmeldung von diesem Anschluss für 15 Minuten gesperrt.
 - **Abmelden:** links unten in der Seitenleiste (auf dem Handy ganz unten auf der Seite). Mach das an fremden Computern immer.
 - **Shop ansehen ↗** (links unten) öffnet deinen Shop in einem neuen Tab.
 - **Auf dem Handy** steht das Menü oben als Leiste. Wisch nach links, um alle Bereiche zu sehen.
-- **Passwort vergessen?** In Vercel bei `ADMIN_PASSWORD` ein neues eintragen und **Redeploy** klicken. Danach sind alle Geräte abgemeldet.
+- **Passwort vergessen?** In Vercel bei `ADMIN_PASSWORD` ein neues eintragen und **Redeploy** klicken. Danach sind alle Geräte abgemeldet (wenn `SESSION_SECRET` gesetzt ist).
+
+## Sicherheit (Zwei-Faktor-Anmeldung, angemeldete Geräte, Protokoll)
+
+**Einrichten (einmalig, ca. 5 Minuten):**
+1. In Vercel die Variable `ADMIN_2FA_KEY` anlegen (mind. 32 zufällige Zeichen, z. B. von `openssl rand -base64 48`) und `SESSION_SECRET` ebenso. **Redeploy.**
+2. Im Dashboard **Sicherheit → Zwei-Faktor einrichten**, Passwort bestätigen.
+3. QR-Code mit der Authenticator-App scannen (Google Authenticator, Microsoft Authenticator, 1Password, Bitwarden …), Code eingeben.
+4. Die **10 Wiederherstellungscodes** sichern (Datei speichern oder ausdrucken). Sie werden nur einmal angezeigt; jeder Code funktioniert genau einmal.
+5. Abmelden und neu anmelden – nach dem Passwort kommt jetzt der Code.
+6. Erst wenn das klappt: in Vercel `ADMIN_REQUIRE_2FA` = `1` setzen und **Redeploy**. Ab dann gibt es ohne zweiten Faktor keinen Zugang mehr.
+
+**Gut zu wissen**
+- **Neues Handy?** Mit einem Wiederherstellungscode anmelden → Sicherheit → 2FA ausschalten (Passwort + Code) → neu einrichten. Ist `ADMIN_REQUIRE_2FA` gesetzt, die Variable dafür kurz entfernen.
+- **Alle Codes und das Handy verloren:** Nur wer Zugriff auf Upstash hat, kann 2FA zurücksetzen (in der Upstash-Konsole die Schlüssel `tt:adm:2fa`, `tt:adm:2fa:last`, `tt:adm:2fa:recovery` löschen). Das Passwort allein reicht bewusst nicht.
+- `ADMIN_2FA_KEY` nach der Einrichtung nicht mehr ändern.
+- **Angemeldete Geräte:** einzelne Sitzungen, alle anderen oder alle beenden. Beim Aktivieren von 2FA werden alle anderen Sitzungen automatisch beendet.
+- **Sicherheitsprotokoll:** letzte Anmeldungen, Fehlversuche, Sperren und Änderungen (ohne Passwörter oder Codes).
 
 ---
 
@@ -574,3 +593,11 @@ Ja. Alle Bereiche funktionieren auch auf dem Handy. Das Menü steht oben – zum
 
 **Kann jemand anderes ins Dashboard?**
 Nur wer das Passwort kennt. Gib es nicht weiter. Wenn du glaubst, jemand kennt es: in Vercel ein neues Passwort eintragen und **Redeploy** – dann sind alle abgemeldet.
+
+## Datensicherheit bei gleichzeitigen Änderungen (technisch)
+
+- Jeder gespeicherte Datensatz hat einen Versionszähler (`tt:ver:<schlüssel>`). Eine Änderung wird nur gespeichert, wenn seit dem Lesen niemand anderes gespeichert hat – sonst wird mit dem frischen Stand neu gerechnet (höchstens 12 Versuche, dann Fehlermeldung „Bitte noch einmal versuchen“). Gleichzeitige Klicks, mehrere Server und doppelte Stripe-Meldungen überschreiben sich dadurch nicht mehr.
+- Bestell-, Rechnungs- (RE-…) und Gutschriftnummern (GS-…) entstehen innerhalb dieses Schritts – doppelte Nummern sind ausgeschlossen. Provisionen werden je Bestellung höchstens einmal gebucht.
+- Ist die Datenbank kurz nicht erreichbar oder sind Daten beschädigt, wird **nichts** gespeichert. Bearbeitungsseiten im Dashboard zeigen dann die Fehlerseite statt eines Formulars mit Standardwerten. Der Stripe-Webhook antwortet mit einem Fehler, damit Stripe die Meldung später wiederholt.
+- Die gespeicherten Daten selbst behalten ihr bisheriges Format; es ist keine Umstellung nötig.
+- Tests: `npm test`. Die Tests gegen einen echten Redis laufen nur mit einer lokalen Testdatenbank (Anleitung oben in `tests/store-redis.test.mts`) – nie gegen die Produktivdatenbank.
