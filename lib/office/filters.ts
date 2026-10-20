@@ -1,5 +1,6 @@
 import { type OfficeOrder, unitsBySort } from "./model";
 import type { Product } from "../types";
+import { OFFICE_STATUS, OFFICE_STATUS_LABEL, type OfficeStatus, attention, officeStatus } from "./workflow";
 
 /**
  * Filter der Büroverwaltung (Bestellübersicht und Excel-Export) – alle frei kombinierbar.
@@ -22,6 +23,7 @@ export const STATUSES = [
   { key: "in_bearbeitung", label: "In Bearbeitung" },
   { key: "freigegeben", label: "Für Versand freigegeben" },
   { key: "versendet", label: "Versendet" },
+  { key: "nicht_versendet", label: "Noch nicht versendet" },
   { key: "storniert", label: "Storniert" },
   { key: "nicht_storniert", label: "Alle außer storniert" },
 ] as const;
@@ -30,6 +32,12 @@ export const EXPORTED = [
   { key: "ja", label: "Bereits exportiert" },
   { key: "nein", label: "Noch nicht exportiert" },
 ] as const;
+
+/** Bürostatus (Phase 3C) */
+export const OFFICE_FILTER = [{ key: "", label: "Alle Bürostatus" }, ...OFFICE_STATUS.map((k) => ({ key: k, label: OFFICE_STATUS_LABEL[k] }))] as const;
+
+/** Produktgruppen (Kollektionen aus dem Katalog) */
+export const GROUP_LABEL: Record<string, string> = { energy: "Energy", "ice-coffee": "Ice Coffee", "ice-tea": "X-Tea", mineralwasser: "Mineralwasser", mixpakete: "Mixpakete" };
 
 type KeyOf<T extends readonly { key: string }[]> = T[number]["key"];
 export type Filters = {
@@ -43,11 +51,19 @@ export type Filters = {
   product: string;
   /** Sorten-Kürzel – findet auch Mixpakete, die diese Sorte enthalten */
   sort: string;
+  /** Produktgruppe (Kollektion, z. B. „energy“) */
+  group: string;
+  /** Nur versandbereite Bestellungen: nicht storniert, Privatbestellungen nur bezahlt (Händler auf Rechnung immer) */
+  ready: boolean;
   /** Freie Suche: Bestellnummer, Name, Firma, E-Mail, Ort, PLZ, Sendungsnummer, Rechnungsnummer */
   q: string;
+  /** Bürostatus (leer = alle) */
+  office: OfficeStatus | "";
+  /** Nur Bestellungen, die Aufmerksamkeit brauchen */
+  attention: boolean;
 };
 
-export const NO_FILTERS: Filters = { channel: "alle", payment: "", status: "", exported: "", customer: "", product: "", sort: "", q: "" };
+export const NO_FILTERS: Filters = { channel: "alle", payment: "", status: "", exported: "", customer: "", product: "", sort: "", group: "", ready: false, q: "", office: "", attention: false };
 
 const pick = <T extends readonly { key: string }[]>(list: T, v: unknown, fallback: KeyOf<T>): KeyOf<T> => (list.some((x) => x.key === v) ? (v as KeyOf<T>) : fallback);
 const text = (v: unknown, max = 100) => (typeof v === "string" ? v.trim().slice(0, max) : "");
@@ -62,7 +78,11 @@ export function parseFilters(p: Record<string, unknown>): Filters {
     customer: text(p.kunde),
     product: handle(p.produkt),
     sort: handle(p.sorte),
+    group: handle(p.gruppe),
+    ready: p.versandbereit === "1",
     q: text(p.q),
+    office: (OFFICE_STATUS as readonly string[]).includes(p.buero as string) ? (p.buero as OfficeStatus) : "",
+    attention: p.aufmerksamkeit === "1",
   };
 }
 
@@ -76,7 +96,11 @@ export function filterParams(f: Filters): Record<string, string> {
   if (f.customer) out.kunde = f.customer;
   if (f.product) out.produkt = f.product;
   if (f.sort) out.sorte = f.sort;
+  if (f.group) out.gruppe = f.group;
+  if (f.ready) out.versandbereit = "1";
   if (f.q) out.q = f.q;
+  if (f.office) out.buero = f.office;
+  if (f.attention) out.aufmerksamkeit = "1";
   return out;
 }
 
@@ -105,11 +129,15 @@ export function matchesFilters(o: OfficeOrder, f: Filters, products: Map<string,
   if (f.payment === "bezahlt" && o.paymentStatus !== "bezahlt" && o.paymentStatus !== "teilweise_erstattet") return false;
   if (f.payment === "unbezahlt" && o.paymentStatus !== "offen") return false;
   if (f.payment === "erstattet" && o.paymentStatus !== "erstattet" && o.paymentStatus !== "teilweise_erstattet") return false;
-  // „Für Versand freigegeben“ wird noch nicht erfasst (Phase 3C) – deshalb passt keine Bestellung
-  if (f.status === "freigegeben") return false;
+  // „Für Versand freigegeben“ = Bürostatus Freigegeben oder An Logistik weitergegeben (Phase 3C)
+  if (f.status === "freigegeben" && !["freigegeben", "logistik"].includes(officeStatus(o, o.office))) return false;
+  if (f.office && officeStatus(o, o.office) !== f.office) return false;
+  if (f.attention && !attention(o, o.office, products).length) return false;
   if (f.status === "nicht_storniert" && o.processing === "storniert") return false;
   if (f.status === "versendet" && o.shippingStatus !== "versendet") return false;
-  if (f.status && f.status !== "versendet" && f.status !== "nicht_storniert" && o.processing !== f.status) return false;
+  if (f.status === "nicht_versendet" && o.shippingStatus !== "nicht_versendet") return false;
+  if (f.status && !["versendet", "nicht_versendet", "nicht_storniert", "freigegeben"].includes(f.status) && o.processing !== f.status) return false;
+  if (f.ready && !isShipReady(o)) return false;
   if (f.exported === "ja" && !o.exportedAt) return false;
   if (f.exported === "nein" && o.exportedAt) return false;
   if (f.customer) {
@@ -118,7 +146,37 @@ export function matchesFilters(o: OfficeOrder, f: Filters, products: Map<string,
   }
   if (f.product && !o.lines.some((l) => l.handle === f.product)) return false;
   if (f.sort && !o.lines.some((l) => unitsBySort(l, products)?.some((u) => u.handle === f.sort) || l.handle === f.sort)) return false;
+  if (f.group && !o.lines.some((l) => inGroup(l.handle, f.group, products))) return false;
   return matchesSearch(o, f.q);
+}
+
+/** Gehört das Produkt (oder bei Mixpaketen eine enthaltene Sorte) zur Produktgruppe? */
+export function inGroup(handle: string | undefined, group: string, products: Map<string, Product>): boolean {
+  const p = handle ? products.get(handle) : undefined;
+  if (!p) return false;
+  if (p.collections?.includes(group)) return true;
+  return Boolean(p.contents?.some(([h]) => products.get(h)?.collections?.includes(group)));
+}
+
+/**
+ * Versandbereit: nicht storniert, nicht schon versendet. Privatbestellungen nur, wenn bezahlt (auch teilweise erstattet),
+ * Händlerbestellungen auf Rechnung immer (Zahlung erst nach Lieferung).
+ */
+export function isShipReady(o: OfficeOrder) {
+  if (o.processing === "storniert" || o.shippingStatus === "storniert") return false;
+  if (o.channel === "privat" && o.paymentStatus !== "bezahlt" && o.paymentStatus !== "teilweise_erstattet") return false;
+  return true;
+}
+
+/** Zählt diese Position (bzw. Sorte) bei aktivem Produkt-, Sorten- oder Gruppenfilter mit? (für die Artikel-Sammelliste) */
+export function lineFilter(f: Pick<Filters, "product" | "sort" | "group">, products: Map<string, Product>) {
+  if (!f.product && !f.sort && !f.group) return undefined;
+  return (lineHandle: string | undefined, sortHandle: string) => {
+    if (f.product && lineHandle !== f.product) return false;
+    if (f.sort && sortHandle !== f.sort) return false;
+    if (f.group && !products.get(sortHandle)?.collections?.includes(f.group)) return false;
+    return true;
+  };
 }
 
 export function applyFilters(orders: OfficeOrder[], f: Filters, products: Map<string, Product>) {
@@ -135,11 +193,15 @@ export function describeFilters(f: Filters, products: Map<string, Product>): str
   if (f.customer) out.push(`Kunde: „${f.customer}“`);
   if (f.product) out.push(`Produkt: ${products.get(f.product)?.title ?? f.product}`);
   if (f.sort) out.push(`Sorte: ${products.get(f.sort)?.title ?? f.sort}`);
+  if (f.group) out.push(`Produktgruppe: ${GROUP_LABEL[f.group] ?? f.group}`);
+  if (f.ready) out.push("Nur versandbereite (ohne Stornos und unbezahlte Privatbestellungen)");
   if (f.q) out.push(`Suche: „${f.q}“`);
+  if (f.office) out.push(`Bürostatus: ${OFFICE_STATUS_LABEL[f.office]}`);
+  if (f.attention) out.push("Nur Bestellungen, die Aufmerksamkeit brauchen");
   return out;
 }
 
 /** Für das Protokoll: welche Filter aktiv waren – ohne Kundennamen oder Suchtexte */
 export function filterSummaryForLog(f: Filters): string {
-  return [f.channel, f.payment, f.status, f.exported && `exp:${f.exported}`, f.customer && "Kundenfilter", f.product && `p:${f.product}`, f.sort && `s:${f.sort}`, f.q && "Suche"].filter(Boolean).join(",");
+  return [f.channel, f.payment, f.status, f.exported && `exp:${f.exported}`, f.customer && "Kundenfilter", f.product && `p:${f.product}`, f.sort && `s:${f.sort}`, f.group && `g:${f.group}`, f.ready && "versandbereit", f.q && "Suche", f.office && `b:${f.office}`, f.attention && "aufmerksamkeit"].filter(Boolean).join(",");
 }

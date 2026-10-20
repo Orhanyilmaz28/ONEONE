@@ -399,6 +399,8 @@ describe("Gemeinsames Bestellmodell", () => {
     assert.equal(model.slugToKey("h-a1b2c3d4e5f60718"), "h:a1b2c3d4e5f60718");
     assert.equal(model.slugToKey("x-../../etc"), null);
     assert.equal(model.originalUrl(o), "/admin/bestellungen/cs_test_A1");
+    // Händlerbestellungen haben keine eigene Detailseite: Sprung zum Eintrag in der Händler-Bestellliste
+    assert.equal(model.originalUrl({ key: "h:a1b2c3d4e5f60718" }), "/admin/haendler/bestellungen#a1b2c3d4e5f60718");
   });
 });
 
@@ -472,8 +474,16 @@ describe("Kennzahlen", () => {
     assert.equal(k.counts.private, 4);
     assert.equal(k.counts.inProgress, 1);
     assert.equal(k.counts.shipped, 1);
-    assert.equal(k.counts.released, null);
+    assert.equal(k.counts.released, 0, "ohne Büro-Bearbeitung ist nichts freigegeben (Phase 3C)");
     assert.equal(k.cancelledNotRefunded, 1);
+  });
+
+  test("Storniert und nur teilweise erstattet zählt als „nicht erstattet“", () => {
+    const o = b2c({ id: "cs_test_CANCEL1", payment_intent: { latest_charge: { amount_refunded: 1000, refunded: false, payment_method_details: { type: "card" } } } }, LINES, "storniert");
+    assert.equal(o.paymentStatus, "teilweise_erstattet");
+    assert.equal(kpis.computeKpis([o], month, NOW).cancelledNotRefunded, 1);
+    const full = b2c({ id: "cs_test_CANCEL2", payment_intent: { latest_charge: { amount_refunded: o.gross, refunded: true, payment_method_details: { type: "card" } } } }, LINES, "storniert");
+    assert.equal(kpis.computeKpis([full], month, NOW).cancelledNotRefunded, 0);
   });
 
   test("Tag, Woche, Monat, Jahr", () => {
@@ -543,13 +553,20 @@ describe("Excel-Export", () => {
   });
 
   test("Versandliste ohne Preise und interne Daten", () => {
-    const sheet = exp.shippingSheet(orders);
+    const sheet = exp.shippingSheet(orders, PRODUCTS);
     const headers = sheet.columns.map((c) => c.header).join("|");
     assert.doesNotMatch(headers, /Preis|Betrag|Rabatt|Provision|Netto|USt|Intern|Einkauf|Umsatz/);
     assert.ok(sheet.columns.every((c) => c.type !== "money"));
+    // Phase 3B: eine Zeile je Artikelposition, Straße und Hausnummer getrennt
+    const col = (h: string) => sheet.columns.findIndex((c) => c.header === h);
     const first = sheet.rows[0] as unknown[];
-    assert.equal(first[5], "Lieferweg 2");
-    assert.equal(first[13], 48);
+    assert.equal(first[col("Straße")], "Lieferweg");
+    assert.equal(first[col("Hausnummer")], "2");
+    assert.equal(first[col("Adresszusatz")], "Hinterhaus");
+    assert.equal(first[col("Menge")], 2);
+    assert.equal(first[col("Verpackungseinheit")], "24er Tray");
+    assert.equal(first[col("Inhalt (Dosen/Flaschen)")], "48 Dosen");
+    assert.equal(sheet.rows.length, orders.reduce((n, o) => n + Math.max(1, o.lines.length), 0));
   });
 
   test("Artikel-Sammelliste: Dosen, Trays, Paletten – ohne Stornos, Mixpakete zerlegt", () => {

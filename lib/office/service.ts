@@ -5,12 +5,14 @@ import { SITE_URL } from "../format";
 import { KEYS, updateJSON } from "../store";
 import type { Product } from "../types";
 import { type ExportType, EXPORT_TYPES, buildSheets, exportFilename, exportLabel, isExportType } from "./export";
-import { type Filters, applyFilters, describeFilters, filterSummaryForLog, parseFilters } from "./filters";
+import { type Filters, applyFilters, describeFilters, filterSummaryForLog, lineFilter, parseFilters } from "./filters";
 import type { OfficeOrder } from "./model";
 import { type Principal, principalLabel } from "./roles";
 import { loadOfficeOrders } from "./source";
 import { type Range, resolveRange } from "./time";
 import { buildXlsx } from "./xlsx";
+import { logActivity } from "./activity";
+import { changedSinceRelease } from "./workflow";
 
 /**
  * Ablauf eines Excel-Exports (nur auf dem Server): Zeitraum + Filter auflösen, ALLE passenden Bestellungen laden,
@@ -39,7 +41,7 @@ export async function prepare(req: ExportRequest): Promise<Prepared> {
   return { orders: applyFilters(loaded.orders, req.filters, products), products, complete: loaded.complete, errors: loaded.errors, source: loaded.source };
 }
 
-export type Preview = { range: string; filters: string[]; orders: number; lines: number; format: string; sheets: string[]; complete: boolean; errors: string[]; typeLabel: string };
+export type Preview = { range: string; filters: string[]; orders: number; lines: number; format: string; sheets: string[]; complete: boolean; errors: string[]; typeLabel: string; changedAfterRelease: string[] };
 
 export async function preview(req: ExportRequest): Promise<Preview> {
   const p = await prepare(req);
@@ -53,6 +55,7 @@ export async function preview(req: ExportRequest): Promise<Preview> {
     complete: p.complete,
     errors: p.errors,
     typeLabel: exportLabel(req.type),
+    changedAfterRelease: p.orders.filter((o) => changedSinceRelease(o, o.office, p.products).length).map((o) => o.number),
   };
 }
 
@@ -81,8 +84,13 @@ export async function runExport(req: ExportRequest, who: Principal, origin: { ip
   const limit = await hitLimit("officeExport", who.userId ?? "admin");
   if (!limit.ok) return { ok: false, status: 429, error: "Zu viele Exporte in kurzer Zeit. Bitte später erneut versuchen." };
   const p = await prepare(req);
-  if (!p.complete) return { ok: false, status: 503, error: `Export abgebrochen, weil Daten fehlen: ${p.errors.join(" ")}` };
-  const sheets = buildSheets(req.type, p.orders, { range: req.range, filters: describeFilters(req.filters, p.products), createdBy: principalLabel(who), now, siteUrl: SITE_URL, products: p.products });
+  const base = { kind: "excel" as const, mode: req.type, range: req.range.label, preset: req.preset, filters: filterSummaryForLog(req.filters) };
+  if (!p.complete) {
+    const error = `Export abgebrochen, weil Daten fehlen: ${p.errors.join(" ")}`;
+    await logActivity(who, { ...base, orders: 0, positions: 0, refs: [], result: "fehler", error }, now);
+    return { ok: false, status: 503, error };
+  }
+  const sheets = buildSheets(req.type, p.orders, { range: req.range, filters: describeFilters(req.filters, p.products), createdBy: principalLabel(who), now, siteUrl: SITE_URL, products: p.products, lineMatch: lineFilter(req.filters, p.products) });
   const file = buildXlsx(sheets, { title: `${exportLabel(req.type)} – ${req.range.label}`, created: new Date(now) });
   const at = new Date(now).toISOString();
   try {
@@ -96,5 +104,19 @@ export async function runExport(req: ExportRequest, who: Principal, origin: { ip
   }
   // Protokoll: wer, was, Zeitraum, Anzahl – keine Kundennamen oder Suchtexte
   await logSecurityEvent("office_export", { ...origin, detail: `${principalLabel(who)} · ${req.type} · ${req.preset} · ${p.orders.length} Best. · ${filterSummaryForLog(req.filters)}` });
+  // Exporthistorie (Phase 3C): vollständig, aber ohne Kundendaten; Hinweis auf nach der Freigabe geänderte Bestellungen
+  const stale = p.orders.filter((o) => changedSinceRelease(o, o.office, p.products).length).map((o) => o.number);
+  await logActivity(
+    who,
+    {
+      ...base,
+      orders: p.orders.length,
+      positions: p.orders.reduce((n, o) => n + o.lines.length, 0),
+      refs: p.orders.map((o) => o.number),
+      result: "ok",
+      ...(stale.length ? { warnings: [`Nach der Versandfreigabe geändert: ${stale.slice(0, 20).join(", ")}${stale.length > 20 ? " …" : ""}`] } : {}),
+    },
+    now,
+  );
   return { ok: true, file, filename: exportFilename(req.type, now), orders: p.orders.length };
 }

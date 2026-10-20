@@ -23,6 +23,8 @@ export type SecurityEventType =
   | "backup_verified"
   | "restore_test"
   | "office_export"
+  | "office_document"
+  | "office_workflow"
   | "office_user_created"
   | "office_user_changed"
   | "office_user_deleted"

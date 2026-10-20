@@ -21,6 +21,10 @@ export const LIMITS = {
   backupAction: { max: 12, window: 60 * 60 },
   /** Excel-Exporte der Büroverwaltung: je Person 60 pro Stunde */
   officeExport: { max: 60, window: 60 * 60 },
+  /** PDF-Dokumente der Büroverwaltung (Lieferscheine, Listen, Berichte): je Person 120 pro Stunde */
+  officeDocument: { max: 120, window: 60 * 60 },
+  /** Bearbeitungsschritte der Büroverwaltung (Freigabe, Weitergabe, Versand …): je Person 600 pro Stunde (Sammelaktion = 1) */
+  officeWorkflow: { max: 600, window: 60 * 60 },
   /** Büro-Zugänge anlegen/ändern: je IP 30 pro Stunde */
   officeUsers: { max: 30, window: 60 * 60 },
 } as const;

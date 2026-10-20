@@ -6,6 +6,7 @@ import { KEYS, getJSONStrict } from "../store";
 import { getStripe } from "../stripe";
 import type { Product } from "../types";
 import { type OfficeOrder, type StripeLineLike, type StripeSessionLike, fromDealer, fromStripe } from "./model";
+import { attachWorkflows } from "./workflow-store";
 
 /**
  * Bestellungen für die Büroverwaltung laden – nur lesend.
@@ -127,6 +128,8 @@ export async function loadOfficeOrders(from: number, to: number, products: Map<s
     const m = marks[o.key];
     if (m) o.exportedAt = m.last;
   }
+  // Büro-Bearbeitungsstand (Phase 3C) – strikt: ohne ihn wären Status, Freigaben und Filter falsch
+  if (redisOk && orders.length && !(await attachWorkflows(orders))) errors.push("Der Büro-Bearbeitungsstand konnte nicht gelesen werden (Datenspeicher nicht erreichbar).");
   orders.sort((a, b) => b.createdAt - a.createdAt);
   return { orders, complete: errors.length === 0, errors, source };
 }
@@ -164,6 +167,7 @@ export async function loadOfficeOrder(key: string, products: Map<string, Product
       }
     }
     if (order && marks[order.key]) order.exportedAt = marks[order.key].last;
+    if (order && !(await attachWorkflows([order]))) throw new Error("Bearbeitungsstand nicht lesbar");
     return { order };
   } catch {
     return { order: null, error: "Die Bestellung konnte gerade nicht geladen werden (Stripe oder Datenspeicher nicht erreichbar)." };

@@ -8,7 +8,7 @@ export default async function OfficeLayout({ children }: { children: React.React
   const staff = me.role !== "admin";
   return (
     <AdminShell navOnly={staff ? ["/admin/buero"] : undefined} who={staff ? `${me.name} (${ROLE_LABEL[me.role]})` : undefined}>
-      <OfficeTabs canExport={can(me.role, "office.export")} />
+      <OfficeTabs canExport={can(me.role, "office.export")} canHistory={can(me.role, "office.history")} />
       {children}
     </AdminShell>
   );

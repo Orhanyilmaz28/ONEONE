@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, btn, btnSecondary, input, label } from "@/components/admin/ui";
-import { CHANNELS, EXPORTED, PAYMENTS, STATUSES } from "@/lib/office/filters";
+import { CHANNELS, EXPORTED, GROUP_LABEL, OFFICE_FILTER, PAYMENTS, STATUSES } from "@/lib/office/filters";
 import { type OfficeOrder, PAYMENT_LABEL, PROCESSING_LABEL, SHIPPING_LABEL } from "@/lib/office/model";
 import { PRESETS } from "@/lib/office/time";
 import type { Product } from "@/lib/types";
@@ -14,7 +14,63 @@ export async function paramsOf(sp: SearchParams): Promise<Record<string, string>
 }
 
 /** Parameter für Zeitraum und Filter, die zwischen Übersicht, Liste und Export weitergegeben werden */
-export const PASS_KEYS = ["zeitraum", "tag", "kw", "monat", "jahr", "von", "bis", "typ", "zahlung", "status", "exportiert", "kunde", "produkt", "sorte", "q"] as const;
+export const PASS_KEYS = ["zeitraum", "tag", "kw", "monat", "jahr", "von", "bis", "typ", "zahlung", "status", "exportiert", "kunde", "produkt", "sorte", "gruppe", "versandbereit", "q", "buero", "aufmerksamkeit"] as const;
+
+/** Versteckte Felder für Zeitraum und Filter (für Excel-/PDF-Formulare) */
+export function HiddenParams({ p, skip = [] }: { p: Record<string, string>; skip?: string[] }) {
+  return (
+    <>
+      {PASS_KEYS.filter((k) => p[k] && !skip.includes(k)).map((k) => (
+        <input key={k} name={k} type="hidden" value={p[k]} />
+      ))}
+    </>
+  );
+}
+
+const printIcon = (
+  <svg aria-hidden className="size-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" viewBox="0 0 24 24">
+    <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+    <path d="M6 14h12v7H6z" />
+  </svg>
+);
+
+/**
+ * Excel-, PDF- und Druck-Schaltflächen eines Bereichs. Alle drei sind echte Formulare (POST an die geschützten Endpunkte);
+ * „Drucken“ öffnet das PDF in einem neuen Tab, dort über das Druckmenü des Browsers drucken.
+ */
+export function DocButtons({ p, doc, excel, back, disabled, count }: { p: Record<string, string>; doc: string; excel: string; back: string; disabled?: boolean; count: number }) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      <form action="/api/admin/buero/export" method="post">
+        <input name="art" type="hidden" value={excel} />
+        <HiddenParams p={p} />
+        <button className={btnSecondary} disabled={disabled} type="submit">
+          Excel herunterladen
+        </button>
+      </form>
+      <form action="/api/admin/buero/dokument" method="post">
+        <input name="art" type="hidden" value={doc} />
+        <input name="modus" type="hidden" value="download" />
+        <input name="zurueck" type="hidden" value={back} />
+        <HiddenParams p={p} />
+        <button className={btnSecondary} disabled={disabled} type="submit">
+          PDF herunterladen
+        </button>
+      </form>
+      <form action="/api/admin/buero/dokument" method="post" target="_blank">
+        <input name="art" type="hidden" value={doc} />
+        <input name="modus" type="hidden" value="druck" />
+        <input name="zurueck" type="hidden" value={back} />
+        <HiddenParams p={p} />
+        <button className={btn} disabled={disabled} type="submit">
+          {printIcon}
+          Drucken
+        </button>
+      </form>
+      {count === 0 ? <p className="w-full text-[12px] text-muted">Keine passenden Bestellungen – die Dateien wären leer.</p> : null}
+    </div>
+  );
+}
 export function passParams(p: Record<string, string>, extra: Record<string, string> = {}) {
   const out = new URLSearchParams();
   for (const k of PASS_KEYS) if (p[k]) out.set(k, p[k]);
@@ -97,7 +153,8 @@ export function RangeFields({ p, defaultPreset = "monat" }: { p: Record<string, 
 }
 
 /** Filterfelder (frei kombinierbar) */
-export function FilterFields({ p, products, lockChannel }: { p: Record<string, string>; products: Product[]; lockChannel?: boolean }) {
+export function FilterFields({ p, products, lockChannel, shipReady }: { p: Record<string, string>; products: Product[]; lockChannel?: boolean; shipReady?: boolean }) {
+  const groups = [...new Set(products.flatMap((x) => x.collections ?? []))].filter((g) => !isMixGroup(g)).sort((a, b) => (GROUP_LABEL[a] ?? a).localeCompare(GROUP_LABEL[b] ?? b, "de"));
   return (
     <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
       <div>
@@ -130,6 +187,18 @@ export function FilterFields({ p, products, lockChannel }: { p: Record<string, s
         </label>
         <select className={select} defaultValue={p.status} id="f-status" name="status">
           {STATUSES.map((x) => (
+            <option key={x.key} value={x.key}>
+              {x.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
+        <label className={label} htmlFor="f-buero">
+          Bürostatus
+        </label>
+        <select className={select} defaultValue={p.buero} id="f-buero" name="buero">
+          {OFFICE_FILTER.map((x) => (
             <option key={x.key} value={x.key}>
               {x.label}
             </option>
@@ -183,14 +252,45 @@ export function FilterFields({ p, products, lockChannel }: { p: Record<string, s
         </select>
       </div>
       <div>
+        <label className={label} htmlFor="f-gruppe">
+          Produktgruppe
+        </label>
+        <select className={select} defaultValue={p.gruppe} id="f-gruppe" name="gruppe">
+          <option value="">Alle Gruppen</option>
+          {groups.map((g) => (
+            <option key={g} value={g}>
+              {GROUP_LABEL[g] ?? g}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
         <label className={label} htmlFor="f-q">
           Suche
         </label>
         <input className={input} defaultValue={p.q} id="f-q" maxLength={100} name="q" placeholder="Nr., Name, Ort, PLZ, Sendungsnr." type="search" />
       </div>
+      <label className="flex items-start gap-2.5 rounded-2xl border border-line px-4 py-3 text-[14px] sm:col-span-2">
+        <input className="mt-1" defaultChecked={p.aufmerksamkeit === "1"} name="aufmerksamkeit" type="checkbox" value="1" />
+        <span>
+          <span className="font-medium">Nur Bestellungen, die Aufmerksamkeit brauchen</span>
+          <span className="block text-[12px] text-muted">Markiert, Freigabe blockiert, Adresse oder Artikelnummer fehlt, Zahlungsproblem, nach Freigabe geändert.</span>
+        </span>
+      </label>
+      {shipReady ? (
+        <label className="flex items-start gap-2.5 rounded-2xl border border-line px-4 py-3 text-[14px] sm:col-span-2">
+          <input className="mt-1" defaultChecked={p.versandbereit === "1"} name="versandbereit" type="checkbox" value="1" />
+          <span>
+            <span className="font-medium">Nur versandbereite Bestellungen</span>
+            <span className="block text-[12px] text-muted">Ohne Stornos und ohne unbezahlte Privatbestellungen. Händlerbestellungen auf Rechnung sind immer dabei.</span>
+          </span>
+        </label>
+      ) : null}
     </div>
   );
 }
+
+const isMixGroup = (g: string) => g === "mixpakete";
 
 export function FormButtons({ reset, submit }: { reset: string; submit: string }) {
   return (

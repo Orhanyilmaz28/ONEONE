@@ -2,8 +2,9 @@
  * Rollen und Berechtigungen der Büroverwaltung. Geprüft wird immer auf dem Server.
  *
  * - Administrator: alles (bisheriger Dashboard-Zugang mit ADMIN_PASSWORD + 2FA), verwaltet Büro-Zugänge
- * - Büromitarbeiter: Büroverwaltung ansehen und Excel-Exporte erstellen – sonst keinen Dashboard-Bereich
- * - Büro-Lesezugriff: Büroverwaltung nur ansehen (keine Exporte, keine Änderungen)
+ * - Büromitarbeiter: Büroverwaltung ansehen und bearbeiten (prüfen, freigeben, Logistik, Versand), Excel-Exporte und PDF-Dokumente
+ *   erstellen, Exporthistorie ansehen – sonst keinen Dashboard-Bereich, keine Korrekturen
+ * - Büro-Lesezugriff: Büroverwaltung nur ansehen (keine Downloads, keine Lieferscheinnummern, keine Änderungen)
  */
 export const OFFICE_ROLES = ["buero", "lesen"] as const;
 export type StaffRole = (typeof OFFICE_ROLES)[number];
@@ -12,14 +13,20 @@ export type Role = "admin" | StaffRole;
 export const ROLE_LABEL: Record<Role, string> = { admin: "Administrator", buero: "Büromitarbeiter", lesen: "Büro-Lesezugriff" };
 export const ROLE_TEXT: Record<Role, string> = {
   admin: "Voller Zugriff auf das Dashboard, verwaltet die Büro-Zugänge.",
-  buero: "Büroverwaltung ansehen und Excel-Exporte erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit.",
-  lesen: "Büroverwaltung nur ansehen. Keine Exporte, keine Änderungen.",
+  buero: "Büroverwaltung ansehen, Bestellungen prüfen, freigeben, zurückstellen, Logistik-Weitergabe und Versand dokumentieren, Exporthistorie ansehen, Excel-Exporte und PDF-Dokumente erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit, keine Status-Korrekturen.",
+  lesen: "Büroverwaltung, Bearbeitungsverlauf und Berichte nur am Bildschirm ansehen. Keine Downloads, keine Lieferscheinnummern, keine Änderungen.",
 };
 
-export type Permission = "office.view" | "office.export" | "office.users";
+/**
+ * office.view: Büroverwaltung ansehen · office.export: Excel-Exporte · office.documents: PDF-Dokumente
+ * (Lieferscheine mit Nummernvergabe, Versandliste, Sammelliste, Tagesbericht) · office.users: Büro-Zugänge verwalten
+ * office.workflow: Bürostatus bearbeiten (prüfen, freigeben, zurückstellen, Logistik, Versand) · office.correct: Status-Korrektur
+ * (auch „Abgeschlossen“ wieder öffnen) · office.history: Exporthistorie ansehen
+ */
+export type Permission = "office.view" | "office.export" | "office.documents" | "office.users" | "office.workflow" | "office.correct" | "office.history";
 const PERMISSIONS: Record<Role, readonly Permission[]> = {
-  admin: ["office.view", "office.export", "office.users"],
-  buero: ["office.view", "office.export"],
+  admin: ["office.view", "office.export", "office.documents", "office.users", "office.workflow", "office.correct", "office.history"],
+  buero: ["office.view", "office.export", "office.documents", "office.workflow", "office.history"],
   lesen: ["office.view"],
 };
 

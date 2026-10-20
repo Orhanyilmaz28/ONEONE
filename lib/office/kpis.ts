@@ -1,4 +1,5 @@
 import type { OfficeOrder } from "./model";
+import { OFFICE_STATUS, type OfficeStatus, officeStatus } from "./workflow";
 import { type Range, addDays, berlinParts, dayRange, isoWeek, monthRange, weekRange, yearRange } from "./time";
 
 /**
@@ -24,8 +25,8 @@ export type Kpis = {
     dealer: number;
     private: number;
     inProgress: number;
-    /** wird noch nicht erfasst (Phase 3C) */
-    released: null;
+    /** Für Versand freigegeben (Bürostatus Freigegeben oder An Logistik weitergegeben) */
+    released: number;
     shipped: number;
     cancelled: number;
     exported: number;
@@ -35,6 +36,8 @@ export type Kpis = {
   money: { gross: number; net: number; discount: number; shipping: number; deposit: number; refunds: number; unpaidGross: number; shippingOnRequest: number };
   /** Stornierte Bestellungen, die bezahlt und (noch) nicht erstattet sind – Hinweis fürs Büro */
   cancelledNotRefunded: number;
+  /** Bürostatus (Phase 3C) im Zeitraum */
+  office: Record<OfficeStatus, number>;
 };
 
 export function standardRanges(now: number): { day: Range; week: Range; month: Range; year: Range } {
@@ -83,7 +86,7 @@ export function computeKpis(orders: OfficeOrder[], period: Range, now: number): 
       dealer: count((o) => o.channel === "haendler"),
       private: count((o) => o.channel === "privat"),
       inProgress: count((o) => o.processing === "in_bearbeitung"),
-      released: null,
+      released: count((o) => ["freigegeben", "logistik"].includes(officeStatus(o, o.office))),
       shipped: count((o) => o.shippingStatus === "versendet"),
       cancelled: count((o) => o.processing === "storniert"),
       exported: count((o) => Boolean(o.exportedAt)),
@@ -100,7 +103,9 @@ export function computeKpis(orders: OfficeOrder[], period: Range, now: number): 
       unpaidGross: live.filter((o) => o.paymentStatus === "offen").reduce((n, o) => n + o.gross, 0),
       shippingOnRequest: live.filter((o) => o.shipping === null).length,
     },
-    cancelledNotRefunded: inP.filter((o) => o.processing === "storniert" && o.channel === "privat" && o.paymentStatus === "bezahlt").length,
+    // Storniert, aber Geld nicht (vollständig) zurück – auch nach einer Teilerstattung
+    office: Object.fromEntries(OFFICE_STATUS.map((st) => [st, count((o) => officeStatus(o, o.office) === st)])) as Record<OfficeStatus, number>,
+    cancelledNotRefunded: inP.filter((o) => o.processing === "storniert" && o.channel === "privat" && (o.paymentStatus === "bezahlt" || o.paymentStatus === "teilweise_erstattet")).length,
   };
 }
 
