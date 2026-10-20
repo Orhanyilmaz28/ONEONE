@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 
 export const ADMIN_NAV = [
   { href: "/admin", label: "Übersicht", icon: "M3 12l9-8 9 8M5 10v10h5v-6h4v6h5V10" },
+  { href: "/admin/buero", label: "Büroverwaltung", icon: "M4 4h10l6 6v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm10 0v6h6M7 13h10M7 17h7" },
   { href: "/admin/bestellungen", label: "Bestellungen", icon: "M4 7h16l-1.5 12.5a2 2 0 0 1-2 1.5h-9a2 2 0 0 1-2-1.5L4 7Zm4 0V6a4 4 0 0 1 8 0v1" },
   { href: "/admin/produkte", label: "Produkte", icon: "M3 7l9-4 9 4-9 4-9-4Zm0 0v10l9 4 9-4V7M12 11v10" },
   { href: "/admin/bewertungen", label: "Bewertungen", icon: "M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" },
@@ -19,11 +20,13 @@ export const ADMIN_NAV = [
   { href: "/admin/einstellungen", label: "Einstellungen", icon: "M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm7.4-3a7.4 7.4 0 0 0-.1-1.3l2-1.6-2-3.4-2.4 1a7.5 7.5 0 0 0-2.2-1.3L14.3 3h-4l-.4 2.4a7.5 7.5 0 0 0-2.2 1.3l-2.4-1-2 3.4 2 1.6a7.4 7.4 0 0 0 0 2.6l-2 1.6 2 3.4 2.4-1a7.5 7.5 0 0 0 2.2 1.3l.4 2.4h4l.4-2.4a7.5 7.5 0 0 0 2.2-1.3l2.4 1 2-3.4-2-1.6c.1-.4.1-.9.1-1.3Z" },
 ] as const;
 
-export function AdminNav() {
+/** `only`: nur diese Menüpunkte zeigen (Büro-Zugänge sehen nur die Büroverwaltung) */
+export function AdminNav({ only }: { only?: string[] }) {
   const path = usePathname();
+  const items = only ? ADMIN_NAV.filter((i) => only.includes(i.href)) : ADMIN_NAV;
   return (
     <nav className="no-scrollbar flex gap-1 overflow-x-auto lg:flex-col lg:overflow-visible">
-      {ADMIN_NAV.map((item) => {
+      {items.map((item) => {
         const active = item.href === "/admin" ? path === "/admin" : path?.startsWith(item.href);
         return (
           <Link

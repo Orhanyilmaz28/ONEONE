@@ -4,8 +4,10 @@ import { cache } from "react";
 import { ADMIN_COOKIE, adminConfigured } from "./admin-token";
 import { type Origin } from "./admin-security/flow";
 import { clientIp, userAgent } from "./admin-security/request-info";
-import { type AdminSession, PENDING_TTL, SESSION_ABSOLUTE, readSession, touchSession } from "./admin-security/sessions";
+import { type AdminSession, PENDING_TTL, SESSION_ABSOLUTE, readSession } from "./admin-security/sessions";
 import { KvUnavailableError } from "./kv";
+import { OfficeAccessError, type Permission, type Principal, can } from "./office/roles";
+import { resolvePrincipal } from "./office/principal";
 
 /**
  * Dashboard-Zugang: Passwort (ADMIN_PASSWORD) + optional/verpflichtend TOTP-Zwei-Faktor.
@@ -24,17 +26,39 @@ export const currentAdminSession = cache(async (): Promise<AdminSession | null> 
   }
 });
 
-/** Voll angemeldet (Passwort und – falls eingerichtet – zweiter Faktor)? */
+/**
+ * Wer ist angemeldet? Administrator (ohne Benutzername) oder Büro-Zugang.
+ * Büro-Zugänge werden bei jeder Anfrage gegen den gespeicherten Zugang geprüft (gesperrt, gelöscht oder
+ * geändert → Sitzung endet). Ist der Datenspeicher nicht erreichbar, gilt niemand als angemeldet.
+ */
+export const currentPrincipal = cache(async (): Promise<Principal | null> => resolvePrincipal(await currentAdminSession()));
+
+/** Voll angemeldet als Administrator (Passwort und – falls eingerichtet – zweiter Faktor)? Büro-Zugänge zählen nicht. */
 export async function isAdmin() {
-  const s = await currentAdminSession();
-  if (s?.stage !== "full") return false;
-  await touchSession(s).catch(() => undefined);
-  return true;
+  return (await currentPrincipal())?.role === "admin";
 }
 
-/** Für Seiten im Dashboard: nicht angemeldet → zur Anmeldung */
+/** Für Seiten im Dashboard (nur Administrator): nicht angemeldet → zur Anmeldung, Büro-Zugang → zur Büroverwaltung */
 export async function requireAdmin() {
-  if (!(await isAdmin())) redirect("/admin/login");
+  const p = await currentPrincipal();
+  if (!p) redirect("/admin/login");
+  if (p.role !== "admin") redirect("/admin/buero");
+}
+
+/** Für Seiten der Büroverwaltung: liefert die angemeldete Person, sonst Anmeldung bzw. Hinweis „keine Berechtigung“ */
+export async function requireOffice(permission: Permission = "office.view"): Promise<Principal> {
+  const p = await currentPrincipal();
+  if (!p) redirect("/admin/login");
+  if (!can(p.role, permission)) redirect("/admin/buero?keine-berechtigung=1");
+  return p;
+}
+
+/** Für API-Routen und Server Actions der Büroverwaltung: wirft OfficeAccessError (401/403) */
+export async function assertOffice(permission: Permission = "office.view"): Promise<Principal> {
+  const p = await currentPrincipal();
+  if (!p) throw new OfficeAccessError(401);
+  if (!can(p.role, permission)) throw new OfficeAccessError(403);
+  return p;
 }
 
 /** Für Server Actions und API-Routen: wirft einen Fehler, wenn nicht angemeldet */

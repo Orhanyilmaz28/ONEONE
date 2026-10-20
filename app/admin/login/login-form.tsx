@@ -9,10 +9,16 @@ export function LoginForm() {
   return (
     <form action={action} className="mt-8 space-y-4">
       <div>
+        <label className={label} htmlFor="username">
+          Benutzername <span className="font-normal text-muted">(nur Büro-Zugang)</span>
+        </label>
+        <input autoCapitalize="none" autoComplete="username" className={input} id="username" maxLength={32} name="username" placeholder="Administrator: leer lassen" spellCheck={false} type="text" />
+      </div>
+      <div>
         <label className={label} htmlFor="password">
           Passwort
         </label>
-        <input autoComplete="current-password" autoFocus className={input} id="password" name="password" required type="password" />
+        <input autoComplete="current-password" className={input} id="password" name="password" required type="password" />
       </div>
       {state?.error ? (
         <p className="text-red-700 text-sm" role="alert">

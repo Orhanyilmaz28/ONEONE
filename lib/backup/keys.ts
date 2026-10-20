@@ -35,6 +35,8 @@ const LABELS: Record<string, string> = {
   [KEYS.influencers]: "Influencer-Konten",
   [KEYS.commissions]: "Provisionen & Gutschriften",
   [KEYS.influencerStatements]: "Provisionen & Gutschriften",
+  [KEYS.officeUsers]: "Büroverwaltung",
+  [KEYS.officeExported]: "Büroverwaltung",
 };
 
 /** Alle festen Geschäftsdaten-Schlüssel (JSON) – werden immer abgefragt, auch wenn SCAN sie nicht liefert */

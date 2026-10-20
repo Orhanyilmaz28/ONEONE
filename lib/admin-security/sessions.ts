@@ -26,6 +26,9 @@ export type AdminSession = {
   pw?: string;
   /** Anmeldeweg, z. B. "Passwort + TOTP" */
   method?: string;
+  /** Nur bei Büro-Zugängen: ID der Person und Version ihres Zugangs (ändert sich die Version, endet die Sitzung) */
+  userId?: string;
+  uv?: number;
 };
 
 /** Volle Sitzung: höchstens 12 Stunden, nach 2 Stunden Inaktivität beendet */
@@ -52,7 +55,7 @@ function ttlFor(s: AdminSession, t: number) {
   return Math.max(1, Math.ceil(Math.min(s.expiresAt - t, SESSION_IDLE * 1000) / 1000));
 }
 
-export async function createSession(stage: SessionStage, info: { ip: string; ua: string; method?: string }) {
+export async function createSession(stage: SessionStage, info: { ip: string; ua: string; method?: string; userId?: string; uv?: number }) {
   const token = randomBytes(32).toString("base64url");
   const t = now();
   const session: AdminSession = {
@@ -63,8 +66,10 @@ export async function createSession(stage: SessionStage, info: { ip: string; ua:
     expiresAt: t + (stage === "full" ? SESSION_ABSOLUTE : PENDING_TTL) * 1000,
     ip: info.ip,
     ua: info.ua,
-    pw: passwordFingerprint(),
+    // Büro-Zugänge hängen nicht am Administrator-Passwort, sondern an der Version ihres eigenen Zugangs
+    pw: info.userId ? undefined : passwordFingerprint(),
     method: info.method,
+    ...(info.userId ? { userId: info.userId, uv: info.uv } : {}),
   };
   await kv().set(key(session.id), JSON.stringify(session), { ex: ttlFor(session, t) });
   if (stage === "full") await kv().sadd(INDEX, session.id);
@@ -85,7 +90,7 @@ export async function readSession(token: string | undefined): Promise<AdminSessi
   }
   const t = now();
   const idleOver = s.stage === "full" && t - s.lastSeen > SESSION_IDLE * 1000;
-  const pwChanged = (s.pw ?? undefined) !== passwordFingerprint();
+  const pwChanged = !s.userId && (s.pw ?? undefined) !== passwordFingerprint();
   if (s.id !== id || t >= s.expiresAt || idleOver || pwChanged) {
     await revokeSession(id);
     return null;
@@ -127,7 +132,7 @@ export async function listSessions(): Promise<AdminSession[]> {
   const out: AdminSession[] = [];
   for (const [i, raw] of raws.entries()) {
     const s = raw ? (JSON.parse(raw) as AdminSession) : null;
-    if (!s || t >= s.expiresAt || t - s.lastSeen > SESSION_IDLE * 1000 || (s.pw ?? undefined) !== passwordFingerprint()) await revokeSession(ids[i]);
+    if (!s || t >= s.expiresAt || t - s.lastSeen > SESSION_IDLE * 1000 || (!s.userId && (s.pw ?? undefined) !== passwordFingerprint())) await revokeSession(ids[i]);
     else out.push(s);
   }
   return out.sort((a, b) => b.lastSeen - a.lastSeen);
