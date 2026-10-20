@@ -100,7 +100,8 @@ export function computeKpis(orders: OfficeOrder[], period: Range, now: number): 
       unpaidGross: live.filter((o) => o.paymentStatus === "offen").reduce((n, o) => n + o.gross, 0),
       shippingOnRequest: live.filter((o) => o.shipping === null).length,
     },
-    cancelledNotRefunded: inP.filter((o) => o.processing === "storniert" && o.channel === "privat" && o.paymentStatus === "bezahlt").length,
+    // Storniert, aber Geld nicht (vollständig) zurück – auch nach einer Teilerstattung
+    cancelledNotRefunded: inP.filter((o) => o.processing === "storniert" && o.channel === "privat" && (o.paymentStatus === "bezahlt" || o.paymentStatus === "teilweise_erstattet")).length,
   };
 }
 

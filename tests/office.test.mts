@@ -478,6 +478,14 @@ describe("Kennzahlen", () => {
     assert.equal(k.cancelledNotRefunded, 1);
   });
 
+  test("Storniert und nur teilweise erstattet zählt als „nicht erstattet“", () => {
+    const o = b2c({ id: "cs_test_CANCEL1", payment_intent: { latest_charge: { amount_refunded: 1000, refunded: false, payment_method_details: { type: "card" } } } }, LINES, "storniert");
+    assert.equal(o.paymentStatus, "teilweise_erstattet");
+    assert.equal(kpis.computeKpis([o], month, NOW).cancelledNotRefunded, 1);
+    const full = b2c({ id: "cs_test_CANCEL2", payment_intent: { latest_charge: { amount_refunded: o.gross, refunded: true, payment_method_details: { type: "card" } } } }, LINES, "storniert");
+    assert.equal(kpis.computeKpis([full], month, NOW).cancelledNotRefunded, 0);
+  });
+
   test("Tag, Woche, Monat, Jahr", () => {
     const k = kpis.computeKpis(sample(), month, NOW);
     assert.equal(k.counts.today, 3); // P1, P4, H-0001 (06:00 UTC = 08:00 Uhr)

@@ -137,7 +137,7 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
       </div>
       {k.cancelledNotRefunded ? (
         <div className="mb-6">
-          <Notice title={`${k.cancelledNotRefunded} stornierte ${k.cancelledNotRefunded === 1 ? "Bestellung ist" : "Bestellungen sind"} bezahlt, aber nicht erstattet`}>
+          <Notice title={`${k.cancelledNotRefunded} stornierte ${k.cancelledNotRefunded === 1 ? "Bestellung ist" : "Bestellungen sind"} bezahlt, aber nicht (vollständig) erstattet`}>
             Bitte im Stripe-Dashboard prüfen, ob eine Erstattung fällig ist.{" "}
             <Link className="underline underline-offset-4" href={link({ status: "storniert", zahlung: "bezahlt" })}>
               Anzeigen
