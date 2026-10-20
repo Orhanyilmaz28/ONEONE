@@ -6,7 +6,9 @@ import { requireOffice } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
 import { computeKpis, overviewStart, standardRanges } from "@/lib/office/kpis";
 import { can } from "@/lib/office/roles";
+import { officeUrl } from "@/lib/office/model";
 import { loadOfficeOrders } from "@/lib/office/source";
+import { ATTENTION_LABEL, attention } from "@/lib/office/workflow";
 import { type SearchParams, paramsOf } from "./shared";
 
 export const metadata: Metadata = { title: "Büroverwaltung" };
@@ -40,10 +42,26 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
     { label: "Händlerbestellungen", value: k.counts.dealer, href: link({ typ: "haendler" }) },
     { label: "Privatbestellungen", value: k.counts.private, href: link({ typ: "privat" }) },
     { label: "In Bearbeitung", value: k.counts.inProgress, href: link({ status: "in_bearbeitung" }) },
-    { label: "Für Versand freigegeben", value: k.counts.released, hint: "wird ab Phase 3C erfasst" },
+    { label: "Für Versand freigegeben", value: k.counts.released, href: link({ status: "freigegeben" }) },
     { label: "Versendet", value: k.counts.shipped, href: link({ status: "versendet" }) },
     { label: "Storniert", value: k.counts.cancelled, href: link({ status: "storniert" }) },
     { label: "Exportiert", value: k.counts.exported, href: link({ exportiert: "ja" }) },
+  ];
+
+  const inPeriod = loaded.orders.filter((o) => o.createdAt >= period.from && o.createdAt < period.to);
+  const needs = loaded.orders.map((o) => ({ o, reasons: attention(o, o.office, products) })).filter((x) => x.reasons.length);
+  const problemsInPeriod = inPeriod.filter((o) => attention(o, o.office, products).length).length;
+  const office: { label: string; value: number; href: string }[] = [
+    { label: "Neu eingegangen", value: k.office.neu, href: link({ buero: "neu" }) },
+    { label: "In Prüfung", value: k.office.pruefung, href: link({ buero: "pruefung" }) },
+    { label: "Zurückgestellt", value: k.office.zurueckgestellt, href: link({ buero: "zurueckgestellt" }) },
+    { label: "Freigegeben", value: k.office.freigegeben + k.office.logistik, href: link({ status: "freigegeben" }) },
+    { label: "Noch nicht weitergegeben", value: k.office.freigegeben, href: link({ buero: "freigegeben" }) },
+    { label: "An Logistik weitergegeben", value: k.office.logistik, href: link({ buero: "logistik" }) },
+    { label: "Versand noch nicht bestätigt", value: k.office.freigegeben + k.office.logistik, href: link({ status: "freigegeben" }) },
+    { label: "Versendet", value: k.office.versendet, href: link({ buero: "versendet" }) },
+    { label: "Abgeschlossen", value: k.office.abgeschlossen, href: link({ buero: "abgeschlossen" }) },
+    { label: "Probleme", value: problemsInPeriod, href: link({ aufmerksamkeit: "1" }) },
   ];
 
   return (
@@ -75,6 +93,46 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
           </Notice>
         </div>
       ) : null}
+
+      <h2 className="mb-3 font-medium text-[15px]">
+        Bürostatus · <span className="text-muted">{period.label}</span>
+      </h2>
+      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+        {office.map((c) => (
+          <Link className="rounded-3xl transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10" href={c.href} key={c.label}>
+            <Stat label={c.label} value={c.value} />
+          </Link>
+        ))}
+      </div>
+      <Card className="mb-8" title={`Bestellungen, die Aufmerksamkeit benötigen (${needs.length})`}>
+        {needs.length === 0 ? (
+          <p className="text-[14px] text-muted">Zurzeit nichts – alle offenen Bestellungen sind in Ordnung.</p>
+        ) : (
+          <ul className="divide-y divide-line text-[14px]">
+            {needs.slice(0, 20).map(({ o, reasons }) => (
+              <li className="flex flex-wrap items-baseline justify-between gap-2 py-2" key={o.key}>
+                <Link className="font-medium tabular-nums underline-offset-4 hover:underline" href={officeUrl(o)}>
+                  {o.number}
+                </Link>
+                <span className="flex flex-wrap gap-1.5">
+                  {reasons.map((r) => (
+                    <Badge key={r.kind} tone={r.kind === "geaendert" || r.kind === "abgleich" ? "red" : "amber"}>
+                      {ATTENTION_LABEL[r.kind]}
+                    </Badge>
+                  ))}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
+        {needs.length > 20 ? (
+          <p className="mt-3 text-[13px]">
+            <Link className="underline underline-offset-4" href={`/admin/buero/bestellungen?zeitraum=jahr&aufmerksamkeit=1`}>
+              Alle {needs.length} anzeigen
+            </Link>
+          </p>
+        ) : null}
+      </Card>
 
       <h2 className="mb-3 font-medium text-[15px]">Umsatz (brutto, ohne Stornos, abzüglich Erstattungen)</h2>
       <div className="mb-8 grid grid-cols-2 gap-3 xl:grid-cols-4">

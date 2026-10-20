@@ -62,6 +62,7 @@ const mix: Product = {
 const PRODUCTS = new Map<string, Product>([...(catalogData.products as Product[]), mix].map((p) => [p.handle, p]));
 const COMPANY = { ...COMPANY_STATIC } as unknown as import("../lib/office/documents").CompanyInfo;
 const T = (iso: string) => Date.parse(iso);
+const seqOf = async (year: string) => (await store.getJSON<Record<string, number>>(store.KEYS.officeNoteSeq, {}))[year];
 const sec = (iso: string) => Math.floor(T(iso) / 1000);
 const NOW = T("2026-10-20T12:00:00Z");
 
@@ -354,59 +355,110 @@ describe("Lieferscheinnummern", () => {
     setKvBackend(memoryBackend(() => Date.now()));
     await fs.rm(path.join(dir, ".data"), { recursive: true, force: true });
   });
+  const one = (prev: import("../lib/office/delivery-notes").StoredNote | null, o: OfficeOrder, num: string | null, by: string, action: "heruntergeladen" | "gedruckt", at: number, remark?: string) => notes.applyIssueOne(prev, o, num, by, action, at, PRODUCTS, remark);
 
-  test("Eindeutig, je Jahr fortlaufend, unabhängig von Bestell- und Rechnungsnummern", () => {
+  test("Eindeutig, je Jahr fortlaufend, unabhängig von Bestell- und Rechnungsnummern", async () => {
     const list = [b2c({ id: "cs_test_N1" }), b2c({ id: "cs_test_N2" }), b2b()];
-    const book = notes.applyIssue({ seq: {}, notes: {} }, list, "anna", "heruntergeladen", NOW);
+    const book = await notes.issueNotes(list, "anna", "heruntergeladen", PRODUCTS, NOW);
     assert.deepEqual(
-      list.map((o) => book.notes[o.key].number),
+      list.map((o) => book.get(o.key)?.number),
       ["LS-2026-00001", "LS-2026-00002", "LS-2026-00003"],
     );
-    assert.equal(book.notes[list[2].key].order, "H-2026-0007");
-    const next = notes.applyIssue(book, [b2c({ id: "cs_test_N4" })], "anna", "gedruckt", T("2027-01-01T08:00:00Z"));
-    assert.equal(next.notes["s:cs_test_N4"].number, "LS-2027-00001");
+    assert.equal(book.get(list[2].key)?.order, "H-2026-0007");
+    const next = await notes.issueNotes([b2c({ id: "cs_test_N4" })], "anna", "gedruckt", PRODUCTS, T("2027-01-01T08:00:00Z"));
+    assert.equal(next.get("s:cs_test_N4")?.number, "LS-2027-00001");
+    assert.equal(await seqOf("2026"), 3);
+    assert.equal(notes.formatNoteNumber(2026, 123456), "LS-2026-123456", "über 99.999 Lieferscheine: Nummer wird nur länger, nie doppelt");
   });
 
   test("Erneuter Download: dieselbe Nummer und Version; geänderter Inhalt → gleiche Nummer, neue Version", () => {
     const o = b2c({ id: "cs_test_R1" });
-    let book = notes.applyIssue({ seq: {}, notes: {} }, [o], "anna", "heruntergeladen", NOW);
-    book = notes.applyIssue(book, [o], "ben", "gedruckt", NOW + 1000);
-    const n = book.notes[o.key];
+    let n = one(null, o, "LS-2026-00001", "anna", "heruntergeladen", NOW);
+    n = one(n, o, null, "ben", "gedruckt", NOW + 1000);
     assert.equal(n.number, "LS-2026-00001");
     assert.equal(n.version, 1);
     assert.deepEqual(
       n.events.map((e) => e.action),
       ["erstellt", "heruntergeladen", "gedruckt"],
     );
-    book = notes.applyIssue(book, [o], "anna", "heruntergeladen", NOW + 2000, "Neue Bemerkung");
-    assert.equal(book.notes[o.key].number, "LS-2026-00001");
-    assert.equal(book.notes[o.key].version, 2);
-    assert.equal(book.notes[o.key].remark, "Neue Bemerkung");
-    assert.equal(book.seq["2026"], 1, "keine neue Nummer verbraucht");
+    n = one(n, o, null, "anna", "heruntergeladen", NOW + 2000, "Neue Bemerkung");
+    assert.equal(n.number, "LS-2026-00001");
+    assert.equal(n.version, 2);
+    assert.equal(n.remark, "Neue Bemerkung");
     const changed = { ...o, lines: [{ ...o.lines[0], quantity: 5 }] };
-    book = notes.applyIssue(book, [changed], "anna", "heruntergeladen", NOW + 3000);
-    assert.equal(book.notes[o.key].version, 3);
+    n = one(n, changed, null, "anna", "heruntergeladen", NOW + 3000);
+    assert.equal(n.version, 3);
+    assert.deepEqual(
+      n.versions?.map((v) => v.version),
+      [1, 2, 3],
+      "jede Version mit Datenbasis gespeichert",
+    );
+    assert.throws(() => one(null, o, null, "anna", "heruntergeladen", NOW), /Keine Lieferscheinnummer/);
   });
 
-  test("Historie bleibt begrenzt, „erstellt“ bleibt erhalten", () => {
+  test("Historie bleibt begrenzt, „erstellt“ und erste Version bleiben erhalten", () => {
     const o = b2c({ id: "cs_test_H1" });
-    let book = notes.applyIssue({ seq: {}, notes: {} }, [o], "anna", "heruntergeladen", NOW);
-    for (let i = 0; i < 30; i++) book = notes.applyIssue(book, [o], "anna", "gedruckt", NOW + i);
-    assert.ok(book.notes[o.key].events.length <= 12);
-    assert.equal(book.notes[o.key].events[0].action, "erstellt");
+    let n = one(null, o, "LS-2026-00001", "anna", "heruntergeladen", NOW);
+    for (let i = 0; i < 30; i++) n = one(n, o, null, "anna", "gedruckt", NOW + i);
+    assert.ok(n.events.length <= 12);
+    assert.equal(n.events[0].action, "erstellt");
+    for (let i = 0; i < 40; i++) n = one(n, o, null, "anna", "gedruckt", NOW + 100 + i, `Bemerkung ${i}`);
+    assert.ok((n.versions?.length ?? 0) <= notes.MAX_VERSIONS);
+    assert.equal(n.versions?.[0].version, 1);
+    assert.equal(n.version, 41);
+  });
+
+  test("Historische Lieferschein-Version lässt sich unverändert wieder erzeugen", () => {
+    const o = b2c({ id: "cs_test_V1" });
+    let n = one(null, o, "LS-2026-00009", "anna", "heruntergeladen", NOW, "Erste Fassung");
+    const changed = { ...o, lines: [{ ...o.lines[0], quantity: 7 }] };
+    n = one(n, changed, null, "ben", "gedruckt", NOW + 5000, "Zweite Fassung");
+    const v1 = n.versions?.find((v) => v.version === 1);
+    assert.ok(v1);
+    const archived = notes.orderFromBasis(o.key, v1.basis);
+    assert.equal(notes.noteFingerprint(archived, v1.basis.remark, PRODUCTS), v1.fp, "Archivkopie hat denselben Inhalt wie Version 1");
+    const text = allText(readPdf(docs.deliveryNotesPdf([{ order: archived, note: { number: n.number, version: 1, createdAt: v1.at, remark: v1.basis.remark, archive: true } }], COMPANY, PRODUCTS, null, NOW)));
+    assert.ok(text.includes("Archivkopie") && text.includes("Erste Fassung") && text.includes("LS-2026-00009"));
+    assert.ok(!text.includes("Zweite Fassung"));
   });
 
   test("Parallele Erstellung: keine doppelte Nummer (Datei-Speicher)", async () => {
     const list = Array.from({ length: 25 }, (_, i) => b2c({ id: `cs_test_PAR${String(i).padStart(3, "0")}` }));
-    const results = await Promise.all(list.map((o) => notes.issueNotes([o], "anna", "heruntergeladen", NOW)));
+    const results = await Promise.all(list.map((o) => notes.issueNotes([o], "anna", "heruntergeladen", PRODUCTS, NOW)));
     const numbers = results.map((m, i) => m.get(list[i].key)?.number);
     assert.equal(new Set(numbers).size, 25);
-    const book = await notes.readNotes();
-    assert.equal(book.seq["2026"], 25);
+    assert.equal(await seqOf("2026"), 25);
     // gleichzeitig dieselbe Bestellung → eine Nummer
-    const same = await Promise.all(Array.from({ length: 5 }, () => notes.issueNotes([list[0]], "ben", "gedruckt", NOW)));
+    const same = await Promise.all(Array.from({ length: 5 }, () => notes.issueNotes([list[0]], "ben", "gedruckt", PRODUCTS, NOW)));
     assert.equal(new Set(same.map((m) => m.get(list[0].key)?.number)).size, 1);
-    assert.equal((await notes.readNotes()).seq["2026"], 25);
+    assert.equal(await seqOf("2026"), 25);
+  });
+
+  test("Großer Lieferschein-Bestand: je Bestellung ein eigener Eintrag, Lesen nur der benötigten", async () => {
+    const list = Array.from({ length: 300 }, (_, i) => b2c({ id: `cs_test_BIG${String(i).padStart(4, "0")}` }));
+    for (let i = 0; i < list.length; i += 100) await notes.issueNotes(list.slice(i, i + 100), "anna", "heruntergeladen", PRODUCTS, NOW);
+    assert.equal(await seqOf("2026"), 300);
+    const some = await notes.readNotesFor([list[0].key, list[299].key, "s:cs_test_gibtsnicht"]);
+    assert.equal(some.get(list[0].key)?.number, "LS-2026-00001");
+    assert.equal(some.get(list[299].key)?.number, "LS-2026-00300");
+    assert.equal(some.size, 2);
+    const raw = JSON.parse(await fs.readFile(path.join(dir, ".data", "store.json"), "utf8"));
+    const biggest = Math.max(...Object.entries(raw).filter(([k]) => k.startsWith("tt:office-ls")).map(([, v]) => JSON.stringify(v).length));
+    assert.ok(biggest < 20_000, `kein Einzeleintrag wächst mit der Gesamtzahl (größter: ${biggest} Zeichen)`);
+  });
+
+  test("Alte Lieferscheine aus Phase 3B bleiben gültig (Nummer, Zählerstand) – ohne Umzug der Daten", async () => {
+    const o = b2c({ id: "cs_test_OLD1" });
+    const legacyNote = one(null, o, "LS-2026-00007", "anna", "heruntergeladen", NOW);
+    delete legacyNote.versions;
+    await store.setJSON(store.KEYS.officeDeliveryNotes, { seq: { "2026": 7 }, notes: { [o.key]: legacyNote } });
+    const read = await notes.readNotesFor([o.key]);
+    assert.equal(read.get(o.key)?.number, "LS-2026-00007");
+    const res = await notes.issueNotes([o, b2c({ id: "cs_test_NEW1" })], "ben", "gedruckt", PRODUCTS, NOW + 1000);
+    assert.equal(res.get(o.key)?.number, "LS-2026-00007", "alte Nummer bleibt");
+    assert.equal(res.get("s:cs_test_NEW1")?.number, "LS-2026-00008", "neue Nummern setzen nach dem alten Stand fort");
+    const legacyAfter = await store.getJSON<{ seq: Record<string, number> }>(store.KEYS.officeDeliveryNotes, { seq: {} });
+    assert.equal(legacyAfter.seq["2026"], 7, "altes Nummernbuch wird nur gelesen");
   });
 
   const redisUrl = process.env.REDIS_TEST_URL;
@@ -415,13 +467,15 @@ describe("Lieferscheinnummern", () => {
     process.env.UPSTASH_REDIS_REST_URL = redisUrl;
     process.env.UPSTASH_REDIS_REST_TOKEN = process.env.REDIS_TEST_TOKEN;
     const fresh = await import(`../lib/office/delivery-notes.ts?redis=${Date.now()}`);
-    const freshStore = await import(`../lib/store.ts?redis=${Date.now()}`);
     try {
-      await fetch(redisUrl as string, { method: "POST", headers: { Authorization: `Bearer ${process.env.REDIS_TEST_TOKEN}` }, body: JSON.stringify(["DEL", store.KEYS.officeDeliveryNotes, `tt:ver:${store.KEYS.officeDeliveryNotes}`]) });
       const list = Array.from({ length: 20 }, (_, i) => b2c({ id: `cs_test_RED${String(i).padStart(3, "0")}` }));
-      const results = await Promise.all(list.map((o) => fresh.issueNotes([o], "anna", "heruntergeladen", NOW)));
+      const keys = [store.KEYS.officeDeliveryNotes, store.KEYS.officeNoteSeq, ...list.map((o) => notes.noteKey(o.key))];
+      await fetch(redisUrl as string, { method: "POST", headers: { Authorization: `Bearer ${process.env.REDIS_TEST_TOKEN}` }, body: JSON.stringify(["DEL", ...keys, ...keys.map((k) => `tt:ver:${k}`)]) });
+      const results = await Promise.all(list.map((o) => fresh.issueNotes([o], "anna", "heruntergeladen", PRODUCTS, NOW)));
       assert.equal(new Set(results.map((m: Map<string, { number: string }>, i: number) => m.get(list[i].key)?.number)).size, 20);
-      assert.ok(freshStore);
+      // gleichzeitig dieselbe Bestellung → eine Nummer
+      const same = await Promise.all(Array.from({ length: 6 }, () => fresh.issueNotes([list[3]], "ben", "gedruckt", PRODUCTS, NOW)));
+      assert.equal(new Set(same.map((m: Map<string, { number: string }>) => m.get(list[3].key)?.number)).size, 1);
     } finally {
       delete process.env.UPSTASH_REDIS_REST_URL;
       delete process.env.UPSTASH_REDIS_REST_TOKEN;
@@ -697,7 +751,7 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
     assert.ok(pv.ok, JSON.stringify(pv));
     assert.equal(pv.inline, true);
     assert.ok(allText(readPdf(pv.file)).includes("VORSCHAU"));
-    assert.equal((await notes.readNotes()).seq["2026"], undefined, "Vorschau verbraucht keine Nummer");
+    assert.equal(await seqOf("2026"), undefined, "Vorschau verbraucht keine Nummer");
 
     const dl = await service.runDocument(parse({ art: "lieferschein", modus: "download", auswahl: ["h:a1b2c3d4e5f60718"] }), WHO, ORIGIN, NOW);
     assert.ok(dl.ok);
@@ -708,10 +762,10 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
     assert.ok(allText(readPdf(pr.file)).includes("LS-2026-00001"));
     const pv2 = await service.runDocument(parse({ art: "lieferschein", modus: "vorschau", auswahl: ["h:a1b2c3d4e5f60718"] }), WHO, ORIGIN, NOW);
     assert.ok(pv2.ok && allText(readPdf(pv2.file)).includes("LS-2026-00001"), "Vorschau zeigt vorhandene Nummer");
-    const book = await notes.readNotes();
-    assert.equal(book.seq["2026"], 1);
+    const book = await notes.readNotesFor(["h:a1b2c3d4e5f60718"]);
+    assert.equal(await seqOf("2026"), 1);
     assert.deepEqual(
-      book.notes["h:a1b2c3d4e5f60718"].events.map((e) => e.action),
+      book.get("h:a1b2c3d4e5f60718")?.events.map((e) => e.action),
       ["erstellt", "heruntergeladen", "gedruckt"],
     );
     const events = await listSecurityEvents(10);
@@ -727,7 +781,7 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
     assert.ok(req.ok);
     const r = await service.runDocument(req.req, WHO, ORIGIN, NOW);
     assert.equal(r.ok, false);
-    assert.equal((await notes.readNotes()).seq["2026"], undefined);
+    assert.equal(await seqOf("2026"), undefined);
   });
 
   test("Sammeldruck über Zeitraum: nur Bestellungen aus Zeitraum und Filter, sonst Abbruch", async () => {
@@ -771,8 +825,8 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
       assert.ok(v.ok);
       const r = await service.runDocument(v.req, WHO, ORIGIN, NOW);
       assert.ok(!r.ok && r.status === 503 && /Daten fehlen/.test(r.error));
-      await assert.rejects(notes.issueNotes([b2c()], "anna", "heruntergeladen", NOW));
-      await assert.rejects(notes.readNotes());
+      await assert.rejects(notes.issueNotes([b2c()], "anna", "heruntergeladen", PRODUCTS, NOW));
+      await assert.rejects(notes.readNotesFor([b2c().key]));
     } finally {
       delete process.env.VERCEL;
     }
@@ -810,9 +864,9 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
     const afterState = JSON.parse(await fs.readFile(file, "utf8"));
     const changed = Object.keys(afterState).filter((k) => JSON.stringify(afterState[k]) !== JSON.stringify(snapshot[k]));
     assert.deepEqual(
-      changed.filter((k) => !k.startsWith("tt:ver:")),
-      [store.KEYS.officeDeliveryNotes],
-      "geändert wird nur das Lieferschein-Nummernbuch",
+      changed.filter((k) => !k.startsWith("tt:ver:")).sort(),
+      [store.KEYS.officeNoteSeq, notes.noteKey("h:a1b2c3d4e5f60718")].sort(),
+      "geändert werden nur Lieferschein-Zähler und der Lieferschein dieser Bestellung",
     );
     assert.deepEqual(afterState[store.KEYS.dealerOrders], snapshot[store.KEYS.dealerOrders], "Bestellung und Rechnung unverändert (kein Versandstatus)");
     assert.deepEqual(afterState[store.KEYS.orders], snapshot[store.KEYS.orders]);

@@ -3,7 +3,8 @@ import { logSecurityEvent } from "../admin-security/audit";
 import { hitLimit } from "../admin-security/rate-limit";
 import { getSettings } from "../settings";
 import type { Product } from "../types";
-import { MAX_NOTES_PER_PDF, MAX_REMARK, type NoteBook, issueNotes, readNotes } from "./delivery-notes";
+import { logActivity } from "./activity";
+import { MAX_NOTES_PER_PDF, MAX_REMARK, type StoredNote, issueNotes, orderFromBasis, readNotesFor } from "./delivery-notes";
 import { type CompanyInfo, collectListPdf, dailyReportPdf, deliveryNotesPdf, shippingListPdf } from "./documents";
 import { type Filters, applyFilters, describeFilters, filterSummaryForLog, lineFilter, parseFilters } from "./filters";
 import { logoImage } from "./logo";
@@ -11,6 +12,7 @@ import type { OfficeOrder } from "./model";
 import { type Principal, principalLabel } from "./roles";
 import { loadOfficeOrder, loadOfficeOrders } from "./source";
 import { type Range, berlinParts, resolveRange } from "./time";
+import { changedSinceRelease } from "./workflow";
 
 /**
  * Ablauf der PDF-Dokumente der Büroverwaltung (nur auf dem Server):
@@ -20,8 +22,9 @@ import { type Range, berlinParts, resolveRange } from "./time";
  */
 export const DOC_TYPES = ["lieferschein", "versandliste", "sammelliste", "tagesbericht"] as const;
 export type DocType = (typeof DOC_TYPES)[number];
-/** vorschau: ansehen ohne Nummernvergabe · druck: im Browser öffnen (zum Drucken) · download: als Datei speichern */
-export type DocMode = "vorschau" | "druck" | "download";
+/** vorschau: ansehen ohne Nummernvergabe · druck: im Browser öffnen (zum Drucken) · download: als Datei speichern ·
+ * archiv: unveränderte Kopie einer früheren Lieferschein-Version (keine neue Nummer, keine neue Version) */
+export type DocMode = "vorschau" | "druck" | "download" | "archiv";
 
 const TITLES: Record<DocType, string> = { lieferschein: "Lieferschein", versandliste: "Versandliste", sammelliste: "Artikel-Sammelliste", tagesbericht: "Tagesbericht" };
 
@@ -35,6 +38,8 @@ export type DocRequest = {
   keys: string[];
   all: boolean;
   remark?: string;
+  /** Nur bei „archiv“: welche Version */
+  version?: number;
 };
 
 const KEY_RE = /^(s:cs_[A-Za-z0-9_]{6,200}|h:[0-9a-f]{8,64})$/;
@@ -46,8 +51,10 @@ export function parseDocRequest(p: Input, now: number): { ok: true; req: DocRequ
   const type = DOC_TYPES.find((t) => t === one(p.art));
   if (!type) return { ok: false, error: "Unbekannte Dokumentart." };
   const modeRaw = one(p.modus);
-  const mode: DocMode = modeRaw === "vorschau" || modeRaw === "druck" ? modeRaw : "download";
+  const mode: DocMode = modeRaw === "vorschau" || modeRaw === "druck" || modeRaw === "archiv" ? modeRaw : "download";
   if (mode === "vorschau" && type !== "lieferschein") return { ok: false, error: "Eine Vorschau gibt es nur für Lieferscheine." };
+  const version = Number(one(p.version));
+  if (mode === "archiv" && (type !== "lieferschein" || !Number.isInteger(version) || version < 1 || version > 10_000)) return { ok: false, error: "Ungültige Lieferschein-Version." };
   const flat = Object.fromEntries(Object.entries(p).map(([k, v]) => [k, one(v)]));
   const filters = parseFilters(flat);
   const rawKeys = (Array.isArray(p.auswahl) ? p.auswahl : p.auswahl ? [p.auswahl] : []).map((k) => k.trim()).filter(Boolean);
@@ -68,10 +75,11 @@ export function parseDocRequest(p: Input, now: number): { ok: true; req: DocRequ
     if (all && !range) return { ok: false, error: "Für „alle Filterergebnisse“ fehlt der Zeitraum." };
     if (!all && keys.length > MAX_NOTES_PER_PDF) return { ok: false, error: `Höchstens ${MAX_NOTES_PER_PDF} Lieferscheine auf einmal – bitte die Auswahl verkleinern.` };
     if (!range && keys.length > 5) return { ok: false, error: "Für mehr als 5 Lieferscheine bitte über die Liste mit Zeitraum auswählen." };
+    if (mode === "archiv" && (all || keys.length !== 1)) return { ok: false, error: "Eine Archivkopie gibt es nur für einen einzelnen Lieferschein." };
   }
   if (type === "tagesbericht" && range && range.to - range.from > 26 * 3_600_000) return { ok: false, error: "Ein Tagesbericht gilt für genau einen Tag." };
   const remark = typeof p.bemerkung === "string" && p.bemerkung.trim() ? p.bemerkung.trim().slice(0, MAX_REMARK) : undefined;
-  return { ok: true, req: { type, mode, range, preset, filters, keys, all, remark } };
+  return { ok: true, req: { type, mode, range, preset, filters, keys, all, remark, ...(mode === "archiv" ? { version } : {}) } };
 }
 
 export type DocResult = { ok: true; file: Buffer; filename: string; inline: boolean; count: number } | { ok: false; status: number; error: string };
@@ -110,59 +118,123 @@ export async function companyInfo(): Promise<CompanyInfo> {
   return (await getSettings()).company;
 }
 
+type Logged = { orders: OfficeOrder[]; notes: string[]; warnings: string[] };
+
 export async function runDocument(req: DocRequest, who: Principal, origin: { ip: string; ua: string }, now = Date.now()): Promise<DocResult> {
   const limit = await hitLimit("officeDocument", who.userId ?? "admin");
   if (!limit.ok) return { ok: false, status: 429, error: "Zu viele Dokumente in kurzer Zeit. Bitte später erneut versuchen." };
+  const log: Logged = { orders: [], notes: [], warnings: [] };
+  let r: DocResult;
+  try {
+    r = await buildDocument(req, who, origin, now, log);
+  } catch (e) {
+    r = { ok: false, status: 500, error: "Das Dokument konnte nicht erstellt werden." };
+    await recordActivity(req, who, r, log, now);
+    throw e;
+  }
+  await recordActivity(req, who, r, log, now);
+  return r;
+}
+
+/** Exporthistorie (Phase 3C): jeder Vorgang, auch fehlgeschlagene – nur Bestell- und Lieferscheinnummern, keine Kundendaten */
+async function recordActivity(req: DocRequest, who: Principal, r: DocResult, log: Logged, now: number) {
+  const kind = req.type === "lieferschein" ? (log.orders.length > 1 || req.all || (!log.orders.length && req.keys.length > 1) ? "sammeldruck" : "lieferschein") : req.type;
+  await logActivity(
+    who,
+    {
+      kind,
+      mode: req.mode,
+      range: req.range?.label ?? "",
+      preset: req.preset,
+      filters: req.range ? filterSummaryForLog(req.filters) : "",
+      orders: log.orders.length,
+      positions: log.orders.reduce((n, o) => n + o.lines.length, 0),
+      refs: log.orders.map((o) => o.number),
+      ...(log.notes.length ? { notes: log.notes } : {}),
+      result: r.ok ? "ok" : "fehler",
+      ...(r.ok ? {} : { error: r.error }),
+      ...(log.warnings.length ? { warnings: log.warnings } : {}),
+    },
+    now,
+  );
+}
+
+async function buildDocument(req: DocRequest, who: Principal, origin: { ip: string; ua: string }, now: number, log: Logged): Promise<DocResult> {
   const products = await productLookup();
   const got = await ordersFor(req, products);
   if (!got.ok) return got;
   let orders = got.orders;
+  log.orders = orders;
   const [company, logo] = await Promise.all([companyInfo(), logoImage()]);
   const by = principalLabel(who);
   const inline = req.mode !== "download";
   const filters = describeFilters(req.filters, products);
+  // Änderungserkennung: Bestellungen, die nach ihrer Versandfreigabe geändert wurden
+  const stale = new Set(orders.filter((o) => changedSinceRelease(o, o.office, products).length).map((o) => o.key));
+  if (stale.size) log.warnings.push(`Nach der Versandfreigabe geändert: ${orders.filter((o) => stale.has(o.key)).slice(0, 20).map((o) => o.number).join(", ")}`);
   let file: Buffer;
   let filename: string;
   let detail = "";
 
-  if (req.type === "lieferschein") {
+  if (req.type === "lieferschein" && req.mode === "archiv") {
+    // Archivkopie einer früheren Version: unverändert aus der gespeicherten Datenbasis, keine neue Nummer oder Version
+    const o = orders[0];
+    let note: StoredNote | undefined;
+    try {
+      note = (await readNotesFor([o.key])).get(o.key);
+    } catch {
+      return { ok: false, status: 503, error: "Der Datenspeicher ist gerade nicht erreichbar. Bitte später erneut versuchen." };
+    }
+    const v = note?.versions?.find((x) => x.version === req.version);
+    if (!note || !v) return { ok: false, status: 404, error: "Diese Lieferschein-Version ist nicht gespeichert (Lieferscheine aus der Zeit vor Phase 3C haben keine Archivkopie ihrer früheren Fassungen)." };
+    const archived = orderFromBasis(o.key, v.basis);
+    file = deliveryNotesPdf([{ order: archived, note: { number: note.number, version: v.version, createdAt: v.at, remark: v.basis.remark, archive: true } }], company, products, logo, now);
+    log.notes = [note.number];
+    filename = `exstase-lieferschein-${safeName(note.number)}-v${v.version}-archiv.pdf`;
+    detail = `1 Stk · ${note.number} · v${v.version}`;
+  } else if (req.type === "lieferschein") {
     // Stornierte Bestellungen bekommen keinen Lieferschein
     orders = orders.filter((o) => o.processing !== "storniert");
+    log.orders = orders;
     if (!orders.length) return { ok: false, status: 400, error: "Keine Bestellung für einen Lieferschein (stornierte Bestellungen sind ausgeschlossen)." };
     if (orders.length > MAX_NOTES_PER_PDF) return { ok: false, status: 413, error: `${orders.length} Bestellungen passen – höchstens ${MAX_NOTES_PER_PDF} Lieferscheine auf einmal. Bitte Zeitraum oder Filter eingrenzen.` };
     orders = [...orders].sort((a, b) => a.createdAt - b.createdAt);
     let notes: Map<string, { number: string | null; version: number; createdAt: string; remark: string }>;
     if (req.mode === "vorschau") {
       // Vorschau: nur lesen, keine Nummer vergeben (vorhandene Nummern werden angezeigt)
-      let book: NoteBook;
+      let book: Map<string, StoredNote>;
       try {
-        book = await readNotes();
+        book = await readNotesFor(orders.map((o) => o.key));
       } catch {
         return { ok: false, status: 503, error: "Der Datenspeicher ist gerade nicht erreichbar. Bitte später erneut versuchen." };
       }
       const at = new Date(now).toISOString();
       notes = new Map(
         orders.map((o) => {
-          const n = book.notes[o.key];
+          const n = book.get(o.key);
           return [o.key, n ? { number: n.number, version: n.version, createdAt: n.createdAt, remark: req.remark ?? n.remark } : { number: null, version: 1, createdAt: at, remark: req.remark ?? "" }];
         }),
       );
     } else {
       try {
-        notes = await issueNotes(orders, by, req.mode === "druck" ? "gedruckt" : "heruntergeladen", now, req.remark);
+        notes = await issueNotes(orders, by, req.mode === "druck" ? "gedruckt" : "heruntergeladen", products, now, req.remark);
       } catch {
         console.error("[office] Lieferscheinnummern konnten nicht gespeichert werden");
         return { ok: false, status: 503, error: "Lieferscheinnummern konnten nicht gespeichert werden (Datenspeicher nicht erreichbar). Es wurde kein Lieferschein erstellt." };
       }
     }
     file = deliveryNotesPdf(
-      orders.map((o) => ({ order: o, note: notes.get(o.key) ?? { number: null, version: 1, createdAt: new Date(now).toISOString(), remark: "" } })),
+      orders.map((o) => {
+        const n = notes.get(o.key) ?? { number: null, version: 1, createdAt: new Date(now).toISOString(), remark: "" };
+        return { order: o, note: { ...n, ...(stale.has(o.key) ? { issues: ["Bestellung nach der Versandfreigabe geändert – Freigabe prüfen"] } : {}) } };
+      }),
       company,
       products,
       logo,
       now,
     );
     const numbers = orders.map((o) => notes.get(o.key)?.number).filter(Boolean) as string[];
+    log.notes = numbers;
     filename = orders.length === 1 ? `exstase-lieferschein-${safeName(numbers[0] ?? `vorschau-${orders[0].number}`)}.pdf` : `exstase-lieferscheine-${stamp(now)}${req.mode === "vorschau" ? "-vorschau" : ""}.pdf`;
     detail = `${orders.length} Stk${numbers.length ? ` · ${numbers[0]}${numbers.length > 1 ? ` … ${numbers[numbers.length - 1]}` : ""}` : ""}`;
   } else {

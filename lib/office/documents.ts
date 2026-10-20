@@ -71,6 +71,10 @@ export type DeliveryNoteInfo = {
   version: number;
   createdAt: string;
   remark: string;
+  /** Zusätzliche Prüfhinweise (z. B. „Bestellung nach der Versandfreigabe geändert“) */
+  issues?: string[];
+  /** Archivkopie einer älteren Version (aus der gespeicherten Datenbasis) */
+  archive?: boolean;
 };
 
 /** Was auf einem Lieferschein fehlt oder unsicher ist (wird vor dem Erstellen angezeigt und ins PDF gedruckt) */
@@ -144,6 +148,7 @@ export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNote
     const titleY = Math.max(addrTop + 22 + block.length * 13, addrTop + 22 + info.length * 12.5) + mm(12);
     doc.text(L, titleY, "Lieferschein", { size: 20, font: "bold" });
     if (preview) doc.text(R, titleY, "Vorschau – noch keine Lieferscheinnummer vergeben", { size: 8.5, gray: 0.45, align: "right" });
+    else if (note.archive) doc.text(R, titleY, `Archivkopie der Version ${note.version} (Stand ${berlin(Date.parse(note.createdAt) || now, true)})`, { size: 8.5, gray: 0.45, align: "right" });
     doc.line(L, titleY + 8, R, titleY + 8, 0.6, 0.2);
 
     const flow = new Flow(doc, titleY + 14, () => mm(18), mm(20), mm(15));
@@ -151,7 +156,7 @@ export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNote
     const rows = o.lines.map((l, i) => {
       packs += l.quantity;
       const contents = lineContents(l, products);
-      const mix = Boolean(l.handle && products.get(l.handle)?.contents?.length);
+      const mix = l.mixContents !== undefined || Boolean(l.handle && products.get(l.handle)?.contents?.length);
       return [
         String(i + 1),
         l.sku || "—",
@@ -185,7 +190,7 @@ export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNote
       for (const r of remarks) flow.paragraph(r, { size: 9, gap: 2 });
       flow.y += 6;
     }
-    const issues = deliveryNoteIssues(o).filter((x) => !x.startsWith("Keine eigene Lieferadresse"));
+    const issues = [...deliveryNoteIssues(o).filter((x) => !x.startsWith("Keine eigene Lieferadresse")), ...(note.issues ?? [])];
     if (issues.length) flow.paragraph(`Bitte prüfen: ${issues.join(" · ")}.`, { size: 8, gray: 0.35, gap: 6 });
 
     // Empfangsbestätigung

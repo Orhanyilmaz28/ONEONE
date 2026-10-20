@@ -6,12 +6,14 @@ import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
 import { requireOffice } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
 import { CHANNEL_LABEL, type OfficeAddress, originalUrl, slugToKey } from "@/lib/office/model";
-import { MAX_REMARK, type StoredNote, readNotes } from "@/lib/office/delivery-notes";
+import { MAX_REMARK, type StoredNote, readNotesFor } from "@/lib/office/delivery-notes";
 import { deliveryNoteIssues, missingCompanyFields } from "@/lib/office/documents";
 import { companyInfo } from "@/lib/office/documents-service";
 import { can } from "@/lib/office/roles";
 import { loadOfficeOrder } from "@/lib/office/source";
 import { PaymentBadge, ProcessingBadge, ShippingBadge } from "../../shared";
+import { OfficeStatusBadge, WorkflowCard, WorkflowDialog, isDialog } from "../../workflow-ui";
+import { changedSinceRelease } from "@/lib/office/workflow";
 
 export const metadata: Metadata = { title: "Bestellung · Büro" };
 export const dynamic = "force-dynamic";
@@ -48,10 +50,14 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
   const me = await requireOffice();
   const slug = (await params).slug;
   const sp = await searchParams;
-  const fehler = typeof sp.fehler === "string" ? sp.fehler.slice(0, 300) : "";
+  const str = (k: string, max = 600) => (typeof sp[k] === "string" ? (sp[k] as string).slice(0, max) : "");
+  const fehler = str("fehler", 300);
+  const aktion = str("aktion", 30);
   const key = slugToKey(slug);
   if (!key) notFound();
-  const { order: o, error } = await loadOfficeOrder(key, await productLookup());
+  const products = await productLookup();
+  const now = Date.now();
+  const { order: o, error } = await loadOfficeOrder(key, products);
   if (error)
     return (
       <Notice title="Bestellung konnte nicht geladen werden" tone="red">
@@ -62,13 +68,15 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
   let note: StoredNote | undefined;
   let notesOk = true;
   try {
-    note = (await readNotes()).notes[o.key];
+    note = (await readNotesFor([o.key])).get(o.key);
   } catch {
     notesOk = false;
   }
   const company = await companyInfo();
   const companyMissing = missingCompanyFields(company);
   const issues = deliveryNoteIssues(o);
+  const changed = changedSinceRelease(o, o.office, products);
+  if (changed.length) issues.push("Bestellung nach der Versandfreigabe geändert – Freigabe prüfen.");
   const write = can(me.role, "office.documents");
   const back = `/admin/buero/bestellungen/${slug}`;
   const basis = o.priceBasis === "brutto" ? "inkl. USt" : "netto";
@@ -102,6 +110,7 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
         title={`Bestellung ${o.number}`}
       />
       <div className="mb-6 flex flex-wrap gap-2">
+        <OfficeStatusBadge o={o} />
         <PaymentBadge o={o} />
         <ProcessingBadge o={o} />
         <ShippingBadge o={o} />
@@ -120,6 +129,8 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
           <Notice title="Hinweise">{o.warnings.join(" · ")}</Notice>
         </div>
       ) : null}
+      {isDialog(aktion) ? <WorkflowDialog action={aktion} back={back} me={me} now={now} o={o} products={products} /> : null}
+      <WorkflowCard back={back} fehler={str("bearbeitung")} konflikt={str("konflikt") === "1"} me={me} o={o} ok={str("erledigt", 30)} products={products} />
 
       <div className="mb-6 grid gap-4 md:grid-cols-3">
         <Card title="Kunde">
@@ -205,6 +216,25 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
                     Erstellt {formatDateTime(note.createdAt)} von {note.createdBy}
                   </p>
                   {note.remark ? <p>Bemerkung: {note.remark}</p> : null}
+                  {note.versions?.length && can(me.role, "office.documents") ? (
+                    <div>
+                      <p className="mb-1 text-[13px] text-muted">Gespeicherte Versionen (Archivkopie unverändert erneut erzeugen)</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[...note.versions].reverse().map((v) => (
+                          <form action="/api/admin/buero/dokument" key={v.version} method="post" target="_blank">
+                            <input name="art" type="hidden" value="lieferschein" />
+                            <input name="modus" type="hidden" value="archiv" />
+                            <input name="version" type="hidden" value={v.version} />
+                            <input name="auswahl" type="hidden" value={o.key} />
+                            <input name="zurueck" type="hidden" value={back} />
+                            <button className="rounded-full border border-line px-3 py-1 text-[12px] hover:border-ink/40" title={`Stand ${formatDateTime(v.at)} · ${v.by}`} type="submit">
+                              Version {v.version}
+                            </button>
+                          </form>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
                   <div>
                     <p className="mb-1 text-[13px] text-muted">Verlauf</p>
                     <ul className="space-y-0.5 text-[13px]">

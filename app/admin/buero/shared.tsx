@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Badge, btn, btnSecondary, input, label } from "@/components/admin/ui";
-import { CHANNELS, EXPORTED, GROUP_LABEL, PAYMENTS, STATUSES } from "@/lib/office/filters";
+import { CHANNELS, EXPORTED, GROUP_LABEL, OFFICE_FILTER, PAYMENTS, STATUSES } from "@/lib/office/filters";
 import { type OfficeOrder, PAYMENT_LABEL, PROCESSING_LABEL, SHIPPING_LABEL } from "@/lib/office/model";
 import { PRESETS } from "@/lib/office/time";
 import type { Product } from "@/lib/types";
@@ -14,7 +14,7 @@ export async function paramsOf(sp: SearchParams): Promise<Record<string, string>
 }
 
 /** Parameter für Zeitraum und Filter, die zwischen Übersicht, Liste und Export weitergegeben werden */
-export const PASS_KEYS = ["zeitraum", "tag", "kw", "monat", "jahr", "von", "bis", "typ", "zahlung", "status", "exportiert", "kunde", "produkt", "sorte", "gruppe", "versandbereit", "q"] as const;
+export const PASS_KEYS = ["zeitraum", "tag", "kw", "monat", "jahr", "von", "bis", "typ", "zahlung", "status", "exportiert", "kunde", "produkt", "sorte", "gruppe", "versandbereit", "q", "buero", "aufmerksamkeit"] as const;
 
 /** Versteckte Felder für Zeitraum und Filter (für Excel-/PDF-Formulare) */
 export function HiddenParams({ p, skip = [] }: { p: Record<string, string>; skip?: string[] }) {
@@ -194,6 +194,18 @@ export function FilterFields({ p, products, lockChannel, shipReady }: { p: Recor
         </select>
       </div>
       <div>
+        <label className={label} htmlFor="f-buero">
+          Bürostatus
+        </label>
+        <select className={select} defaultValue={p.buero} id="f-buero" name="buero">
+          {OFFICE_FILTER.map((x) => (
+            <option key={x.key} value={x.key}>
+              {x.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div>
         <label className={label} htmlFor="f-exportiert">
           Export
         </label>
@@ -258,6 +270,13 @@ export function FilterFields({ p, products, lockChannel, shipReady }: { p: Recor
         </label>
         <input className={input} defaultValue={p.q} id="f-q" maxLength={100} name="q" placeholder="Nr., Name, Ort, PLZ, Sendungsnr." type="search" />
       </div>
+      <label className="flex items-start gap-2.5 rounded-2xl border border-line px-4 py-3 text-[14px] sm:col-span-2">
+        <input className="mt-1" defaultChecked={p.aufmerksamkeit === "1"} name="aufmerksamkeit" type="checkbox" value="1" />
+        <span>
+          <span className="font-medium">Nur Bestellungen, die Aufmerksamkeit brauchen</span>
+          <span className="block text-[12px] text-muted">Markiert, Freigabe blockiert, Adresse oder Artikelnummer fehlt, Zahlungsproblem, nach Freigabe geändert.</span>
+        </span>
+      </label>
       {shipReady ? (
         <label className="flex items-start gap-2.5 rounded-2xl border border-line px-4 py-3 text-[14px] sm:col-span-2">
           <input className="mt-1" defaultChecked={p.versandbereit === "1"} name="versandbereit" type="checkbox" value="1" />

@@ -31,6 +31,7 @@ export function addressLines(a: OfficeAddress | null, fallbackName = ""): string
 
 /** Inhalt einer Position in Dosen/Flaschen, z. B. „48 Dosen“ oder bei Mixpaketen (laut Produktdaten) „24 Classic, 24 Tropical“ */
 export function lineContents(l: OfficeLine, products: Map<string, Product>): string {
+  if (l.mixContents !== undefined) return l.mixContents;
   const parts = unitsBySort(l, products);
   if (!parts) return "";
   const unit = l.handle?.startsWith("wasser") ? "Flaschen" : "Dosen";

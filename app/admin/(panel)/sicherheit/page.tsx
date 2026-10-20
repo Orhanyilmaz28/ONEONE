@@ -32,6 +32,7 @@ const EVENT_LABEL: Record<SecurityEventType, string> = {
   restore_test: "Testwiederherstellung",
   office_export: "Büro: Excel-Export",
   office_document: "Büro: PDF-Dokument",
+  office_workflow: "Büro: Bearbeitungsstatus geändert",
   office_user_created: "Büro-Zugang angelegt",
   office_user_changed: "Büro-Zugang geändert",
   office_user_deleted: "Büro-Zugang gelöscht",

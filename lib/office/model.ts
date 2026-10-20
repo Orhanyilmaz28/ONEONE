@@ -41,6 +41,8 @@ export type OfficeLine = {
   discount: number;
   /** Positionssumme in Cent (nach Rabatt) */
   total: number;
+  /** Nur bei Archivkopien: gespeicherter Mixpaket-Inhalt zum Zeitpunkt des Drucks (statt der heutigen Produktdaten) */
+  mixContents?: string;
 };
 
 export type OfficeOrder = {
@@ -89,6 +91,8 @@ export type OfficeOrder = {
   exportedAt?: string;
   /** Hinweise zu fehlenden oder unsicheren Angaben */
   warnings: string[];
+  /** Büro-Bearbeitungsstand (Phase 3C) – undefined = nicht geladen, null = noch nichts bearbeitet */
+  office?: import("./workflow").WfRecord | null;
 };
 
 export const VAT_RATE = 19;

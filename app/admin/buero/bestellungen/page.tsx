@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Badge, Card, EmptyState, Notice, PageHeader, Table, btnSecondary, formatDateTime } from "@/components/admin/ui";
+import { Badge, Card, EmptyState, Notice, PageHeader, Table, btn, btnSecondary, formatDateTime, input } from "@/components/admin/ui";
 import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
 import { requireOffice } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
@@ -9,7 +9,11 @@ import { CHANNEL_LABEL, type OfficeOrder, officeUrl } from "@/lib/office/model";
 import { can } from "@/lib/office/roles";
 import { loadOfficeOrders } from "@/lib/office/source";
 import { resolveRange } from "@/lib/office/time";
-import { FilterFields, FormButtons, PaymentBadge, ProcessingBadge, RangeFields, type SearchParams, ShippingBadge, paramsOf, passParams, productOptions } from "../shared";
+import { ATTENTION_LABEL, attention } from "@/lib/office/workflow";
+import { BULK_ACTIONS, BULK_LABEL } from "@/lib/office/workflow-service";
+import { MAX_BULK } from "@/lib/office/workflow-store";
+import { FilterFields, FormButtons, PaymentBadge, RangeFields, type SearchParams, ShippingBadge, paramsOf, passParams, productOptions } from "../shared";
+import { OfficeStatusBadge } from "../workflow-ui";
 
 export const metadata: Metadata = { title: "Alle Bestellungen · Büro" };
 export const dynamic = "force-dynamic";
@@ -23,6 +27,7 @@ const place = (o: OfficeOrder) => {
   return [a?.zip, a?.city].filter(Boolean).join(" ");
 };
 const summary = (o: OfficeOrder) => o.lines.map((l) => `${l.quantity}× ${l.sort}`).join(", ");
+const itemCount = (o: OfficeOrder) => o.lines.reduce((n, l) => n + l.quantity, 0);
 
 export default async function OfficeOrdersPage({ searchParams }: { searchParams: SearchParams }) {
   const me = await requireOffice();
@@ -38,6 +43,8 @@ export default async function OfficeOrdersPage({ searchParams }: { searchParams:
   const visible = all.slice((page - 1) * PER_PAGE, page * PER_PAGE);
   const qs = passParams(p);
   const pageHref = (n: number) => `${BASE}?${passParams(p, { seite: String(n) })}`;
+  const write = can(me.role, "office.workflow");
+  const back = `${BASE}?${passParams(p, { seite: String(page) })}`;
 
   return (
     <>
@@ -74,13 +81,6 @@ export default async function OfficeOrdersPage({ searchParams }: { searchParams:
               </Notice>
             </div>
           ) : null}
-          {filters.status === "freigegeben" ? (
-            <div className="mb-5">
-              <Notice title="„Für Versand freigegeben“ wird noch nicht erfasst" tone="blue">
-                Die Freigabe für den Versand kommt mit Phase 3C. Bis dahin passt keine Bestellung zu diesem Filter.
-              </Notice>
-            </div>
-          ) : null}
           <p className="mb-4 text-[14px] text-muted" role="status">
             <b className="font-medium text-ink">{all.length}</b> {all.length === 1 ? "Bestellung" : "Bestellungen"} · {r.range.label} · {describeFilters(filters, products).join(" · ")}
           </p>
@@ -91,67 +91,138 @@ export default async function OfficeOrdersPage({ searchParams }: { searchParams:
             </EmptyState>
           ) : (
             <>
-              <ul className="space-y-3 md:hidden">
-                {visible.map((o) => (
-                  <li key={o.key}>
-                    <Link className="block rounded-2xl border border-line bg-card p-4" href={officeUrl(o)}>
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium tabular-nums">{o.number}</p>
-                          <p className="text-[13px] text-muted">{formatDateTime(o.createdAt)}</p>
+              <form action="/admin/buero/sammelaktion" method="get">
+                <input name="zurueck" type="hidden" value={back} />
+                <ul className="space-y-3 md:hidden">
+                  {visible.map((o) => (
+                    <li className="relative" key={o.key}>
+                      {write ? <input aria-label={`${o.number} auswählen`} className="absolute top-4 left-4 z-10 size-4" name="auswahl" type="checkbox" value={o.key} /> : null}
+                      <Link className={`block rounded-2xl border border-line bg-card p-4 ${write ? "pl-10" : ""}`} href={officeUrl(o)}>
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <p className="font-medium tabular-nums">{o.number}</p>
+                            <p className="text-[13px] text-muted">{formatDateTime(o.createdAt)}</p>
+                          </div>
+                          <p className="font-medium tabular-nums">{formatPrice(o.gross)}</p>
                         </div>
-                        <p className="font-medium tabular-nums">{formatPrice(o.gross)}</p>
-                      </div>
-                      <p className="mt-2 text-[14px]">{o.company || o.customerName || "—"}</p>
-                      <p className="text-[13px] text-muted">{summary(o)}</p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        <Badge>{CHANNEL_LABEL[o.channel]}</Badge>
-                        <PaymentBadge o={o} />
-                        <ProcessingBadge o={o} />
-                      </div>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-              <div className="hidden md:block">
-                <Card padded={false}>
-                  <div className="px-6 pb-1">
-                    <Table head={["Bestellung", "Datum", "Art", "Kunde", "Ort", "Artikel", <span className="block text-right" key="s">Gesamt</span>, "Zahlung", "Bearbeitung", "Versand"]}>
-                      {visible.map((o) => (
-                        <tr className="relative transition hover:bg-ink/[0.025]" key={o.key}>
-                          <td className="py-3 pr-4 align-top">
-                            <Link className="font-medium tabular-nums after:absolute after:inset-0 after:content-['']" href={officeUrl(o)}>
-                              {o.number}
-                            </Link>
-                            {o.exportedAt ? <span className="block text-[11px] text-muted">exportiert</span> : null}
-                          </td>
-                          <td className="whitespace-nowrap py-3 pr-4 align-top text-muted tabular-nums">{formatDateTime(o.createdAt)}</td>
-                          <td className="py-3 pr-4 align-top">{CHANNEL_LABEL[o.channel]}</td>
-                          <td className="py-3 pr-4 align-top">
-                            {o.company ? <span className="block">{o.company}</span> : null}
-                            <span className={o.company ? "text-[13px] text-muted" : ""}>{o.customerName || "—"}</span>
-                          </td>
-                          <td className="py-3 pr-4 align-top text-muted">{place(o) || "—"}</td>
-                          <td className="max-w-[16rem] py-3 pr-4 align-top text-[13px] text-muted">{summary(o) || "—"}</td>
-                          <td className="whitespace-nowrap py-3 pr-4 text-right align-top tabular-nums">
-                            {formatPrice(o.gross)}
-                            <span className="block text-[11px] text-muted">{o.priceBasis === "netto" ? "Händler, inkl. USt" : "inkl. USt"}</span>
-                          </td>
-                          <td className="py-3 pr-4 align-top">
-                            <PaymentBadge o={o} />
-                          </td>
-                          <td className="py-3 pr-4 align-top">
-                            <ProcessingBadge o={o} />
-                          </td>
-                          <td className="py-3 pr-4 align-top">
-                            <ShippingBadge o={o} />
-                          </td>
-                        </tr>
-                      ))}
-                    </Table>
+                        <p className="mt-2 text-[14px]">{o.company || o.customerName || "—"}</p>
+                        <p className="text-[13px] text-muted">{summary(o)}</p>
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <Badge>{CHANNEL_LABEL[o.channel]}</Badge>
+                          <PaymentBadge o={o} />
+                          <OfficeStatusBadge o={o} />
+                          {o.office?.flag ? <Badge tone="amber">Prüfung erforderlich</Badge> : null}
+                        </div>
+                        {o.office?.assignee ? <p className="mt-1 text-[12px] text-muted">Zuständig: {o.office.assignee}</p> : null}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+                <div className="hidden md:block">
+                  <Card padded={false}>
+                    <div className="px-6 pb-1">
+                      <Table
+                        head={[
+                          ...(write ? [<span className="sr-only" key="a">Auswahl</span>] : []),
+                          "Bestellung",
+                          "Kunde",
+                          "Typ",
+                          "Datum",
+                          "Zahlung",
+                          "Bürostatus",
+                          "Versand",
+                          <span className="block text-right" key="n">Artikel</span>,
+                          <span className="block text-right" key="s">Betrag</span>,
+                          "Zuständig / zuletzt",
+                          "Hinweise",
+                        ]}
+                      >
+                        {visible.map((o) => {
+                          const att = attention(o, o.office, products);
+                          return (
+                            <tr className="relative transition hover:bg-ink/[0.025]" key={o.key}>
+                              {write ? (
+                                <td className="relative z-10 py-3 pr-3 align-top">
+                                  <input aria-label={`${o.number} auswählen`} className="size-4" name="auswahl" type="checkbox" value={o.key} />
+                                </td>
+                              ) : null}
+                              <td className="py-3 pr-4 align-top">
+                                <Link className="font-medium tabular-nums after:absolute after:inset-0 after:content-['']" href={officeUrl(o)}>
+                                  {o.number}
+                                </Link>
+                                {o.exportedAt ? <span className="block text-[11px] text-muted">exportiert</span> : null}
+                              </td>
+                              <td className="py-3 pr-4 align-top">
+                                {o.company ? <span className="block">{o.company}</span> : null}
+                                <span className={o.company ? "text-[13px] text-muted" : ""}>{o.customerName || "—"}</span>
+                                <span className="block text-[12px] text-muted">{place(o)}</span>
+                              </td>
+                              <td className="py-3 pr-4 align-top">{CHANNEL_LABEL[o.channel]}</td>
+                              <td className="whitespace-nowrap py-3 pr-4 align-top text-muted tabular-nums">
+                                {formatDateTime(o.createdAt).split(", ")[0]}
+                                <span className="block text-[12px]">{formatDateTime(o.createdAt).split(", ")[1]}</span>
+                              </td>
+                              <td className="py-3 pr-4 align-top">
+                                <PaymentBadge o={o} />
+                              </td>
+                              <td className="py-3 pr-4 align-top">
+                                <OfficeStatusBadge o={o} />
+                              </td>
+                              <td className="py-3 pr-4 align-top">
+                                <ShippingBadge o={o} />
+                              </td>
+                              <td className="py-3 pr-4 text-right align-top tabular-nums" title={summary(o)}>
+                                {itemCount(o)}
+                              </td>
+                              <td className="whitespace-nowrap py-3 pr-4 text-right align-top tabular-nums">
+                                {formatPrice(o.gross)}
+                                <span className="block text-[11px] text-muted">{o.priceBasis === "netto" ? "Händler, inkl. USt" : "inkl. USt"}</span>
+                              </td>
+                              <td className="py-3 pr-4 align-top text-[12px]">
+                                <span className="block text-[13px]">{o.office?.assignee ?? "—"}</span>
+                                {o.office?.updatedBy ? <span className="block text-muted">{formatDateTime(o.office.updatedAt)}</span> : null}
+                              </td>
+                              <td className="py-3 pr-4 align-top">
+                                {att.length ? (
+                                  <span className="flex max-w-[11rem] flex-wrap gap-1" title={att.map((x) => x.text).join(" · ")}>
+                                    {att.map((x) => (
+                                      <Badge key={x.kind} tone={x.kind === "geaendert" || x.kind === "abgleich" ? "red" : "amber"}>
+                                        {ATTENTION_LABEL[x.kind]}
+                                      </Badge>
+                                    ))}
+                                  </span>
+                                ) : (
+                                  <span className="text-muted">—</span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </Table>
+                    </div>
+                  </Card>
+                </div>
+                {write ? (
+                  <div className="mt-4 flex flex-wrap items-end gap-2 rounded-2xl border border-line bg-card p-4">
+                    <div>
+                      <label className="mb-1.5 block font-medium text-[13px] text-ink/70" htmlFor="sammel-aktion">
+                        Sammelaktion für die ausgewählten Bestellungen (höchstens {MAX_BULK})
+                      </label>
+                      <select className={`${input} pr-8`} id="sammel-aktion" name="aktion">
+                        {BULK_ACTIONS.map((a) => (
+                          <option key={a} value={a}>
+                            {BULK_LABEL[a]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <button className={btn} type="submit">
+                      Auswahl prüfen
+                    </button>
+                    <p className="w-full text-[12px] text-muted">Zuerst wird jede Bestellung geprüft – geändert wird erst nach deiner Bestätigung auf der nächsten Seite.</p>
                   </div>
-                </Card>
-              </div>
+                ) : null}
+              </form>
               {pages > 1 ? (
                 <nav aria-label="Seiten" className="mt-5 flex items-center justify-between gap-3 text-sm">
                   {page > 1 ? (

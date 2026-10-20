@@ -474,7 +474,7 @@ describe("Kennzahlen", () => {
     assert.equal(k.counts.private, 4);
     assert.equal(k.counts.inProgress, 1);
     assert.equal(k.counts.shipped, 1);
-    assert.equal(k.counts.released, null);
+    assert.equal(k.counts.released, 0, "ohne Büro-Bearbeitung ist nichts freigegeben (Phase 3C)");
     assert.equal(k.cancelledNotRefunded, 1);
   });
 

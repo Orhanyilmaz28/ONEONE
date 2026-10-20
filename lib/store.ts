@@ -67,8 +67,10 @@ export const KEYS = {
   officeUsers: "tt:office-users",
   /** Büroverwaltung: welche Bestellung wann in einen Excel-Export aufgenommen wurde */
   officeExported: "tt:office-exported",
-  /** Büroverwaltung: Lieferscheinnummern (je Bestellung) und deren Historie */
+  /** Büroverwaltung (Phase 3B, nur noch gelesen): früheres gemeinsames Lieferschein-Nummernbuch */
   officeDeliveryNotes: "tt:office-delivery-notes",
+  /** Büroverwaltung: Zähler der Lieferscheinnummern je Jahr (die Lieferscheine selbst liegen je Bestellung unter tt:office-ls:<Bestellung>) */
+  officeNoteSeq: "tt:office-ls-seq",
 } as const;
 
 export function storeKind(): StoreKind {
@@ -277,6 +279,27 @@ export function strictReads<R>(fn: () => Promise<R>): Promise<R> {
 export async function getJSONStrict<T>(key: string, fallback: T): Promise<T> {
   if (storeKind() === "none") throw new StoreUnavailableError();
   return readStrict(key, fallback);
+}
+
+/**
+ * Mehrere Werte auf einmal lesen (strikt, wie getJSONStrict) – fehlende Schlüssel liefern null.
+ * Online in Blöcken zu je 100 Schlüsseln (MGET), damit auch lange Listen mit wenigen Anfragen auskommen.
+ */
+export async function getManyJSONStrict<T>(keys: string[]): Promise<(T | null)[]> {
+  const kind = storeKind();
+  if (kind === "none") throw new StoreUnavailableError();
+  if (!keys.length) return [];
+  if (kind === "file") {
+    const all = await withFile(readFileStore);
+    return keys.map((k) => (k in all ? (all[k] as T) : null));
+  }
+  const out: (T | null)[] = [];
+  for (let i = 0; i < keys.length; i += 100) {
+    const chunk = keys.slice(i, i + 100);
+    const raw = await redis<(string | null)[]>(["MGET", ...chunk]);
+    chunk.forEach((k, j) => out.push(raw?.[j] == null ? null : parse<T>(k, raw[j] as string)));
+  }
+  return out;
 }
 
 /** Wert vollständig ersetzen (ohne vorher zu lesen). Erhöht die Version, damit laufende Änderungen das bemerken. */

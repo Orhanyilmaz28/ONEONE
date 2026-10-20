@@ -61,6 +61,8 @@ const TONES = {
   amber: "bg-amber-50 text-amber-800 ring-1 ring-amber-200/60",
   red: "bg-red-50 text-red-700 ring-1 ring-red-200/60",
   blue: "bg-sky-50 text-sky-700 ring-1 ring-sky-200/60",
+  orange: "bg-orange-50 text-orange-800 ring-1 ring-orange-200/60",
+  violet: "bg-violet-50 text-violet-700 ring-1 ring-violet-200/60",
 } as const;
 
 export function Badge({ tone = "neutral", children }: { tone?: keyof typeof TONES; children: ReactNode }) {

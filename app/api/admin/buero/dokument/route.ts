@@ -26,7 +26,7 @@ function sameOrigin(request: Request) {
 
 /** Zurück zur Seite, von der das Formular kam (nur Seiten der Büroverwaltung), mit Fehlermeldung */
 function back(request: Request, target: string, error: string) {
-  const path = /^\/admin\/buero(\/[a-z0-9-]+){0,3}$/.test(target) ? target : "/admin/buero";
+  const path = /^\/admin\/buero(\/[A-Za-z0-9_-]+){0,3}$/.test(target) ? target : "/admin/buero";
   const url = new URL(path, request.url);
   url.searchParams.set("fehler", error.slice(0, 300));
   return Response.redirect(url, 303);

@@ -81,6 +81,14 @@ export default async function ExportPage({ searchParams }: { searchParams: Searc
               {pv.format} · Tabellenblätter: {pv.sheets.join(", ")}
             </dd>
           </dl>
+          {pv.changedAfterRelease.length ? (
+            <div className="mt-4">
+              <Notice title={`${pv.changedAfterRelease.length} ${pv.changedAfterRelease.length === 1 ? "Bestellung wurde" : "Bestellungen wurden"} nach der Versandfreigabe geändert`}>
+                {pv.changedAfterRelease.slice(0, 20).join(", ")}
+                {pv.changedAfterRelease.length > 20 ? " …" : ""} – bitte die Freigabe prüfen. Der Export enthält den aktuellen Stand.
+              </Notice>
+            </div>
+          ) : null}
           {!pv.complete ? (
             <div className="mt-4">
               <Notice title="Export gesperrt – Daten unvollständig" tone="red">

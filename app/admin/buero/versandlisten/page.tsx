@@ -6,6 +6,7 @@ import { applyFilters, describeFilters, parseFilters } from "@/lib/office/filter
 import { can } from "@/lib/office/roles";
 import { shippingRows } from "@/lib/office/shipping";
 import { loadOfficeOrders } from "@/lib/office/source";
+import { changedSinceRelease } from "@/lib/office/workflow";
 import { resolveRange } from "@/lib/office/time";
 import { DocButtons, FilterFields, FormButtons, RangeFields, type SearchParams, paramsOf, productOptions } from "../shared";
 
@@ -31,6 +32,7 @@ export default async function ShippingListsPage({ searchParams }: { searchParams
   const orders = loaded ? applyFilters(loaded.orders, filters, products) : [];
   const rows = shippingRows(orders, products);
   const write = can(me.role, "office.documents") && can(me.role, "office.export");
+  const stale = orders.filter((o) => changedSinceRelease(o, o.office, products).length).map((o) => o.number);
   const unsafe = orders.filter((o) => o.processing === "storniert" || (o.channel === "privat" && o.paymentStatus === "offen")).length;
 
   return (
@@ -75,6 +77,14 @@ export default async function ShippingListsPage({ searchParams }: { searchParams
             </p>
             {write ? <DocButtons back={BASE} count={orders.length} disabled={!loaded?.complete || orders.length === 0} doc="versandliste" excel="versand" p={p} /> : null}
           </div>
+          {stale.length ? (
+            <div className="mb-4">
+              <Notice title={`${stale.length} ${stale.length === 1 ? "Bestellung wurde" : "Bestellungen wurden"} nach der Versandfreigabe geändert`} tone="red">
+                {stale.slice(0, 20).join(", ")}
+                {stale.length > 20 ? " …" : ""} – bitte erneut prüfen und freigeben, bevor sie versendet werden.
+              </Notice>
+            </div>
+          ) : null}
           {unsafe ? (
             <div className="mb-4">
               <Notice title={`${unsafe} ${unsafe === 1 ? "Bestellung ist" : "Bestellungen sind"} storniert oder (privat) noch unbezahlt`}>

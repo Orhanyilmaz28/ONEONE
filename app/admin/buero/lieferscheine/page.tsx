@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Badge, Card, EmptyState, Notice, PageHeader, Table, btn, btnSecondary, formatDateTime, input, label } from "@/components/admin/ui";
 import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
 import { requireOffice } from "@/lib/admin-auth";
-import { MAX_NOTES_PER_PDF, type NoteBook, readNotes } from "@/lib/office/delivery-notes";
+import { MAX_NOTES_PER_PDF, type StoredNote, readNotesFor } from "@/lib/office/delivery-notes";
 import { deliveryNoteIssues } from "@/lib/office/documents";
 import { applyFilters, describeFilters, parseFilters } from "@/lib/office/filters";
 import { CHANNEL_LABEL, type OfficeOrder, officeUrl } from "@/lib/office/model";
@@ -38,13 +38,13 @@ export default async function DeliveryNotesPage({ searchParams }: { searchParams
   const products = await productLookup();
   const filters = parseFilters(p);
   const loaded = r.ok ? await loadOfficeOrders(r.range.from, r.range.to, products) : null;
-  let book: NoteBook | null = null;
+  let book: Map<string, StoredNote> | null = null;
   try {
-    book = await readNotes();
+    book = await readNotesFor(loaded?.orders.map((o) => o.key) ?? []);
   } catch {
     book = null;
   }
-  const notes = book?.notes ?? {};
+  const notes: Record<string, StoredNote> = book ? Object.fromEntries(book) : {};
   const lsFilter = LS_FILTER.find((x) => x.key === p.ls)?.key ?? "";
   const all = (loaded ? applyFilters(loaded.orders, filters, products) : []).filter((o) => (lsFilter === "ohne" ? !notes[o.key] : lsFilter === "mit" ? Boolean(notes[o.key]) : true));
   const selectable = all.filter((o) => o.processing !== "storniert");
