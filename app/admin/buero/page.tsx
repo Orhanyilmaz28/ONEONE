@@ -51,7 +51,9 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
   // Aufmerksamkeit: Kachel und Liste zählen dieselben Bestellungen (gewählter Zeitraum); ältere werden extra verlinkt
   const needsAll = loaded.orders.map((o) => ({ o, reasons: attention(o, o.office, products) })).filter((x) => x.reasons.length);
   const needs = needsAll.filter(({ o }) => o.createdAt >= period.from && o.createdAt < period.to);
-  const needsOlder = needsAll.length - needs.length;
+  // nur dieses Kalenderjahr zählen – genau das zeigt der Link (zeitraum=jahr)
+  const inYear = (o: { createdAt: number }) => o.createdAt >= ranges.year.from && o.createdAt < ranges.year.to;
+  const needsOlder = needsAll.filter(({ o }) => inYear(o) && !(o.createdAt >= period.from && o.createdAt < period.to)).length;
   const problemsInPeriod = needs.length;
   const office: { label: string; value: number; href: string }[] = [
     { label: "Neu eingegangen", value: k.office.neu, href: link({ buero: "neu" }) },
