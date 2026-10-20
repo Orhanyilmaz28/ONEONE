@@ -40,6 +40,17 @@ export function hostOf(url: string): string {
   }
 }
 
+/** Kurzer Hinweis auf die Ursache eines Netzwerkfehlers – ohne Adresse oder Token */
+function networkHint(e: unknown, base: string): string {
+  if (!/^https?:\/\//.test(base)) return " – Adresse muss mit https:// beginnen";
+  const code = (e as { cause?: { code?: unknown } })?.cause?.code;
+  if (code === "ENOTFOUND" || code === "EAI_AGAIN") return " – Adresse nicht gefunden (Tippfehler in der URL?)";
+  if (code === "ECONNREFUSED") return " – Verbindung abgelehnt";
+  if (typeof code === "string" && /^[A-Z_]{2,40}$/.test(code)) return ` (${code})`;
+  if (e instanceof TypeError && /header|invalid/i.test(e.message)) return " – ungültige Zeichen in URL oder Token";
+  return "";
+}
+
 export function restClient(url: string, token: string, opts: { timeoutMs?: number; retries?: number } = {}): RedisClient {
   const base = url.replace(/\/$/, "");
   const timeoutMs = opts.timeoutMs ?? (Number(process.env.BACKUP_REDIS_TIMEOUT_MS) || 15_000);
@@ -60,7 +71,7 @@ export function restClient(url: string, token: string, opts: { timeoutMs?: numbe
         });
       } catch (e) {
         const timeout = e instanceof Error && (e.name === "TimeoutError" || e.name === "AbortError");
-        lastError = new RedisRequestError(timeout ? "Zeitüberschreitung" : "Netzwerkfehler", timeout);
+        lastError = new RedisRequestError(timeout ? "Zeitüberschreitung" : `Netzwerkfehler${networkHint(e, base)}`, timeout);
         continue;
       }
       if (res.status >= 500) {
@@ -101,9 +112,12 @@ export function productionCredentials(): { url: string; token: string } | null {
   return url && token ? { url, token } : null;
 }
 
+/** Eingetragenen Wert bereinigen: Leerzeichen und versehentlich mitkopierte Anführungszeichen entfernen */
+export const cleanEnv = (v: string | undefined) => (v ?? "").trim().replace(/^(["'])(.*)\1$/s, "$2").trim();
+
 /** Zugang zur isolierten Testdatenbank für Wiederherstellungstests */
 export function restoreTestCredentials(): { url: string; token: string } | null {
-  const url = (process.env.BACKUP_RESTORE_TEST_URL ?? "").replace(/\/$/, "");
-  const token = process.env.BACKUP_RESTORE_TEST_TOKEN ?? "";
+  const url = cleanEnv(process.env.BACKUP_RESTORE_TEST_URL).replace(/\/$/, "");
+  const token = cleanEnv(process.env.BACKUP_RESTORE_TEST_TOKEN);
   return url && token ? { url, token } : null;
 }

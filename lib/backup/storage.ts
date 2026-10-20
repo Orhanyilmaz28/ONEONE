@@ -1,3 +1,4 @@
+import { cleanEnv } from "./redis-rest";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import { s3Client } from "./s3";
@@ -35,10 +36,10 @@ const safeName = (key: string) => {
 };
 
 export function s3Storage(env = process.env): BackupStorage | null {
-  const endpoint = env.BACKUP_S3_ENDPOINT ?? "";
-  const bucket = env.BACKUP_S3_BUCKET ?? "";
-  const accessKeyId = env.BACKUP_S3_ACCESS_KEY_ID ?? "";
-  const secretAccessKey = env.BACKUP_S3_SECRET_ACCESS_KEY ?? "";
+  const endpoint = cleanEnv(env.BACKUP_S3_ENDPOINT);
+  const bucket = cleanEnv(env.BACKUP_S3_BUCKET);
+  const accessKeyId = cleanEnv(env.BACKUP_S3_ACCESS_KEY_ID);
+  const secretAccessKey = cleanEnv(env.BACKUP_S3_SECRET_ACCESS_KEY);
   if (!endpoint || !bucket || !accessKeyId || !secretAccessKey) return null;
   const prefix = (env.BACKUP_S3_PREFIX ?? "exstase-backups/").replace(/^\/+/, "");
   const client = s3Client({ endpoint, bucket, accessKeyId, secretAccessKey, region: env.BACKUP_S3_REGION || "auto" });
