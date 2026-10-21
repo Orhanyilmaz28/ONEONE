@@ -25,7 +25,19 @@ export default async function Page() {
         {c.country}
       </p>
       <h2>Vertreten durch</h2>
-      <p>{c.owner}</p>
+      {c.managers.length ? (
+        <p>
+          Geschäftsführer:
+          {c.managers.map((m) => (
+            <span key={m}>
+              <br />
+              {m}
+            </span>
+          ))}
+        </p>
+      ) : (
+        <p>{c.owner}</p>
+      )}
       <h2>Marke</h2>
       <p>
         {c.brand} ({c.domain}) ist eine Marke der {c.name}.
@@ -33,20 +45,42 @@ export default async function Page() {
       <h2>Kontakt</h2>
       <p>
         Telefon: {c.phone}
+        {c.fax ? (
+          <>
+            <br />
+            Telefax: {c.fax}
+          </>
+        ) : null}
         <br />
         E-Mail: {c.email}
+        {c.website ? (
+          <>
+            <br />
+            Website: {c.website}
+          </>
+        ) : null}
       </p>
+      <h2>Registereintrag</h2>
+      {c.registerCourt && c.registerNumber ? (
+        <p>
+          Eintragung im Handelsregister
+          <br />
+          Registergericht: {c.registerCourt}
+          <br />
+          Registernummer: {c.registerNumber}
+        </p>
+      ) : (
+        <p>
+          Eintragung im Handelsregister
+          <br />
+          Registergericht und Registernummer: {c.register}
+        </p>
+      )}
       <h2>Umsatzsteuer-ID</h2>
       <p>
         Umsatzsteuer-Identifikationsnummer gemäß § 27a Umsatzsteuergesetz:
         <br />
         {c.vatId}
-      </p>
-      <h2>Registereintrag</h2>
-      <p>
-        Eintragung im Handelsregister
-        <br />
-        Registergericht und Registernummer: {c.register}
       </p>
       <h2>Verantwortlich für den Inhalt</h2>
       <p>

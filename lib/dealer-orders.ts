@@ -88,8 +88,12 @@ export async function setDealerOrderStatus(id: string, status: DealerOrderStatus
 
 /* ───────── Rechnungen ───────── */
 
-export type InvoiceSettings = { iban: string; bic: string; bank: string; dueDays: number; note: string };
-export const DEFAULT_INVOICE_SETTINGS: InvoiceSettings = { iban: "", bic: "", bank: "", dueDays: 14, note: "" };
+/**
+ * Interne Abrechnungsdaten (nur im Dashboard gepflegt, nie im öffentlichen Code – das Repository ist öffentlich).
+ * `taxNumber` = Steuernummer: nur intern hinterlegt; Rechnungen tragen die USt-IdNr. (§ 14 Abs. 4 Nr. 2 UStG: eine der beiden genügt).
+ */
+export type InvoiceSettings = { iban: string; bic: string; bank: string; dueDays: number; note: string; taxNumber: string };
+export const DEFAULT_INVOICE_SETTINGS: InvoiceSettings = { iban: "", bic: "", bank: "", dueDays: 14, note: "", taxNumber: "" };
 
 export async function getInvoiceSettings(): Promise<InvoiceSettings> {
   const s = await getJSON<Partial<InvoiceSettings>>(KEYS.dealerInvoiceSettings, {});

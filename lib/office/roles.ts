@@ -12,9 +12,9 @@ export type Role = "admin" | StaffRole;
 
 export const ROLE_LABEL: Record<Role, string> = { admin: "Administrator", buero: "Büromitarbeiter", lesen: "Büro-Lesezugriff" };
 export const ROLE_TEXT: Record<Role, string> = {
-  admin: "Voller Zugriff auf das Dashboard, verwaltet die Büro-Zugänge.",
-  buero: "Büroverwaltung ansehen, Bestellungen prüfen, freigeben, zurückstellen, Logistik-Weitergabe und Versand dokumentieren, Exporthistorie ansehen, Excel-Exporte und PDF-Dokumente erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit, keine Status-Korrekturen.",
-  lesen: "Büroverwaltung, Bearbeitungsverlauf und Berichte nur am Bildschirm ansehen. Keine Downloads, keine Lieferscheinnummern, keine Änderungen.",
+  admin: "Voller Zugriff auf das Dashboard, verwaltet die Büro-Zugänge und die automatischen Berichte.",
+  buero: "Büroverwaltung ansehen, Bestellungen prüfen, freigeben, zurückstellen, Logistik-Weitergabe und Versand dokumentieren, Exporthistorie und Berichte ansehen, Berichte manuell erstellen, Kundenfälle bearbeiten, Verkaufsanalysen ansehen und exportieren, Excel-Exporte und PDF-Dokumente erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit, keine Status-Korrekturen.",
+  lesen: "Büroverwaltung, Bearbeitungsverlauf, Berichte, Kundenfälle und Verkaufsanalysen nur am Bildschirm ansehen. Keine Downloads, keine Lieferscheinnummern, keine Änderungen.",
 };
 
 /**
@@ -22,12 +22,29 @@ export const ROLE_TEXT: Record<Role, string> = {
  * (Lieferscheine mit Nummernvergabe, Versandliste, Sammelliste, Tagesbericht) · office.users: Büro-Zugänge verwalten
  * office.workflow: Bürostatus bearbeiten (prüfen, freigeben, zurückstellen, Logistik, Versand) · office.correct: Status-Korrektur
  * (auch „Abgeschlossen“ wieder öffnen) · office.history: Exporthistorie ansehen
+ * office.automation: automatische Berichte, Benachrichtigungen und Erinnerungen einstellen (Phase 3D, nur Administrator)
+ * office.reports: Berichte manuell erstellen / erneut erstellen (Phase 3D)
+ * office.service: Kundenfälle bearbeiten (Phase 3E) · office.service.view: Kundenfälle ansehen
+ * office.analytics: Verkaufsanalysen ansehen (Phase 3F) · office.analytics.export: Analysen exportieren
  */
-export type Permission = "office.view" | "office.export" | "office.documents" | "office.users" | "office.workflow" | "office.correct" | "office.history";
+export type Permission =
+  | "office.view"
+  | "office.export"
+  | "office.documents"
+  | "office.users"
+  | "office.workflow"
+  | "office.correct"
+  | "office.history"
+  | "office.automation"
+  | "office.reports"
+  | "office.service"
+  | "office.service.view"
+  | "office.analytics"
+  | "office.analytics.export";
 const PERMISSIONS: Record<Role, readonly Permission[]> = {
-  admin: ["office.view", "office.export", "office.documents", "office.users", "office.workflow", "office.correct", "office.history"],
-  buero: ["office.view", "office.export", "office.documents", "office.workflow", "office.history"],
-  lesen: ["office.view"],
+  admin: ["office.view", "office.export", "office.documents", "office.users", "office.workflow", "office.correct", "office.history", "office.automation", "office.reports", "office.service", "office.service.view", "office.analytics", "office.analytics.export"],
+  buero: ["office.view", "office.export", "office.documents", "office.workflow", "office.history", "office.reports", "office.service", "office.service.view", "office.analytics", "office.analytics.export"],
+  lesen: ["office.view", "office.service.view", "office.analytics"],
 };
 
 export const can = (role: Role | undefined | null, p: Permission) => Boolean(role && PERMISSIONS[role]?.includes(p));

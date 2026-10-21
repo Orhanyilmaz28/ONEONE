@@ -215,7 +215,7 @@ export function releaseCheck(o: OfficeOrder, rec: WfRecord | null | undefined, p
   }
   const noSku = o.lines.filter((l) => !l.sku).map((l) => l.product);
   if (noSku.length) warnings.push(`Artikelnummer fehlt bei: ${noSku.join(", ")}.`);
-  const noMix = o.lines.filter((l) => isMixLine(l, products) && !products.get(l.handle ?? "")?.contents?.length).map((l) => l.product);
+  const noMix = o.lines.filter((l) => isMixLine(l, products) && !l.mixSnapshot?.length && !products.get(l.handle ?? "")?.contents?.length).map((l) => l.product);
   if (noMix.length) warnings.push(`Mixpaket-Inhalt ist in den Produktdaten nicht hinterlegt: ${noMix.join(", ")}.`);
   if (!o.delivery && o.billing) warnings.push("Keine eigene Lieferadresse – die Rechnungsadresse wird verwendet.");
   if (rec?.flag) warnings.push(`Markiert „Prüfung erforderlich“: ${rec.flag.reason}`);

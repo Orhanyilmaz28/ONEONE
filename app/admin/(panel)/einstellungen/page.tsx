@@ -3,7 +3,8 @@ import { PageHeader } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
 import { mailProvider, mailReady, parseFrom } from "@/lib/mail";
 import { getMailSettings } from "@/lib/mail-settings";
-import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
+import { DEFAULT_SETTINGS, companyDiff, getSettings } from "@/lib/settings";
+import { CompanySyncCard } from "./company-sync-card";
 import { storeKind, strictReads } from "@/lib/store";
 import { getSiteLock } from "@/lib/site-lock";
 import { LockCard } from "./lock-card";
@@ -23,6 +24,7 @@ export default async function SettingsPage() {
         description="Firmendaten fürs Impressum, Versandkosten, Rücksendekosten, ein optionaler Aktions-Hinweis und die E-Mails des Shops. Was du hier speicherst, ist nach wenigen Sekunden im ganzen Shop zu sehen."
         title="Einstellungen"
       />
+      <CompanySyncCard canSave={storeKind() !== "none"} diff={companyDiff(settings.company)} />
       <LockCard enabled={lock.enabled} hasPassword={Boolean(lock.hash)} message={lock.message ?? ""} siteUrl="" />
       <SettingsForm canSave={storeKind() !== "none"} defaults={DEFAULT_SETTINGS.shipping} settings={settings} />
       <MailCard

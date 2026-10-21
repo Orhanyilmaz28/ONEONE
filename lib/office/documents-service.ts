@@ -188,7 +188,9 @@ async function buildDocument(req: DocRequest, who: Principal, origin: { ip: stri
     const v = note?.versions?.find((x) => x.version === req.version);
     if (!note || !v) return { ok: false, status: 404, error: "Diese Lieferschein-Version ist nicht gespeichert (Lieferscheine aus der Zeit vor Phase 3C haben keine Archivkopie ihrer früheren Fassungen)." };
     const archived = orderFromBasis(o.key, v.basis);
-    file = deliveryNotesPdf([{ order: archived, note: { number: note.number, version: v.version, createdAt: v.at, remark: v.basis.remark, archive: true } }], company, products, logo, now);
+    // Absender wie bei der Ausstellung; ältere Fassungen ohne Momentaufnahme → aktuelle Firmendaten mit Hinweis
+    const sellerNote = v.basis.seller ? {} : { issues: ["Archivkopie: Firmenangaben zum Ausstellungszeitpunkt nicht gespeichert – aktuelle Firmendaten gedruckt"] };
+    file = deliveryNotesPdf([{ order: archived, note: { number: note.number, version: v.version, createdAt: v.at, remark: v.basis.remark, archive: true, ...(v.basis.seller ? { seller: v.basis.seller } : {}), ...sellerNote } }], company, products, logo, now);
     log.notes = [note.number];
     filename = `exstase-lieferschein-${safeName(note.number)}-v${v.version}-archiv.pdf`;
     detail = `1 Stk · ${note.number} · v${v.version}`;
@@ -217,7 +219,7 @@ async function buildDocument(req: DocRequest, who: Principal, origin: { ip: stri
       );
     } else {
       try {
-        notes = await issueNotes(orders, by, req.mode === "druck" ? "gedruckt" : "heruntergeladen", products, now, req.remark);
+        notes = await issueNotes(orders, by, req.mode === "druck" ? "gedruckt" : "heruntergeladen", products, now, req.remark, company);
       } catch {
         console.error("[office] Lieferscheinnummern konnten nicht gespeichert werden");
         return { ok: false, status: 503, error: "Lieferscheinnummern konnten nicht gespeichert werden (Datenspeicher nicht erreichbar). Es wurde kein Lieferschein erstellt." };

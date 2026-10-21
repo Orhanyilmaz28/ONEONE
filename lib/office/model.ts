@@ -5,6 +5,7 @@ import { DEPOSIT_PER_CAN, cansOf } from "../format";
 import type { OrderMeta } from "../orders";
 import { SORT_NAMES, trayCans } from "../pack-contents";
 import { PRODUCT_SPECS } from "../product-specs";
+import { decodeMixSnapshot } from "../mix-snapshot";
 import type { Product } from "../types";
 
 /**
@@ -43,6 +44,8 @@ export type OfficeLine = {
   total: number;
   /** Nur bei Archivkopien: gespeicherter Mixpaket-Inhalt zum Zeitpunkt des Drucks (statt der heutigen Produktdaten) */
   mixContents?: string;
+  /** Mixpaket-Zusammensetzung zum Kaufzeitpunkt (aus den Stripe-Metadaten `mix`, falls vorhanden) – gilt vor den heutigen Produktdaten */
+  mixSnapshot?: [string, number][];
 };
 
 export type OfficeOrder = {
@@ -91,6 +94,12 @@ export type OfficeOrder = {
   exportedAt?: string;
   /** Hinweise zu fehlenden oder unsicheren Angaben */
   warnings: string[];
+  /** Influencer-Code der Bestellung (Stripe-Metadaten `ref`) und Influencer-ID (`refId`) – nur Privatbestellungen */
+  refCode?: string;
+  refId?: string;
+  /** Kundenkonto (Stripe-Metadaten `customerId`) bzw. Händler-ID – nur zur Zuordnung in Analysen */
+  customerId?: string;
+  dealerId?: string;
   /** Büro-Bearbeitungsstand (Phase 3C) – undefined = nicht geladen, null = noch nichts bearbeitet */
   office?: import("./workflow").WfRecord | null;
 };
@@ -177,6 +186,8 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
       return { handle, qty: Number(qty) || 0 };
     });
   const byTitle = new Map([...products.values()].map((p) => [p.title, p]));
+  // Mixpaket-Inhalt zum Kaufzeitpunkt (nur, wenn der Checkout ihn gespeichert hat)
+  const mixAtPurchase = decodeMixSnapshot(session.metadata?.mix);
 
   const goodsLines = lines.filter((l) => !isDepositLine(l));
   const depositLines = lines.filter(isDepositLine);
@@ -205,6 +216,7 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
       unitPrice,
       discount: l.amount_discount ?? 0,
       total: l.amount_total,
+      ...(handle && mixAtPurchase.has(handle) ? { mixSnapshot: mixAtPurchase.get(handle) } : {}),
     };
   });
 
@@ -262,6 +274,9 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
     customerNote: "",
     internalNote: s(meta?.note),
     invoiceNumber: "",
+    ...(s(session.metadata?.ref) ? { refCode: s(session.metadata?.ref).toUpperCase().slice(0, 40) } : {}),
+    ...(s(session.metadata?.refId) ? { refId: s(session.metadata?.refId).slice(0, 60) } : {}),
+    ...(s(session.metadata?.customerId) ? { customerId: s(session.metadata?.customerId).slice(0, 60) } : {}),
     warnings,
   };
 }
@@ -348,6 +363,7 @@ export function fromDealer(o: DealerOrder, dealer: Dealer | undefined, products:
     customerNote: note,
     internalNote: "",
     invoiceNumber: o.invoice?.number ?? "",
+    ...(o.dealerId ? { dealerId: o.dealerId } : {}),
     warnings,
   };
 }
@@ -366,8 +382,9 @@ export function packInfo(handle: string): PackInfo {
 /** Dosen bzw. Flaschen einer Position, Mixpakete in ihre Sorten zerlegt. null = Menge unbekannt */
 export function unitsBySort(line: OfficeLine, products: Map<string, Product>): { handle: string; sort: string; units: number }[] | null {
   const product = line.handle ? products.get(line.handle) : undefined;
-  if (product?.contents?.length) {
-    return product.contents.map(([h, trays]) => ({ handle: h, sort: sortName(h, products.get(h)?.title ?? h), units: trays * trayCans(h) * line.quantity }));
+  const contents = line.mixSnapshot?.length ? line.mixSnapshot : product?.contents;
+  if (contents?.length) {
+    return contents.map(([h, trays]) => ({ handle: h, sort: sortName(h, products.get(h)?.title ?? h), units: trays * trayCans(h) * line.quantity }));
   }
   if (line.unitsPerPack === null || !line.handle) return null;
   return [{ handle: line.handle, sort: line.sort, units: line.unitsPerPack * line.quantity }];

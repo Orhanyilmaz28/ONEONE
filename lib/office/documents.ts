@@ -17,7 +17,7 @@ import type { Range } from "./time";
  * - Ein Dokument zu erstellen ändert nie eine Bestellung (kein Versandstatus, keine Rechnung).
  * - Fehlende Angaben werden als „fehlt“ gedruckt und gemeldet – nie erfunden.
  */
-export type CompanyInfo = { name: string; brand: string; owner: string; street: string; city: string; country: string; email: string; phone: string; vatId: string; register: string };
+export type CompanyInfo = { name: string; brand: string; owner: string; street: string; city: string; country: string; email: string; phone: string; fax?: string; website?: string; vatId: string; register: string };
 
 /** Platzhalter wie „[Telefonnummer]“ nicht drucken */
 export const real = (v?: string) => {
@@ -46,7 +46,7 @@ function letterhead(doc: PdfDoc, company: CompanyInfo, logo: PdfImage | null, o:
     bottom = top + 24;
   }
   const lines = [real(company.name), real(company.street), real(company.city), real(company.country)].filter(Boolean);
-  const contact = [real(company.phone), real(company.email)].filter(Boolean);
+  const contact = [real(company.phone), real(company.fax) ? `Fax ${real(company.fax)}` : "", real(company.email)].filter(Boolean);
   [...lines, ...(contact.length ? ["", ...contact] : [])].forEach((t, i) => doc.text(R, top + 8 + i * 9.5, t, { size: 7.5, gray: 0.3, align: "right", font: i === 0 ? "bold" : "regular" }));
   return Math.max(bottom, top + 8 + (lines.length + contact.length + 1) * 9.5);
 }
@@ -75,6 +75,8 @@ export type DeliveryNoteInfo = {
   issues?: string[];
   /** Archivkopie einer älteren Version (aus der gespeicherten Datenbasis) */
   archive?: boolean;
+  /** Absender zum Zeitpunkt der Ausstellung (sonst die übergebenen aktuellen Firmendaten) */
+  seller?: CompanyInfo;
 };
 
 /** Was auf einem Lieferschein fehlt oder unsicher ist (wird vor dem Erstellen angezeigt und ins PDF gedruckt) */
@@ -98,14 +100,17 @@ export function deliveryNoteIssues(o: OfficeOrder): string[] {
  * Ein oder mehrere Lieferscheine in einem PDF (jeder beginnt auf einer neuen Seite und hat eigene Seitenzahlen).
  * Tabelle: Pos. | Artikelnummer | Produkt | Sorte | Menge | Einheit. Keine Preise.
  */
-export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNoteInfo }[], company: CompanyInfo, products: Map<string, Product>, logo: PdfImage | null, now = Date.now()): Buffer {
+export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNoteInfo }[], fallbackCompany: CompanyInfo, products: Map<string, Product>, logo: PdfImage | null, now = Date.now()): Buffer {
   const title = items.length === 1 ? `Lieferschein ${items[0].note.number ?? "(Vorschau)"} zu Bestellung ${items[0].order.number}` : `Lieferscheine (${items.length})`;
   const doc = new PdfDoc(title);
-  const footerLeft = companyFooter(company);
   const labels: string[] = [];
-  doc.footer = (page, pages, group) => ({ left: footerLeft, right: `${labels[group - 1] ?? ""} · Seite ${page} von ${pages}` });
+  const footers: string[] = [];
+  doc.footer = (page, pages, group) => ({ left: footers[group - 1] ?? companyFooter(fallbackCompany), right: `${labels[group - 1] ?? ""} · Seite ${page} von ${pages}` });
 
   for (const { order: o, note } of items) {
+    // Jeder Lieferschein mit seinem eigenen Absender (Momentaufnahme bei Ausstellung) – ältere ohne Momentaufnahme: aktuelle Daten
+    const company = note.seller ?? fallbackCompany;
+    footers.push(companyFooter(company));
     const preview = note.number === null;
     const numberText = preview ? "VORSCHAU" : `${note.number}${note.version > 1 ? ` (Version ${note.version})` : ""}`;
     labels.push(preview ? `Vorschau Lieferschein ${o.number}` : `Lieferschein ${note.number}`);
@@ -209,7 +214,7 @@ export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNote
 
 export type ListContext = { title: string; range: Range; filters: string[]; createdBy: string; now: number };
 
-function listHead(doc: PdfDoc, ctx: ListContext, company: CompanyInfo, logo: PdfImage | null, extra = "") {
+export function listHead(doc: PdfDoc, ctx: ListContext, company: CompanyInfo, logo: PdfImage | null, extra = "") {
   const head = letterhead(doc, company, logo, { left: mm(15), top: mm(10), logoWidth: mm(28) });
   const y = head + mm(6);
   doc.text(mm(15), y + 14, ctx.title, { size: 16, font: "bold" });

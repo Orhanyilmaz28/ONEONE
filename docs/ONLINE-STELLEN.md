@@ -252,7 +252,7 @@ Du richtest erst einen **Testmodus** ein (kein echtes Geld). Wenn alles klappt, 
 
 1. Auf der Stripe-Startseite: **Konto aktivieren** (oder **Zahlungen aktivieren**).
 2. Füll die Fragen aus. Das brauchst du:
-   - **Rechtsform:** Kapitalgesellschaft / GmbH – *exstase Großhandel GmbH*, Carl-Kühne-Straße 4, 47638 Straelen
+   - **Rechtsform:** Kapitalgesellschaft / GmbH – *Exstase Großhandel GmbH*, Carl-Kühne-Str. 4, 47638 Straelen
    - **Handelsregister:** Amtsgericht Düsseldorf, HRB 90042 – und die **USt-IdNr.**
    - **Geschäftsführer:** persönliche Daten und Foto vom Ausweis (geht meist per Handy)
    - **Eigentümer:** alle Personen mit 25 % oder mehr
@@ -423,7 +423,7 @@ Diese Liste ist **keine Rechtsberatung**. Sie zeigt dir, woran du denken musst. 
   Mit diesen Anbietern brauchst du außerdem einen **Vertrag zur Auftragsverarbeitung** (AVV, englisch *DPA*). Den gibt es bei allen in den Einstellungen bzw. auf ihrer Website zum Abschließen oder Herunterladen. Ablegen und aufheben.
 - [ ] **Verpackungsregister LUCID.** Wer verpackte Ware an Privatleute verschickt, muss sich **vor dem Verkauf** kostenlos bei **https://lucid.verpackungsregister.org** registrieren.
   Außerdem musst du deine Versandverpackungen bei einem **dualen System** lizenzieren (z. B. über Lizenzero oder Interzero; Kosten je nach Menge). Ohne das droht ein Verkaufsverbot.
-  Hast du schon über Shopify verkauft, ist das vielleicht erledigt – prüf, ob es auf die *exstase Großhandel GmbH* läuft.
+  Hast du schon über Shopify verkauft, ist das vielleicht erledigt – prüf, ob es auf die *Exstase Großhandel GmbH* läuft.
 - [ ] **Newsletter nur mit Double-Opt-in.** Der Shop **sammelt** die Adressen nur. Werbung darfst du erst schicken, wenn die Person ihre Anmeldung in einer Bestätigungs-E-Mail angeklickt hat (*Double-Opt-in*).
   Das übernimmt dein Newsletter-Tool (z. B. **Brevo**). So geht's: [DASHBOARD.md → Newsletter](DASHBOARD.md#newsletter).
 - [ ] **Bestellbestätigung mit Widerrufsbelehrung.** Kund:innen müssen spätestens mit der Lieferung AGB, Widerrufsbelehrung und Muster-Widerrufsformular **dauerhaft** bekommen (Papier oder E-Mail – ein Link reicht nicht).
@@ -444,7 +444,7 @@ Wir nehmen **Brevo**: Anbieter aus der EU, deutsche Oberfläche, kostenlos bis 3
 **Dauer:** ca. 30 Minuten, dazu Wartezeit für die DNS-Einträge (wie bei der Domain).
 
 ### 8.1 Konto anlegen
-1. **brevo.com/de** → **Kostenlos anmelden**. Firmendaten eintragen (exstase Großhandel GmbH).
+1. **brevo.com/de** → **Kostenlos anmelden**. Firmendaten eintragen (Exstase Großhandel GmbH).
 
 ### 8.2 Domain bestätigen (damit E-Mails nicht im Spam landen)
 1. In Brevo: oben rechts auf deinen Namen → **Absender, Domains & dedizierte IPs** (englisch: *Senders, Domains & Dedicated IPs*) → Reiter **Domains** → **Domain hinzufügen** → `exstase-energy.de`.

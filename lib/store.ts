@@ -71,6 +71,8 @@ export const KEYS = {
   officeDeliveryNotes: "tt:office-delivery-notes",
   /** Büroverwaltung: Zähler der Lieferscheinnummern je Jahr (die Lieferscheine selbst liegen je Bestellung unter tt:office-ls:<Bestellung>) */
   officeNoteSeq: "tt:office-ls-seq",
+  /** Kundenservice (Phase 3E): Nummernzähler je Jahr + Liste aller Fallnummern (die Fälle selbst liegen unter tt:office-ticket:<Nummer>) */
+  officeTickets: "tt:office-tickets",
 } as const;
 
 export function storeKind(): StoreKind {

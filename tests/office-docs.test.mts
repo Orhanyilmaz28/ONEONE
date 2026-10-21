@@ -461,26 +461,7 @@ describe("Lieferscheinnummern", () => {
     assert.equal(legacyAfter.seq["2026"], 7, "altes Nummernbuch wird nur gelesen");
   });
 
-  const redisUrl = process.env.REDIS_TEST_URL;
-  const local = Boolean(redisUrl && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(redisUrl));
-  test("Parallele Erstellung gegen echte (lokale Test-)Redis: keine doppelte Nummer", { skip: !local ? "REDIS_TEST_URL (lokal) nicht gesetzt" : false }, async () => {
-    process.env.UPSTASH_REDIS_REST_URL = redisUrl;
-    process.env.UPSTASH_REDIS_REST_TOKEN = process.env.REDIS_TEST_TOKEN;
-    const fresh = await import(`../lib/office/delivery-notes.ts?redis=${Date.now()}`);
-    try {
-      const list = Array.from({ length: 20 }, (_, i) => b2c({ id: `cs_test_RED${String(i).padStart(3, "0")}` }));
-      const keys = [store.KEYS.officeDeliveryNotes, store.KEYS.officeNoteSeq, ...list.map((o) => notes.noteKey(o.key))];
-      await fetch(redisUrl as string, { method: "POST", headers: { Authorization: `Bearer ${process.env.REDIS_TEST_TOKEN}` }, body: JSON.stringify(["DEL", ...keys, ...keys.map((k) => `tt:ver:${k}`)]) });
-      const results = await Promise.all(list.map((o) => fresh.issueNotes([o], "anna", "heruntergeladen", PRODUCTS, NOW)));
-      assert.equal(new Set(results.map((m: Map<string, { number: string }>, i: number) => m.get(list[i].key)?.number)).size, 20);
-      // gleichzeitig dieselbe Bestellung → eine Nummer
-      const same = await Promise.all(Array.from({ length: 6 }, () => fresh.issueNotes([list[3]], "ben", "gedruckt", PRODUCTS, NOW)));
-      assert.equal(new Set(same.map((m: Map<string, { number: string }>) => m.get(list[3].key)?.number)).size, 1);
-    } finally {
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    }
-  });
+  // Redis-Paralleltest: siehe tests/master-ap7-redis-notes.test.mts (Umgebung vor dem Import gesetzt)
 });
 
 /* ───────────── 4. Versandliste ───────────── */
@@ -881,4 +862,53 @@ describe("Dokument-Ablauf und Nebenwirkungen", () => {
       assert.doesNotMatch(code, /setOrderMeta|updateDealerOrder|setDealerOrderStatus|createInvoice/, `${f}: ändert keine Bestellungen/Rechnungen`);
     }
   });
+});
+
+/* ───────────── Master-Auftrag AP1: Absender auf Lieferscheinen festschreiben ───────────── */
+
+describe("Lieferschein: Firmendaten zum Ausstellungszeitpunkt", () => {
+  beforeEach(async () => {
+    setKvBackend(memoryBackend(() => Date.now()));
+    await fs.rm(path.join(dir, ".data"), { recursive: true, force: true });
+  });
+  const OLD = { ...COMPANY, name: "exstase Großhandel GmbH", owner: "Geschäftsführer: Herr Christopher Walich", phone: "+49 211 15 77 59 - 0" };
+
+  test("Neue Lieferscheine speichern den Absender; Archivkopie druckt den damaligen, nicht den heutigen Absender", () => {
+    const o = b2c({ id: "cs_test_S1" });
+    const n = notes.applyIssueOne(null, o, "LS-2026-00050", "anna", "heruntergeladen", NOW, PRODUCTS, undefined, OLD);
+    const v1 = n.versions?.[0];
+    assert.equal(v1?.basis.seller?.owner, "Geschäftsführer: Herr Christopher Walich");
+    const archived = notes.orderFromBasis(o.key, v1!.basis);
+    const text = flatText(readPdf(docs.deliveryNotesPdf([{ order: archived, note: { number: n.number, version: 1, createdAt: v1!.at, remark: "", archive: true, seller: v1!.basis.seller } }], COMPANY, PRODUCTS, null, NOW)));
+    assert.ok(text.includes("Herr Christopher Walich"), "damaliger Absender");
+    assert.ok(!text.includes("Orhan Yilmaz"), "heutige Firmendaten werden nicht nachträglich eingesetzt");
+  });
+
+  test("Geänderte Firmendaten: gleiche Nummer, neue Version – die alte Fassung bleibt erhalten", () => {
+    const o = b2c({ id: "cs_test_S2" });
+    let n = notes.applyIssueOne(null, o, "LS-2026-00051", "anna", "heruntergeladen", NOW, PRODUCTS, undefined, OLD);
+    n = notes.applyIssueOne(n, o, null, "anna", "heruntergeladen", NOW + 1000, PRODUCTS, undefined, OLD);
+    assert.equal(n.version, 1, "unveränderter Absender → keine neue Version");
+    n = notes.applyIssueOne(n, o, null, "anna", "gedruckt", NOW + 2000, PRODUCTS, undefined, COMPANY);
+    assert.equal(n.number, "LS-2026-00051");
+    assert.equal(n.version, 2);
+    assert.equal(n.versions?.[0].basis.seller?.name, "exstase Großhandel GmbH");
+    assert.equal(n.versions?.[1].basis.seller?.name, "Exstase Großhandel GmbH");
+  });
+
+  test("Lieferscheine ohne gespeicherten Absender (vor AP1) behalten ihren Fingerabdruck", () => {
+    const o = b2c({ id: "cs_test_S3" });
+    const legacy = notes.applyIssueOne(null, o, "LS-2026-00052", "anna", "heruntergeladen", NOW, PRODUCTS);
+    assert.equal(legacy.versions?.[0].basis.seller, undefined);
+    assert.equal(notes.noteFingerprint(o, "", PRODUCTS), legacy.fp, "alte Fingerabdrücke unverändert gültig");
+  });
+
+  test("Sammeldruck: jeder Lieferschein mit eigenem Absender im Fuß", () => {
+    const a = b2c({ id: "cs_test_S4" });
+    const b = b2c({ id: "cs_test_S5" });
+    const text = allText(readPdf(docs.deliveryNotesPdf([{ order: a, note: { ...noteInfoOf("LS-2026-00060"), seller: OLD } }, { order: b, note: noteInfoOf("LS-2026-00061") }], COMPANY, PRODUCTS, null, NOW)));
+    assert.ok(text.includes("Herr Christopher Walich"));
+    assert.ok(text.includes("Christopher Walich, Orhan Yilmaz"));
+  });
+  const noteInfoOf = (number: string) => ({ number, version: 1, createdAt: new Date(NOW).toISOString(), remark: "" });
 });

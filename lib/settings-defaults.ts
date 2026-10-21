@@ -12,6 +12,10 @@ export type Settings = {
     country: string;
     email: string;
     phone: string;
+    /** Telefax (freiwillige Angabe) */
+    fax: string;
+    /** Unternehmenswebsite (freiwillige Angabe) */
+    website: string;
     vatId: string;
     register: string;
   };
@@ -62,6 +66,8 @@ export const DEFAULT_SETTINGS: Settings = {
     country: defaultCompany.country,
     email: defaultCompany.email,
     phone: defaultCompany.phone,
+    fax: defaultCompany.fax,
+    website: defaultCompany.website,
     vatId: defaultCompany.vatId,
     register: defaultCompany.register,
   },
@@ -70,9 +76,13 @@ export const DEFAULT_SETTINGS: Settings = {
   announcement: "",
 };
 
+/** Freiwillige Firmenangaben – dürfen leer bleiben, ohne als „fehlt“ zu gelten */
+export const OPTIONAL_COMPANY_FIELDS: readonly (keyof Settings["company"])[] = ["fax", "website"];
+
 /** Felder, die noch Platzhalter wie „[Telefonnummer]“ enthalten */
 export function missingCompanyFields(settings: Settings): (keyof Settings["company"])[] {
   return (Object.keys(settings.company) as (keyof Settings["company"])[]).filter((k) => {
+    if (OPTIONAL_COMPANY_FIELDS.includes(k)) return false;
     const v = settings.company[k];
     return !v || /^\[.*\]$/.test(v.trim());
   });
@@ -80,3 +90,34 @@ export function missingCompanyFields(settings: Settings): (keyof Settings["compa
 
 /** Teil der Einstellungen, der im Browser gebraucht wird */
 export type PublicSettings = Pick<Settings, "shipping" | "announcement">;
+
+/* ───────────── Geschäftsführer ───────────── */
+
+/**
+ * „Geschäftsführer: Christopher Walich, Orhan Yilmaz“ → ["Christopher Walich", "Orhan Yilmaz"]
+ * Reihenfolge bleibt erhalten. Trennzeichen: Komma, Semikolon, „und“, „&“. Anrede „Herr/Frau“ wird entfernt.
+ */
+export function managersOf(owner: string): string[] {
+  const body = (owner ?? "").trim().replace(/^[^:]*:\s*/, "");
+  if (!body || /^\[.*\]$/.test(body)) return [];
+  return body
+    .split(/\s*(?:,|;|\bund\b|&)\s*/)
+    .map((n) => n.replace(/^(Herr|Frau)\s+/i, "").trim())
+    .filter(Boolean);
+}
+
+/* ───────────── Abgleich mit den Betreiberangaben ───────────── */
+
+export type CompanyDiff = { key: keyof Settings["company"]; stored: string; expected: string };
+
+/** Welche gespeicherten Firmenangaben weichen von den Betreiberangaben (Standardwerte) ab? Markenname ausgenommen. */
+export function companyDiff(stored: Settings["company"], expected: Settings["company"] = DEFAULT_SETTINGS.company): CompanyDiff[] {
+  const norm = (k: keyof Settings["company"], v: string) => {
+    const t = String(v ?? "").replace(/\s+/g, " ").trim();
+    return k === "vatId" ? t.toUpperCase().replace(/[\s.\-/]/g, "") : t;
+  };
+  return (Object.keys(expected) as (keyof Settings["company"])[])
+    .filter((k) => k !== "brand")
+    .filter((k) => norm(k, stored[k]) !== norm(k, expected[k]))
+    .map((k) => ({ key: k, stored: String(stored[k] ?? ""), expected: expected[k] }));
+}

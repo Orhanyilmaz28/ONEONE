@@ -4,7 +4,7 @@ import { useActionState } from "react";
 import { type BankState, saveBankAction } from "./actions";
 import { btn, input, label } from "@/components/admin/ui";
 
-export function BankForm({ initial }: { initial: { iban: string; bic: string; bank: string; dueDays: number; note: string } }) {
+export function BankForm({ initial }: { initial: { iban: string; bic: string; bank: string; dueDays: number; note: string; taxNumber: string } }) {
   const [state, action, pending] = useActionState<BankState, FormData>(saveBankAction, undefined);
   return (
     <form action={action} className="grid max-w-2xl gap-4 rounded-3xl border border-line bg-card p-6">
@@ -22,6 +22,11 @@ export function BankForm({ initial }: { initial: { iban: string; bic: string; ba
           <input className={input} defaultValue={initial.bank} name="bank" />
         </label>
       </div>
+      <label className="grid max-w-xs gap-1.5">
+        <span className={label}>Steuernummer (nur intern)</span>
+        <input className={input} defaultValue={initial.taxNumber} name="taxNumber" placeholder="z. B. 123/4567/8901" />
+        <span className="text-[12px] text-muted">Wird nicht im Shop und nicht auf Rechnungen gedruckt – dort steht die USt-IdNr.</span>
+      </label>
       <label className="grid max-w-xs gap-1.5">
         <span className={label}>Zahlungsziel (Tage)</span>
         <input className={input} defaultValue={initial.dueDays} inputMode="numeric" name="dueDays" />

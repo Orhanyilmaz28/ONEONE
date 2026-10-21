@@ -48,6 +48,8 @@ const COMPANY_FIELD_LABEL: Record<keyof Settings["company"], string> = {
   country: "Land",
   email: "E-Mail-Adresse",
   phone: "Telefonnummer",
+  fax: "Telefax",
+  website: "Website",
   vatId: "USt-IdNr.",
   register: "Handelsregister",
 };
