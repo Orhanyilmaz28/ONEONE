@@ -24,6 +24,14 @@ const PERIODS = [
   { key: "jahr", label: "Dieses Jahr" },
 ] as const;
 
+function Chevron() {
+  return (
+    <svg aria-hidden className="size-3.5 transition group-open:rotate-90" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+      <path d="m9 6 6 6-6 6" />
+    </svg>
+  );
+}
+
 export default async function OfficeOverview({ searchParams }: { searchParams: SearchParams }) {
   const me = await requireOffice();
   const p = await paramsOf(searchParams);
@@ -44,6 +52,17 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
   }
   const hints: OfficeNotice[] = auto ? [...reminders(loaded.orders, auto, now), ...notifications(loaded.orders, auto, now - 7 * 86_400_000, products)] : [];
   const hintLabel = (h: OfficeNotice) => (h.reminder ? REMINDER_LABEL[h.kind as keyof typeof REMINDER_LABEL] : NOTIFY_LABEL[h.kind as keyof typeof NOTIFY_LABEL]);
+  const hintRow = (h: OfficeNotice) => (
+    <li className="flex flex-wrap items-baseline gap-2 py-2" key={`${h.reminder ? "r" : "n"}:${h.id}`}>
+      <Badge tone={h.reminder ? "amber" : "blue"}>{hintLabel(h)}</Badge>
+      {h.orderKey ? (
+        <Link className="font-medium tabular-nums underline-offset-4 hover:underline" href={officeUrl({ key: h.orderKey })}>
+          {h.order}
+        </Link>
+      ) : null}
+      <span className="text-muted">{h.text}</span>
+    </li>
+  );
   const link = (extra: Record<string, string>) => `/admin/buero/bestellungen?${new URLSearchParams({ zeitraum: periodKey, ...extra }).toString()}`;
 
   const counts: { label: string; value: number | null; href?: string; hint?: string }[] = [
@@ -66,17 +85,17 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
   const inYear = (o: { createdAt: number }) => o.createdAt >= ranges.year.from && o.createdAt < ranges.year.to;
   const needsOlder = needsAll.filter(({ o }) => inYear(o) && !(o.createdAt >= period.from && o.createdAt < period.to)).length;
   const problemsInPeriod = needs.length;
-  const office: { label: string; value: number; href: string }[] = [
-    { label: "Neu eingegangen", value: k.office.neu, href: link({ buero: "neu" }) },
-    { label: "In Prüfung", value: k.office.pruefung, href: link({ buero: "pruefung" }) },
-    { label: "Zurückgestellt", value: k.office.zurueckgestellt, href: link({ buero: "zurueckgestellt" }) },
-    { label: "Freigegeben", value: k.office.freigegeben + k.office.logistik, href: link({ status: "freigegeben" }) },
+  const office: { label: string; value: number; href: string; main?: boolean }[] = [
+    { main: true, label: "Neu eingegangen", value: k.office.neu, href: link({ buero: "neu" }) },
+    { main: true, label: "In Prüfung", value: k.office.pruefung, href: link({ buero: "pruefung" }) },
+    { main: true, label: "Zurückgestellt", value: k.office.zurueckgestellt, href: link({ buero: "zurueckgestellt" }) },
+    { main: true, label: "Freigegeben", value: k.office.freigegeben + k.office.logistik, href: link({ status: "freigegeben" }) },
     { label: "Noch nicht weitergegeben", value: k.office.freigegeben, href: link({ buero: "freigegeben" }) },
     { label: "An Logistik weitergegeben", value: k.office.logistik, href: link({ buero: "logistik" }) },
     { label: "Versand noch nicht bestätigt", value: k.office.freigegeben + k.office.logistik, href: link({ status: "freigegeben" }) },
     { label: "Versendet", value: k.office.versendet, href: link({ buero: "versendet" }) },
     { label: "Abgeschlossen", value: k.office.abgeschlossen, href: link({ buero: "abgeschlossen" }) },
-    { label: "Probleme", value: problemsInPeriod, href: link({ aufmerksamkeit: "1" }) },
+    { main: true, label: "Probleme", value: problemsInPeriod, href: link({ aufmerksamkeit: "1" }) },
   ];
 
   return (
@@ -109,15 +128,44 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
         </div>
       ) : null}
 
-      <h2 className="mb-3 font-medium text-[15px]">
-        Bürostatus · <span className="text-muted">{period.label}</span>
-      </h2>
+      {k.cancelledNotRefunded ? (
+        <div className="mb-6">
+          <Notice title={`${k.cancelledNotRefunded} stornierte ${k.cancelledNotRefunded === 1 ? "Bestellung ist" : "Bestellungen sind"} bezahlt, aber nicht (vollständig) erstattet`}>
+            Bitte im Stripe-Dashboard prüfen, ob eine Erstattung fällig ist.{" "}
+            <Link className="underline underline-offset-4" href={link({ status: "storniert", zahlung: "bezahlt" })}>
+              Anzeigen
+            </Link>
+          </Notice>
+        </div>
+      ) : null}
+
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-medium text-[15px]">
+          Bürostatus · <span className="text-muted">{period.label}</span>
+        </h2>
+        <ul className="flex gap-1 rounded-full border border-line bg-card p-1">
+          {PERIODS.map((x) => (
+            <li key={x.key}>
+              <Link
+                aria-current={x.key === periodKey ? "page" : undefined}
+                className={`block whitespace-nowrap rounded-full px-3 py-1 text-[13px] ${x.key === periodKey ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5"}`}
+                href={`/admin/buero?zeitraum=${x.key}`}
+                scroll={false}
+              >
+                {x.label}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
       <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-        {office.map((c) => (
+        {office
+          .filter((c) => c.main)
+          .map((c) => (
           <Link className="rounded-3xl transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10" href={c.href} key={c.label}>
             <Stat label={c.label} value={c.value} />
           </Link>
-        ))}
+          ))}
       </div>
       <Card className="mb-8" title={`Bestellungen, die Aufmerksamkeit benötigen (${needs.length}) · ${period.label}`}>
         {needs.length === 0 ? (
@@ -162,20 +210,19 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
             <p className="text-[14px] text-red-700">Die Einstellungen für Benachrichtigungen konnten gerade nicht geladen werden.</p>
           ) : (
             <ul className="divide-y divide-line text-[14px]">
-              {hints.slice(0, 15).map((h) => (
-                <li className="flex flex-wrap items-baseline gap-2 py-2" key={`${h.reminder ? "r" : "n"}:${h.id}`}>
-                  <Badge tone={h.reminder ? "amber" : "blue"}>{hintLabel(h)}</Badge>
-                  {h.orderKey ? (
-                    <Link className="font-medium tabular-nums underline-offset-4 hover:underline" href={officeUrl({ key: h.orderKey })}>
-                      {h.order}
-                    </Link>
-                  ) : null}
-                  <span className="text-muted">{h.text}</span>
-                </li>
-              ))}
+              {hints.slice(0, 5).map(hintRow)}
             </ul>
           )}
-          {hints.length > 15 ? <p className="mt-3 text-[13px] text-muted">… und {hints.length - 15} weitere.</p> : null}
+          {hints.length > 5 ? (
+            <details className="group mt-1">
+              <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg py-1 text-[13px] text-muted outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ink/30 [&::-webkit-details-marker]:hidden">
+                <Chevron />
+                {Math.min(hints.length, 15) - 5} weitere anzeigen
+              </summary>
+              <ul className="divide-y divide-line text-[14px]">{hints.slice(5, 15).map(hintRow)}</ul>
+              {hints.length > 15 ? <p className="mt-3 text-[13px] text-muted">… und {hints.length - 15} weitere.</p> : null}
+            </details>
+          ) : null}
           {can(me.role, "office.automation") ? (
             <p className="mt-3 text-[13px]">
               <Link className="underline underline-offset-4" href="/admin/buero/einstellungen/berichte">
@@ -200,73 +247,66 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
         ))}
       </div>
 
-      <h2 className="mb-3 font-medium text-[15px]">Neue Bestellungen</h2>
-      <div className="mb-8 grid grid-cols-3 gap-3">
-        <Stat label="Heute" value={k.counts.today} />
-        <Stat label="Diese Woche" value={k.counts.week} />
-        <Stat label="Dieser Monat" value={k.counts.month} />
-      </div>
-
-      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="font-medium text-[15px]">
-          Status und Beträge · <span className="text-muted">{period.label}</span>
-        </h2>
-        <ul className="flex gap-1 rounded-full border border-line bg-card p-1">
-          {PERIODS.map((x) => (
-            <li key={x.key}>
-              <Link
-                aria-current={x.key === periodKey ? "page" : undefined}
-                className={`block whitespace-nowrap rounded-full px-3 py-1 text-[13px] ${x.key === periodKey ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5"}`}
-                href={`/admin/buero?zeitraum=${x.key}`}
-                scroll={false}
-              >
-                {x.label}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
-        {counts.map((c) =>
-          c.href ? (
-            <Link className="rounded-3xl transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10" href={c.href} key={c.label}>
-              <Stat label={c.label} value={c.value ?? "—"} />
-            </Link>
-          ) : (
-            <Stat hint={c.hint} key={c.label} label={c.label} value={c.value ?? "—"} />
-          ),
-        )}
-      </div>
-      <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
-        <Stat label="Umsatz brutto" value={formatPrice(k.money.gross)} hint={`netto ${formatPrice(k.money.net)}`} />
-        <Stat label="Rabatte" value={formatPrice(k.money.discount)} />
-        <Stat label="Versandkosten" value={formatPrice(k.money.shipping)} hint={k.money.shippingOnRequest ? `+ ${k.money.shippingOnRequest}× Spedition nach Absprache` : undefined} />
-        <Stat label="Pfand" value={formatPrice(k.money.deposit)} />
-        <Stat label="Erstattungen" value={formatPrice(k.money.refunds)} />
-        <Stat label="Unbezahlt" value={formatPrice(k.money.unpaidGross)} />
-      </div>
-      {k.cancelledNotRefunded ? (
-        <div className="mb-6">
-          <Notice title={`${k.cancelledNotRefunded} stornierte ${k.cancelledNotRefunded === 1 ? "Bestellung ist" : "Bestellungen sind"} bezahlt, aber nicht (vollständig) erstattet`}>
-            Bitte im Stripe-Dashboard prüfen, ob eine Erstattung fällig ist.{" "}
-            <Link className="underline underline-offset-4" href={link({ status: "storniert", zahlung: "bezahlt" })}>
-              Anzeigen
-            </Link>
-          </Notice>
+      <details className="group mb-6">
+        <summary className="flex w-fit cursor-pointer list-none items-center gap-2 rounded-full border border-line bg-card px-4 py-2 font-medium text-[14px] outline-none hover:border-ink/40 focus-visible:ring-4 focus-visible:ring-ink/10 [&::-webkit-details-marker]:hidden">
+          <Chevron />
+          Alle Zahlen und Status anzeigen
+        </summary>
+        <div className="mt-6">
+          <h2 className="mb-3 font-medium text-[15px]">
+            Weitere Bürostatus · <span className="text-muted">{period.label}</span>
+          </h2>
+          <div className="mb-8 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+            {office
+              .filter((c) => !c.main)
+              .map((c) => (
+                <Link className="rounded-3xl transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10" href={c.href} key={c.label}>
+                  <Stat label={c.label} value={c.value} />
+                </Link>
+              ))}
+          </div>
+        <h2 className="mb-3 font-medium text-[15px]">Neue Bestellungen</h2>
+        <div className="mb-8 grid grid-cols-3 gap-3">
+          <Stat label="Heute" value={k.counts.today} />
+          <Stat label="Diese Woche" value={k.counts.week} />
+          <Stat label="Dieser Monat" value={k.counts.month} />
         </div>
-      ) : null}
 
-      <Card title="So wird gerechnet">
-        <ul className="list-disc space-y-1 pl-5 text-[14px] text-muted">
-          <li>Umsatz = Bruttobetrag abzüglich Erstattungen. Stornierte Bestellungen zählen nicht. Privatbestellungen zählen erst nach der Zahlung, Händlerbestellungen (auf Rechnung) ab Bestellung.</li>
-          <li>Rabatte, Versand und Pfand in brutto. Händlerwerte sind netto gespeichert und werden mit 19 % umgerechnet.</li>
-          <li>Wochen nach ISO (Montag bis Sonntag), alle Zeiten in deutscher Zeit.</li>
-          <li>Keine Lagerbestände: Mengen sind bestellte Mengen.</li>
-        </ul>
-        <p className="mt-3 text-[12px] text-muted">
-          Stand: {formatDateTime(now)} · {can(me.role, "office.export") ? <Link className="underline underline-offset-4" href="/admin/buero/export">Zum Excel-Export</Link> : "Nur Lesezugriff"}
-        </p>
-      </Card>
+          <h2 className="mb-3 font-medium text-[15px]">
+            Status und Beträge · <span className="text-muted">{period.label}</span>
+          </h2>
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+          {counts.map((c) =>
+            c.href ? (
+              <Link className="rounded-3xl transition hover:opacity-80 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10" href={c.href} key={c.label}>
+                <Stat label={c.label} value={c.value ?? "—"} />
+              </Link>
+            ) : (
+              <Stat hint={c.hint} key={c.label} label={c.label} value={c.value ?? "—"} />
+            ),
+          )}
+        </div>
+        <div className="mb-6 grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
+          <Stat label="Umsatz brutto" value={formatPrice(k.money.gross)} hint={`netto ${formatPrice(k.money.net)}`} />
+          <Stat label="Rabatte" value={formatPrice(k.money.discount)} />
+          <Stat label="Versandkosten" value={formatPrice(k.money.shipping)} hint={k.money.shippingOnRequest ? `+ ${k.money.shippingOnRequest}× Spedition nach Absprache` : undefined} />
+          <Stat label="Pfand" value={formatPrice(k.money.deposit)} />
+          <Stat label="Erstattungen" value={formatPrice(k.money.refunds)} />
+          <Stat label="Unbezahlt" value={formatPrice(k.money.unpaidGross)} />
+        </div>
+        <Card title="So wird gerechnet">
+          <ul className="list-disc space-y-1 pl-5 text-[14px] text-muted">
+            <li>Umsatz = Bruttobetrag abzüglich Erstattungen. Stornierte Bestellungen zählen nicht. Privatbestellungen zählen erst nach der Zahlung, Händlerbestellungen (auf Rechnung) ab Bestellung.</li>
+            <li>Rabatte, Versand und Pfand in brutto. Händlerwerte sind netto gespeichert und werden mit 19 % umgerechnet.</li>
+            <li>Wochen nach ISO (Montag bis Sonntag), alle Zeiten in deutscher Zeit.</li>
+            <li>Keine Lagerbestände: Mengen sind bestellte Mengen.</li>
+          </ul>
+          <p className="mt-3 text-[12px] text-muted">
+            Stand: {formatDateTime(now)} · {can(me.role, "office.export") ? <Link className="underline underline-offset-4" href="/admin/buero/export">Zum Excel-Export</Link> : "Nur Lesezugriff"}
+          </p>
+        </Card>
+        </div>
+      </details>
     </>
   );
 }

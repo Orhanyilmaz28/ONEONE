@@ -89,6 +89,7 @@ export function SetupCheck({ items }: { items: SetupItem[] }) {
   const done = items.filter((i) => i.done).length;
   const all = done === items.length;
   const percent = Math.round((done / items.length) * 100);
+  const open = items.filter((i) => !i.done);
   const list = (
     <ol className="grid grid-cols-1 gap-3 lg:grid-cols-2">
       {items.map((item) => (
@@ -131,18 +132,17 @@ export function SetupCheck({ items }: { items: SetupItem[] }) {
         </div>
       </div>
 
-      {all ? (
-        // Wenn alles erledigt ist, nimmt die Liste keinen Platz mehr weg
-        <details className="group">
-          <summary className="flex w-fit cursor-pointer list-none items-center gap-1.5 rounded-lg text-[13px] text-muted outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ink/30 [&::-webkit-details-marker]:hidden">
-            <Icon className="size-3.5 transition group-open:rotate-90" name="chevron" strokeWidth={2} />
-            Alle Punkte ansehen
-          </summary>
-          <div className="mt-4">{list}</div>
-        </details>
-      ) : (
-        list
-      )}
+      {/* Die ausführliche Liste ist eingeklappt, damit die Übersicht ruhig bleibt; offene Punkte stehen im Knopf */}
+      <details className="group">
+        <summary className="flex w-fit cursor-pointer list-none flex-wrap items-center gap-1.5 rounded-lg text-[14px] text-ink/80 outline-none hover:text-ink focus-visible:ring-2 focus-visible:ring-ink/30 [&::-webkit-details-marker]:hidden">
+          <Icon className="size-3.5 transition group-open:rotate-90" name="chevron" strokeWidth={2} />
+          {all ? "Alle Punkte ansehen" : <span className="font-medium">{`${items.length - done} offene ${items.length - done === 1 ? "Punkt" : "Punkte"} ansehen`}</span>}
+          {all ? null : <span className="text-muted">({open.map((i) => i.title).join(" · ")})</span>}
+        </summary>
+        <div className="mt-4" id="startklar-punkte">
+          {list}
+        </div>
+      </details>
     </Card>
   );
 }
