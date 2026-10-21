@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { ImageResponse } from "next/og";
 import { burstSvg } from "@/components/logo-paths";
 import { catalog } from "@/lib/catalog";
+import { publicDomain } from "@/lib/company";
 import { SITE_URL } from "@/lib/format";
 
 /*
@@ -45,14 +46,8 @@ async function photo(src: string | undefined, width: number, height: number) {
   }
 }
 
-const host = (() => {
-  try {
-    const h = new URL(SITE_URL).hostname.replace(/^www\./, "");
-    return h === "localhost" ? null : h;
-  } catch {
-    return null;
-  }
-})();
+// Sichtbare Domain auf dem Vorschaubild: nie die technische Vercel-Adresse
+const host = publicDomain(SITE_URL);
 
 export default async function OpengraphImage() {
   const featured = catalog.products.filter((p) => p.featured && p.images[0]).slice(0, 3);

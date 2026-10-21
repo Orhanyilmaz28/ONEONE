@@ -7,7 +7,7 @@
  * Interne Angaben (Steuernummer, Bankverbindung) stehen bewusst NICHT hier – das Repository ist öffentlich.
  * Sie werden im Dashboard unter „Händler → Rechnungsdaten“ gepflegt und nur dort ausgegeben, wo sie gebraucht werden.
  *
- * Die Domain im Impressum kommt aus NEXT_PUBLIC_SITE_URL; „domain“ ist nur der Ersatz, falls die Variable fehlt.
+ * Sichtbare Domain (Impressum, Vorschaubild): „domain“ – außer NEXT_PUBLIC_SITE_URL zeigt schon auf eine eigene Domain.
  */
 
 /** Geschäftsführer in verbindlicher Reihenfolge (Angabe des Betreibers vom 21.10.2026) */
@@ -28,6 +28,20 @@ export const company = {
   vatId: "DE311899184",
   register: "Amtsgericht Düsseldorf, HRB 90042",
 };
+
+/**
+ * Domain, die Kund:innen angezeigt wird. Technische Vercel-Adressen (*.vercel.app) und localhost werden nie genannt,
+ * dann gilt die feste Angabe „exstaseshop.com“. Steht in NEXT_PUBLIC_SITE_URL eine eigene Domain, wird diese angezeigt.
+ */
+export function publicDomain(siteUrl: string | undefined = process.env.NEXT_PUBLIC_SITE_URL): string {
+  try {
+    const host = new URL(siteUrl ?? "").hostname.toLowerCase().replace(/^www\./, "");
+    if (host && host !== "localhost" && !host.endsWith(".vercel.app") && host.includes(".")) return host;
+  } catch {
+    // feste Angabe
+  }
+  return company.domain;
+}
 
 /**
  * Stand der Betreiberangaben. Die Registerangaben (Geschäftsführer, HRB) stammen vom Betreiber und konnten nicht
