@@ -18,11 +18,9 @@ test("publicDomain: Vercel-Adresse und localhost → exstaseshop.com, eigene Dom
   assert.equal(publicDomain("https://shop.example.de"), "shop.example.de");
 });
 
-test("Impressum und Vorschaubild nutzen publicDomain, nirgends sichtbar „vercel.app“", async () => {
+test("Impressum nutzt publicDomain, Rechtstexte nennen nirgends „vercel.app“", async () => {
   const legal = await fs.readFile(path.join(ROOT, "components/legal-page.tsx"), "utf8");
-  const og = await fs.readFile(path.join(ROOT, "app/opengraph-image.tsx"), "utf8");
   assert.match(legal, /const domain = publicDomain\(\)/);
-  assert.match(og, /publicDomain\(SITE_URL\)/);
   for (const f of ["app/impressum/page.tsx", "app/datenschutz/page.tsx", "app/agb/page.tsx", "app/widerruf/page.tsx", "app/kontakt/page.tsx", "components/legal-page.tsx"]) {
     assert.doesNotMatch(await fs.readFile(path.join(ROOT, f), "utf8"), /vercel\.app/, f);
   }

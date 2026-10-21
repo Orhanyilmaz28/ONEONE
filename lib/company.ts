@@ -7,7 +7,7 @@
  * Interne Angaben (Steuernummer, Bankverbindung) stehen bewusst NICHT hier – das Repository ist öffentlich.
  * Sie werden im Dashboard unter „Händler → Rechnungsdaten“ gepflegt und nur dort ausgegeben, wo sie gebraucht werden.
  *
- * Sichtbare Domain (Impressum, Vorschaubild): „domain“ – außer NEXT_PUBLIC_SITE_URL zeigt schon auf eine eigene Domain.
+ * Sichtbare Domain (Impressum): „domain“ – außer NEXT_PUBLIC_SITE_URL zeigt schon auf eine eigene Domain.
  */
 
 /** Geschäftsführer in verbindlicher Reihenfolge (Angabe des Betreibers vom 21.10.2026) */
