@@ -214,7 +214,7 @@ export function deliveryNotesPdf(items: { order: OfficeOrder; note: DeliveryNote
 
 export type ListContext = { title: string; range: Range; filters: string[]; createdBy: string; now: number };
 
-function listHead(doc: PdfDoc, ctx: ListContext, company: CompanyInfo, logo: PdfImage | null, extra = "") {
+export function listHead(doc: PdfDoc, ctx: ListContext, company: CompanyInfo, logo: PdfImage | null, extra = "") {
   const head = letterhead(doc, company, logo, { left: mm(15), top: mm(10), logoWidth: mm(28) });
   const y = head + mm(6);
   doc.text(mm(15), y + 14, ctx.title, { size: 16, font: "bold" });

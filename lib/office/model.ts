@@ -94,6 +94,12 @@ export type OfficeOrder = {
   exportedAt?: string;
   /** Hinweise zu fehlenden oder unsicheren Angaben */
   warnings: string[];
+  /** Influencer-Code der Bestellung (Stripe-Metadaten `ref`) und Influencer-ID (`refId`) – nur Privatbestellungen */
+  refCode?: string;
+  refId?: string;
+  /** Kundenkonto (Stripe-Metadaten `customerId`) bzw. Händler-ID – nur zur Zuordnung in Analysen */
+  customerId?: string;
+  dealerId?: string;
   /** Büro-Bearbeitungsstand (Phase 3C) – undefined = nicht geladen, null = noch nichts bearbeitet */
   office?: import("./workflow").WfRecord | null;
 };
@@ -268,6 +274,9 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
     customerNote: "",
     internalNote: s(meta?.note),
     invoiceNumber: "",
+    ...(s(session.metadata?.ref) ? { refCode: s(session.metadata?.ref).toUpperCase().slice(0, 40) } : {}),
+    ...(s(session.metadata?.refId) ? { refId: s(session.metadata?.refId).slice(0, 60) } : {}),
+    ...(s(session.metadata?.customerId) ? { customerId: s(session.metadata?.customerId).slice(0, 60) } : {}),
     warnings,
   };
 }
@@ -354,6 +363,7 @@ export function fromDealer(o: DealerOrder, dealer: Dealer | undefined, products:
     customerNote: note,
     internalNote: "",
     invoiceNumber: o.invoice?.number ?? "",
+    ...(o.dealerId ? { dealerId: o.dealerId } : {}),
     warnings,
   };
 }

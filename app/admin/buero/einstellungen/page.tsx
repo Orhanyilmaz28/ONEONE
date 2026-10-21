@@ -19,6 +19,8 @@ const RIGHTS: [string, Record<Role, boolean>][] = [
   ["Berichte manuell erstellen", { admin: true, buero: true, lesen: false }],
   ["Kundenfälle ansehen", { admin: true, buero: true, lesen: true }],
   ["Kundenfälle anlegen und bearbeiten (Reklamationen, Retouren, Erstattungsanfragen)", { admin: true, buero: true, lesen: false }],
+  ["Verkaufsanalysen ansehen", { admin: true, buero: true, lesen: true }],
+  ["Verkaufsanalysen als Excel/PDF exportieren", { admin: true, buero: true, lesen: false }],
   ["Automatische Berichte, Benachrichtigungen und Erinnerungen einstellen", { admin: true, buero: false, lesen: false }],
   ["Büro-Zugänge verwalten", { admin: true, buero: false, lesen: false }],
   ["Restliches Dashboard (Produkte, Preise, Einstellungen, Sicherheit …)", { admin: true, buero: false, lesen: false }],

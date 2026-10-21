@@ -15,6 +15,7 @@ export const OFFICE_NAV = [
   { href: "/admin/buero/exporthistorie", label: "Exporthistorie" },
   { href: "/admin/buero/berichte", label: "Berichte" },
   { href: "/admin/buero/kundenservice", label: "Kundenservice" },
+  { href: "/admin/buero/analysen", label: "Verkaufsanalysen" },
   { href: "/admin/buero/stammdaten", label: "Artikelstammdaten prüfen" },
   { href: "/admin/buero/einstellungen", label: "Einstellungen" },
 ] as const;
