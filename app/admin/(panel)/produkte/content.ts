@@ -190,16 +190,22 @@ export function buildVariants(handle: string, options: ProductOption[], previous
 
 /** Was im Formular „Bilder & Texte“ bearbeitet wird */
 /**
- * Welche Varianten wurden nur umbenannt? Entfallene und neue Varianten werden der Reihe nach zugeordnet,
- * wenn es gleich viele sind (z. B. „24er Tray“ → „24er Karton“). Ergebnis: alte ID → neue ID.
+ * Welche Varianten wurden nur umbenannt? Eindeutig ist das nur, wenn sich bloß der NAME einer Auswahl geändert hat
+ * (z. B. „Packung“ → „Größe“) und die Werte gleich geblieben sind. Geänderte Werte („6er“ → „24er“) gelten als neue
+ * Packungsgröße – sonst würden Preis und Pfand einer anderen Packung übernommen. Ergebnis: alte ID → neue ID.
  */
-export function renamedVariants(previous: Variant[], next: Variant[]): Record<string, string> {
+export function renamedVariants(previous: Variant[], next: Variant[], previousOptions: ProductOption[], nextOptions: ProductOption[]): Record<string, string> {
   const nextIds = new Set(next.map((v) => v.id));
   const prevIds = new Set(previous.map((v) => v.id));
-  const gone = previous.filter((v) => !nextIds.has(v.id));
-  const added = next.filter((v) => !prevIds.has(v.id));
-  if (!gone.length || gone.length !== added.length) return {};
-  return Object.fromEntries(gone.map((v, i) => [v.id, added[i].id]));
+  const tuple = (v: Variant, options: ProductOption[]) => options.map((o) => (v.options[o.name] ?? "").toLowerCase()).join("|");
+  const added = new Map(next.filter((v) => !prevIds.has(v.id)).map((v) => [tuple(v, nextOptions), v.id]));
+  const out: Record<string, string> = {};
+  for (const v of previous) {
+    if (nextIds.has(v.id)) continue;
+    const id = added.get(tuple(v, previousOptions));
+    if (id) out[v.id] = id;
+  }
+  return out;
 }
 
 export type ContentInput = {

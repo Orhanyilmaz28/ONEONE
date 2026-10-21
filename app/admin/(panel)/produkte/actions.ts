@@ -181,8 +181,8 @@ async function writeContent(handle: string, value: NonNullable<ReturnType<typeof
     // Neue Varianten bekommen den Preis, der gerade im Shop für die erste Variante gilt
     const first = applyOverride(base, overrides[handle]).variants[0];
     const built = buildVariants(handle, value.options, base.variants, { price: first?.price ?? 1000, compareAtPrice: first?.compareAtPrice });
-    renamed = renamedVariants(base.variants, built);
-    // Umbenannte Varianten behalten Preis, Streichpreis, Verfügbarkeit und Stückzahl der bisherigen
+    renamed = renamedVariants(base.variants, built, base.options, value.options);
+    // Nur der Name der Auswahl wurde geändert → Varianten behalten Preis, Streichpreis, Verfügbarkeit und Stückzahl
     const oldOf = new Map(Object.entries(renamed).map(([oldId, newId]) => [newId, base.variants.find((v) => v.id === oldId)]));
     const variants = built.map((v) => {
       const o = oldOf.get(v.id);
@@ -252,9 +252,20 @@ export async function saveProductAll(_prev: ProductFormState, form: FormData): P
   // 2. Schreiben: erst Preise (die Felder gehören zu den bisherigen Varianten), dann Inhalt (kann Varianten ändern).
   // Werden dabei Varianten umbenannt, wandern ihre Preise auf die neuen Varianten mit.
   let override: Awaited<ReturnType<typeof writePricing>>;
+  let remapFailed = false;
   try {
     if (desired) override = await writePricing(handle, base, desired);
-    if (content) await moveVariantOverrides(handle, await writeContent(handle, content));
+    if (content) {
+      const renamed = await writeContent(handle, content);
+      // Getrennter zweiter Schritt: klappt er nicht, ist der Inhalt trotzdem gespeichert – dann ehrlich darauf hinweisen
+      remapFailed = await moveVariantOverrides(handle, renamed).then(
+        () => false,
+        (e) => {
+          console.error("[produkte] Preise auf umbenannte Varianten übertragen fehlgeschlagen", handle, e);
+          return true;
+        },
+      );
+    }
   } catch (error) {
     refresh(handle);
     if (error instanceof NotFoundError) return { error: "Dieses Produkt gibt es nicht (mehr). Bitte lade die Seite neu." };
@@ -264,6 +275,7 @@ export async function saveProductAll(_prev: ProductFormState, form: FormData): P
   }
 
   refresh(handle);
+  if (remapFailed) return { ok: true, message: "Gespeichert – bitte die Preise oben kurz prüfen und bei Bedarf noch einmal speichern.", savedAt: Date.now() };
   const message = desired?.hidden
     ? "Gespeichert – das Produkt ist jetzt im Shop ausgeblendet."
     : desired && !override && !content

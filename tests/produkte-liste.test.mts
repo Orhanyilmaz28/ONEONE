@@ -80,18 +80,27 @@ describe("Bilder", () => {
 
 describe("Varianten umbenennen", async () => {
   const { buildVariants, renamedVariants } = await import("../app/admin/(panel)/produkte/content");
+  const opts = [{ name: "Packung", values: ["24er Tray", "48er Tray"] }];
   const old = [
-    { id: "p-24er-tray", title: "24er Tray", price: 1800, available: true, options: { Packung: "24er Tray" } },
-    { id: "p-48er-tray", title: "48er Tray", price: 3500, available: false, options: { Packung: "48er Tray" } },
+    { id: "p-24er-tray", title: "24er Tray", price: 1800, available: true, cans: 24, options: { Packung: "24er Tray" } },
+    { id: "p-48er-tray", title: "48er Tray", price: 3500, available: false, cans: 48, options: { Packung: "48er Tray" } },
   ];
-  test("umbenannte Varianten werden der Reihe nach zugeordnet", () => {
-    const next = buildVariants("p", [{ name: "Packung", values: ["24er Karton", "48er Karton"] }], old, { price: 1000 });
-    assert.deepEqual(renamedVariants(old, next), { "p-24er-tray": "p-24er-karton", "p-48er-tray": "p-48er-karton" });
+  test("nur der Name der Auswahl geändert → Varianten werden zugeordnet", () => {
+    const nextOpts = [{ name: "Größe", values: ["24er Tray", "48er Tray"] }];
+    const next = buildVariants("p", nextOpts, old, { price: 1000 });
+    const map = renamedVariants(old, next, opts, nextOpts);
+    assert.equal(Object.keys(map).length, 2);
+    for (const [from, to] of Object.entries(map)) assert.equal(next.find((v) => v.id === to)?.options["Größe"], old.find((v) => v.id === from)?.options.Packung);
+  });
+  test("andere Packungsgröße (6er, 12er → 12er, 24er) wird NICHT als Umbenennung behandelt", () => {
+    const o = [{ name: "Packung", values: ["6er", "12er"] }];
+    const prev = buildVariants("p", o, [], { price: 1000 });
+    const n = [{ name: "Packung", values: ["12er", "24er"] }];
+    const next = buildVariants("p", n, prev, { price: 1000 });
+    assert.deepEqual(renamedVariants(prev, next, o, n), {});
   });
   test("nur hinzugefügt oder entfernt → keine Zuordnung", () => {
-    const more = buildVariants("p", [{ name: "Packung", values: ["24er Tray", "48er Tray", "72er Tray"] }], old, { price: 1000 });
-    assert.deepEqual(renamedVariants(old, more), {});
-    const less = buildVariants("p", [{ name: "Packung", values: ["24er Tray"] }], old, { price: 1000 });
-    assert.deepEqual(renamedVariants(old, less), {});
+    const more = [{ name: "Packung", values: ["24er Tray", "48er Tray", "72er Tray"] }];
+    assert.deepEqual(renamedVariants(old, buildVariants("p", more, old, { price: 1000 }), opts, more), {});
   });
 });
