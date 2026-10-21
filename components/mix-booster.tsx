@@ -37,14 +37,14 @@ export function MixBooster({ mix, sim, addLabel, onAdd }: { mix: MixResult; sim:
   }, [reached]);
 
   return (
-    <section aria-label="Mix-Rabatt" aria-live="polite" className="mix-booster relative overflow-hidden rounded-2xl p-4 text-black shadow-[0_12px_30px_-12px_rgba(168,230,82,0.7)]">
+    <section aria-label="Mix-Rabatt" aria-live="polite" className="mix-booster relative overflow-hidden rounded-2xl p-3 text-black sm:p-4 shadow-[0_12px_30px_-12px_rgba(168,230,82,0.7)]">
       <div className="flex items-start gap-3">
         <div className="min-w-0 flex-1">
-          <p className="font-bold text-[11px] uppercase tracking-[0.14em] opacity-70">Mehr Trays · mehr Rabatt</p>
+          <p className="hidden font-bold text-[11px] uppercase tracking-[0.14em] opacity-70 sm:block">Mehr Trays · mehr Rabatt</p>
           <AnimatePresence initial={false} mode="popLayout">
             <motion.p
               animate={{ opacity: 1, y: 0 }}
-              className="mt-0.5 font-black text-lg leading-tight"
+              className="font-black text-base leading-tight sm:mt-0.5 sm:text-lg"
               exit={{ opacity: 0, y: -8 }}
               initial={{ opacity: 0, y: 8 }}
               key={title}
@@ -53,24 +53,25 @@ export function MixBooster({ mix, sim, addLabel, onAdd }: { mix: MixResult; sim:
               {title}
             </motion.p>
           </AnimatePresence>
-          <p className="mt-1 text-[13px] leading-snug">{text}</p>
+          {/* Handy: Erklärsatz weglassen, damit im Warenkorb Platz für die Artikel bleibt */}
+          <p className="mt-1 hidden text-[13px] leading-snug sm:block">{text}</p>
         </div>
         <div className="relative shrink-0">
           <AnimatePresence initial={false} mode="popLayout">
             <motion.span
               animate={{ scale: 1, rotate: 0, opacity: 1 }}
-              className="booster-glow flex size-16 flex-col items-center justify-center rounded-full bg-black text-center font-black text-accent leading-none"
+              className="booster-glow flex size-12 flex-col sm:size-16 items-center justify-center rounded-full bg-black text-center font-black text-accent leading-none"
               exit={{ scale: 0.5, opacity: 0, transition: { duration: 0.15 } }}
               initial={{ scale: 0.4, rotate: -20, opacity: 0 }}
               key={reached}
               transition={{ type: "spring", stiffness: 420, damping: 14 }}
             >
               {reached ? (
-                <span className="text-xl">−{reached}%</span>
+                <span className="text-base sm:text-xl">−{reached}%</span>
               ) : (
                 <>
                   <span className="text-[10px] uppercase">bis</span>
-                  <span className="text-xl">−{max}%</span>
+                  <span className="text-base sm:text-xl">−{max}%</span>
                 </>
               )}
             </motion.span>
@@ -97,7 +98,7 @@ export function MixBooster({ mix, sim, addLabel, onAdd }: { mix: MixResult; sim:
       </div>
 
       {/* Stufenleiste: jede Stufe ein Segment, erreichte Stufen füllen sich */}
-      <ol aria-label="Rabattstufen" className="mt-3 flex gap-1">
+      <ol aria-label="Rabattstufen" className="mt-2 flex gap-1 sm:mt-3">
         {MIX_TIERS.map((t) => {
           const on = mix.sorts >= 2 && mix.trays >= t.min;
           const isNext = mix.sorts >= 2 ? mix.next?.trays === t.min : t.min === MIX_TIERS[0].min;
@@ -119,7 +120,7 @@ export function MixBooster({ mix, sim, addLabel, onAdd }: { mix: MixResult; sim:
 
       {onAdd && addLabel && (mix.sorts < 2 || mix.next) ? (
         <button
-          className="booster-nudge mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-black px-4 font-bold text-accent text-sm transition hover:scale-[1.02] active:scale-95"
+          className="booster-nudge mt-2 inline-flex h-9 w-full sm:mt-3 sm:h-10 items-center justify-center gap-2 rounded-full bg-black px-4 font-bold text-accent text-sm transition hover:scale-[1.02] active:scale-95"
           onClick={onAdd}
           type="button"
         >

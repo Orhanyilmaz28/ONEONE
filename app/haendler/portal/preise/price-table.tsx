@@ -191,9 +191,15 @@ export function PriceTable({
       {calc.trays ? (
         <div className="anim-rise fixed inset-x-3 bottom-3 z-30 mx-auto max-w-4xl rounded-[1.75rem] border border-accent/50 bg-card/95 p-3 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.7)] backdrop-blur sm:inset-x-6 sm:p-4 lg:left-[19rem]" style={{ animationDuration: "0.4s" }}>
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-            <div className="min-w-0 flex-1">
+            {/* Handy: Zahlen über die volle Breite, Knöpfe darunter */}
+            <div className="min-w-0 basis-full sm:basis-0 sm:flex-1">
               <p className="font-bold">
                 {calc.trays} {calc.trays === 1 ? "Tray" : "Trays"} · {euro(calc.goodsNet)} <span className="font-normal text-muted text-sm">netto</span>
+              </p>
+              {/* Endsumme schon hier, damit Pfand, Versand und MwSt. nicht erst im Prüf-Fenster auffallen */}
+              <p className="text-sm">
+                Gesamt ca. <b className="tabular-nums">{euro(calc.gross)}</b>{" "}
+                <span className="text-muted text-xs">{calc.shippingNet === null ? "inkl. Pfand und MwSt., zzgl. Spedition" : "inkl. Pfand, Versand und MwSt."}</span>
               </p>
               <p className={`text-xs ${calc.blocked.length ? "text-amber-300" : "text-muted"}`}>
                 {calc.blocked.length
@@ -206,12 +212,12 @@ export function PriceTable({
                 <div className="h-full rounded-full bg-accent transition-all duration-500" style={{ width: `${Math.min(100, (calc.trays / PALLET_MIN_TRAYS) * 100)}%` }} />
               </div>
             </div>
-            <button className="text-muted text-sm underline-offset-4 hover:text-ink hover:underline" onClick={() => setQty({})} type="button">
-              Leeren
-            </button>
+            <div className="flex w-full items-center justify-between gap-4 sm:w-auto">
+            <ClearButton onClear={() => setQty({})} />
             <button className="anim-shine relative inline-flex h-12 items-center overflow-hidden rounded-full bg-accent px-7 font-bold text-black transition hover:bg-accent-dark disabled:opacity-40" disabled={calc.blocked.length > 0 || !calc.lines.length} onClick={() => setSheet(true)} type="button">
               Bestellen
             </button>
+            </div>
           </div>
         </div>
       ) : null}
@@ -226,6 +232,34 @@ export function PriceTable({
         />
       ) : null}
     </div>
+  );
+}
+
+/** „Leeren“ mit Rückfrage – der Knopf liegt direkt neben „Bestellen“ und löscht sonst die ganze Auswahl */
+function ClearButton({ onClear }: { onClear: () => void }) {
+  const [ask, setAsk] = useState(false);
+  useEffect(() => {
+    if (!ask) return;
+    const t = window.setTimeout(() => setAsk(false), 5000);
+    return () => window.clearTimeout(t);
+  }, [ask]);
+  if (!ask) {
+    return (
+      <button className="text-muted text-sm underline-offset-4 hover:text-ink hover:underline" onClick={() => setAsk(true)} type="button">
+        Leeren
+      </button>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-2 text-sm" role="group" aria-label="Auswahl wirklich leeren?">
+      <span className="text-muted">Alles leeren?</span>
+      <button className="rounded-full border border-red-400/60 px-3 py-1 font-bold text-red-300 transition hover:bg-red-500/10" onClick={() => { setAsk(false); onClear(); }} type="button">
+        Ja
+      </button>
+      <button className="rounded-full border border-line px-3 py-1 transition hover:border-accent" onClick={() => setAsk(false)} type="button">
+        Nein
+      </button>
+    </span>
   );
 }
 
