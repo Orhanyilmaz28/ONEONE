@@ -308,3 +308,19 @@ describe("AP5: Rechte und Leistung", () => {
     assert.ok(filters.NO_FILTERS);
   });
 });
+
+describe("AP5: unvollständige Zusatzdaten", () => {
+  test("Händler-, Creator-, Provisions- oder Bestellliste nicht lesbar → Analyse als unvollständig markiert (Export gesperrt)", async () => {
+    const parsed = svc.parseAnalyticsRequest({ zeitraum: "monat-wahl", monat: "2026-10" }, NOW);
+    assert.ok(parsed.ok);
+    const load = (async () => ({ orders: [], complete: true, errors: [], source: "demo" as const })) as never;
+    process.env.VERCEL = "1"; // Speicher „nicht erreichbar“
+    try {
+      const a = await svc.loadAnalytics((parsed as { req: import("../lib/office/analytics-service").AnalyticsRequest }).req, NOW, { products: PRODUCTS, load });
+      assert.equal(a.complete, false);
+      for (const k of ["Händler-Bestellliste", "Händlerliste", "Creator-Liste", "Provisionsbuch"]) assert.ok(a.errors.some((e) => e.includes(k)), `${k} fehlt: ${a.errors.join(" | ")}`);
+    } finally {
+      delete process.env.VERCEL;
+    }
+  });
+});

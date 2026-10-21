@@ -270,6 +270,23 @@ describe("AP3: Ausführung (Cron)", () => {
     assert.match(sent[0].text, /keine Lagerbestände/);
   });
 
+  test("Zusammenfassung: schlägt der E-Mail-Versand fehl, werden die Hinweise nicht als gemeldet markiert", async () => {
+    process.env.OFFICE_REPORT_EMAILS = "1";
+    const n = () => auto.notifications(ORDERS, { ...auto.DEFAULT_CONFIG, digest: true }, NOW - 86_400_000, PRODUCTS);
+    assert.ok(n().length > 0, "Testdaten erzeugen Hinweise");
+    await setConfig([], { digest: true, digestRecipients: ["buero@example.invalid"] });
+    const fail = (async () => ({ ok: false as const, error: "Testfehler" })) as never;
+    const r = await svc.runScheduled({ now: NOW, products: PRODUCTS, load: okLoad(), send: fail });
+    assert.equal(r.digest?.mail, "fehler");
+    assert.equal((await svc.filterUnsent(n())).length, n().length, "nach Fehler wieder meldbar");
+    // erfolgreicher Versand → markiert
+    setKvBackend(memoryBackend(() => Date.now()));
+    const ok = (async () => ({ ok: true as const, id: "x" })) as never;
+    const r2 = await svc.runScheduled({ now: NOW, products: PRODUCTS, load: okLoad(), send: ok });
+    assert.equal(r2.digest?.mail, "versendet");
+    assert.equal((await svc.filterUnsent(n())).length, 0);
+  });
+
   test("Berichte verändern keine Bestelldaten und speichern keine Kundendaten in der Historie", async () => {
     await setConfig([schedule({ type: "tagesbericht" })], { digest: true });
     const before = JSON.stringify(ORDERS);
