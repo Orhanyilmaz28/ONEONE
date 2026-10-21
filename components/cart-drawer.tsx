@@ -35,6 +35,12 @@ export function CartDrawer() {
   const freeFrom = shipping.freeFrom;
   const deposit = lines.reduce((n, l) => n + depositFor(l.variant, l.quantity), 0);
   const remaining = freeFrom ? Math.max(0, freeFrom - net) : 0;
+  // Standardversand wie an der Kasse (gleiche Regel wie in app/api/checkout): kostenlos ab Grenze, sonst Versandkosten
+  const shippingCost = shipping.alwaysFree || (freeFrom && net >= freeFrom) ? 0 : shipping.cost;
+  // Voraussichtliche Endsumme: Ware nach Rabatt + Pfand + Standardversand (alles inkl. MwSt.)
+  const total = net + deposit + shippingCost;
+  // Handy: Einzelposten eingeklappt, damit die Artikel sichtbar bleiben (ab Tablet immer offen)
+  const [details, setDetails] = useState(false);
   const progress = freeFrom ? Math.min(1, net / freeFrom) : 1;
 
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -113,7 +119,7 @@ export function CartDrawer() {
             role="dialog"
             transition={{ type: "spring", damping: 32, stiffness: 320 }}
           >
-            <header className="flex items-center justify-between border-line border-b px-6 py-5">
+            <header className="flex items-center justify-between border-line border-b px-4 py-3 sm:px-6 sm:py-5">
               <h2 className="t-h3">
                 Warenkorb <span className="text-muted text-base">({count})</span>
               </h2>
@@ -136,7 +142,7 @@ export function CartDrawer() {
 
             {/* Hinweis zum kostenlosen Versand – entfällt, wenn es im Shop keinen gibt */}
             {lines.length > 0 && (freeFrom || shipping.alwaysFree) ? (
-              <div className="border-line border-b px-6 py-4">
+              <div className="border-line border-b px-4 py-3 sm:px-6 sm:py-4">
                 <p className="text-sm">
                   {remaining > 0 ? (
                     <>
@@ -159,7 +165,7 @@ export function CartDrawer() {
               </div>
             ) : null}
 
-            <div className="flex-1 overflow-y-auto px-6 py-4">
+            <div className="flex-1 overflow-y-auto px-4 py-2 sm:px-6 sm:py-4">
               {lines.length === 0 ? (
                 <div className="flex h-full flex-col items-center justify-center gap-4 text-center">
                   <LogoMark className="anim-bob mb-2 h-16 w-auto text-ink/20" />
@@ -282,10 +288,11 @@ export function CartDrawer() {
             </div>
 
             {lines.length > 0 ? (
-              <footer className="space-y-4 border-line border-t px-6 py-5">
-                <div className="flex items-baseline justify-between">
+              <footer className="space-y-3 border-line border-t px-4 py-4 sm:space-y-4 sm:px-6 sm:py-5">
+                <div className={`${details ? "space-y-3" : "hidden"} sm:block sm:space-y-3`} id="cart-details">
+                <div className="flex items-baseline justify-between text-sm">
                   <span className="text-muted">Zwischensumme</span>
-                  <span className="t-h3 tabular-nums">
+                  <span className="tabular-nums">
                     <Rolling cents={subtotal} />
                   </span>
                 </div>
@@ -311,7 +318,6 @@ export function CartDrawer() {
                   </motion.div>
                 ) : null}
                 </AnimatePresence>
-                <PromoField mixHigher={Boolean(promo && discountBy === "mix")} />
                 {deposit > 0 ? (
                   <div className="flex items-baseline justify-between text-sm">
                     <span className="text-muted">Einwegpfand (0,25 € je Dose/Flasche)</span>
@@ -320,10 +326,34 @@ export function CartDrawer() {
                     </span>
                   </div>
                 ) : null}
+                <div className="flex items-baseline justify-between text-sm">
+                  <span className="text-muted">
+                    Versand (DHL)
+                    {remaining > 0 ? <span className="text-xs"> · ab {formatPrice(freeFrom ?? 0)} kostenlos</span> : null}
+                  </span>
+                  <span className="tabular-nums">{shippingCost ? formatPrice(shippingCost) : "kostenlos"}</span>
+                </div>
+                <PromoField mixHigher={Boolean(promo && discountBy === "mix")} />
+                </div>
+                <div className="flex items-baseline justify-between gap-3">
+                  <span>
+                    Gesamt <span className="text-muted text-xs">(voraussichtlich)</span>
+                  </span>
+                  <span className="t-h3 tabular-nums">
+                    <Rolling cents={total} />
+                  </span>
+                </div>
+                <button
+                  aria-controls="cart-details"
+                  aria-expanded={details}
+                  className="-mt-1 text-muted text-xs underline-offset-4 hover:text-ink hover:underline sm:hidden"
+                  onClick={() => setDetails((v) => !v)}
+                  type="button"
+                >
+                  {details ? "Details ausblenden ▴" : `Details: Ware, ${discount > 0 ? "Rabatt, " : ""}Pfand, Versand${promo ? "" : ", Rabattcode"} ▾`}
+                </button>
                 <p className="text-muted text-xs">
-                  {shipping.alwaysFree
-                    ? "inkl. MwSt. – der Versand ist kostenlos."
-                    : "inkl. MwSt., zzgl. Pfand und Versand – wird im nächsten Schritt berechnet."}
+                  {deposit > 0 ? "inkl. MwSt. und Pfand" : "inkl. MwSt."}{shipping.express ? ` · Express-Versand (${formatPrice(shipping.express)}) an der Kasse wählbar` : ""}
                 </p>
                 {error ? (
                   <p className="rounded-xl bg-accent/10 px-3 py-2 text-accent-dark text-sm">{error}</p>
