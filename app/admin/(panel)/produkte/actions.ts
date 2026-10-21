@@ -45,19 +45,8 @@ function refresh(handle: string) {
   revalidatePath(`/admin/produkte/${handle}`);
 }
 
-/** Sichtbarkeit, Bestseller, Zutaten & Nährwerte, Preise, Streichpreise und Verfügbarkeit eines Produkts speichern */
-export async function saveProduct(_prev: ProductFormState, form: FormData): Promise<ProductFormState> {
-  // Server Actions sind öffentlich erreichbar – deshalb immer zuerst die Anmeldung prüfen
-  try {
-    await assertAdmin();
-  } catch {
-    return { error: NOT_LOGGED_IN };
-  }
-
-  const handle = String(form.get("handle") ?? "");
-  const base = /^[a-z0-9-]{1,120}$/.test(handle) ? await getBaseProduct(handle) : undefined;
-  if (!base) return { error: "Dieses Produkt gibt es nicht (mehr). Bitte lade die Seite neu." };
-
+/** Preise, Verfügbarkeit, Sichtbarkeit, Bestseller und Zutaten aus dem Formular lesen und prüfen */
+function checkPricing(base: Product, form: FormData): { desired: DesiredProduct } | ProductFormState & { error: string } {
   const visible = readCheckbox(form, "visible");
   const featured = readCheckbox(form, "featured");
   const materialRaw = form.get("material");
@@ -84,37 +73,20 @@ export async function saveProduct(_prev: ProductFormState, form: FormData): Prom
     if (value) desired.variants[v.id] = value;
   }
 
-  const errorCount = Object.keys(fieldErrors).length;
-  if (errorCount) {
-    return {
-      error: errorCount === 1 ? "Bitte prüfe das rot markierte Feld." : `Bitte prüfe die ${errorCount} rot markierten Felder.`,
-      fieldErrors,
-    };
-  }
+  if (Object.keys(fieldErrors).length) return errorSummary(fieldErrors) as ProductFormState & { error: string };
+  return { desired };
+}
 
+/** Preise & Co. eines Produkts speichern (nur dieses Produkt anfassen – Änderungen an anderen bleiben erhalten) */
+async function writePricing(handle: string, base: Product, desired: DesiredProduct) {
   const override = buildOverride(base, desired);
-  try {
-    // Nur dieses Produkt anfassen – Änderungen an anderen Produkten bleiben erhalten
-    await updateJSON<ProductOverrides>(KEYS.products, {}, (all) => {
-      const next = { ...all };
-      if (override) next[handle] = override;
-      else delete next[handle];
-      return next;
-    });
-  } catch (error) {
-    if (error instanceof StoreUnavailableError) return { error: error.message };
-    console.error("[produkte] Speichern fehlgeschlagen", handle, error);
-    return { error: SAVE_FAILED };
-  }
-
-  refresh(handle);
-
-  const message = desired.hidden
-    ? "Gespeichert – das Produkt ist jetzt im Shop ausgeblendet."
-    : override
-      ? "Gespeichert – die Änderungen sind in wenigen Sekunden im Shop zu sehen."
-      : "Gespeichert – alles entspricht wieder dem Original.";
-  return { ok: true, message, savedAt: Date.now() };
+  await updateJSON<ProductOverrides>(KEYS.products, {}, (all) => {
+    const next = { ...all };
+    if (override) next[handle] = override;
+    else delete next[handle];
+    return next;
+  });
+  return override;
 }
 
 /**
@@ -157,6 +129,8 @@ export async function resetProduct(_prev: ProductFormState, form: FormData): Pro
 
 /* ───────────────────────── Bilder & Texte · Neues Produkt · Löschen ───────────────────────── */
 
+class NotFoundError extends Error {}
+
 const RESERVED = new Set(["neu"]);
 const INCOMPLETE = "Die Angaben sind unvollständig. Bitte lade die Seite neu und versuche es noch einmal.";
 
@@ -194,50 +168,88 @@ function usedImages(custom: CustomProducts) {
   return [...mergeBase(custom).flatMap((p) => p.images.map((i) => i.src)), ...catalog.collections.flatMap((c) => (c.image ? [c.image] : []))];
 }
 
-/** Texte, Bilder, Kollektionen und Varianten eines Produkts speichern */
-export async function saveContent(_prev: ProductFormState, form: FormData): Promise<ProductFormState> {
+/** Texte, Bilder, Kollektionen und Varianten eines Produkts schreiben und danach nicht mehr genutzte Bilder aufräumen */
+async function writeContent(handle: string, value: NonNullable<ReturnType<typeof checkContent>["value"]>) {
+  let before: Product | undefined;
+  const overrides = await getOverrides();
+  const after = await updateJSON<CustomProducts>(KEYS.custom, {}, (all) => {
+    const entry = all[handle];
+    const base = isDeleted(entry) ? undefined : (entry ?? catalog.products.find((p) => p.handle === handle));
+    if (!base) throw new NotFoundError();
+    before = base;
+    // Neue Varianten bekommen den Preis, der gerade im Shop für die erste Variante gilt
+    const first = applyOverride(base, overrides[handle]).variants[0];
+    const variants = buildVariants(handle, value.options, base.variants, { price: first?.price ?? 1000, compareAtPrice: first?.compareAtPrice });
+    return { ...all, [handle]: { ...base, ...value, variants } };
+  });
+  const old = (before as Product | undefined)?.images.map((i) => i.src) ?? [];
+  await deleteUnused(old, usedImages(after)).catch((e) => console.error("[produkte] Alte Bilder aufräumen fehlgeschlagen", e));
+  // Die Auswahl „Echtes Foto / KI“ im Editor steht jetzt am Bild – eine ältere Auswahl aus der KI-Übersicht für diese Bilder entfernen
+  await clearAiOverrides(value.images.map((i) => mediaKey(i.src))).catch((e) => console.error("[produkte] KI-Auswahl aufräumen fehlgeschlagen", e));
+}
+
+/**
+ * Ein Produkt speichern – alles auf einer Seite: Preise & Verfügbarkeit, Sichtbarkeit, Bestseller, Zutaten
+ * sowie Bilder, Texte, Kollektionen und Varianten. `parts` sagt, welche Bereiche geändert wurden.
+ * Erst wird ALLES geprüft, dann geschrieben – bei einem Fehler wird nichts gespeichert.
+ */
+export async function saveProductAll(_prev: ProductFormState, form: FormData): Promise<ProductFormState> {
+  // Server Actions sind öffentlich erreichbar – deshalb immer zuerst die Anmeldung prüfen
   try {
     await assertAdmin();
   } catch {
     return { error: NOT_LOGGED_IN };
   }
+
   const handle = String(form.get("handle") ?? "");
-  const input = readContent(form);
-  if (!/^[a-z0-9-]{1,120}$/.test(handle) || !input) return { error: INCOMPLETE };
+  const base = /^[a-z0-9-]{1,120}$/.test(handle) ? await getBaseProduct(handle) : undefined;
+  if (!base) return { error: "Dieses Produkt gibt es nicht (mehr). Bitte lade die Seite neu." };
 
-  const { value, errors } = checkContent(input, catalog.collections.map((c) => c.handle));
-  if (!value) return errorSummary(errors);
+  const parts = String(form.get("parts") ?? "").split(",");
+  const savePricing = parts.includes("preise");
+  const saveText = parts.includes("inhalt");
+  if (!savePricing && !saveText) return { error: INCOMPLETE };
 
-  let before: Product | undefined;
-  let after: CustomProducts | undefined;
+  // 1. Prüfen
+  let desired: DesiredProduct | undefined;
+  let content: ReturnType<typeof checkContent>["value"];
+  const fieldErrors: Record<string, string> = {};
+  if (savePricing) {
+    const checked = checkPricing(base, form);
+    if ("desired" in checked) desired = checked.desired;
+    else if (checked.fieldErrors) Object.assign(fieldErrors, checked.fieldErrors);
+    else return checked;
+  }
+  if (saveText) {
+    const input = readContent(form);
+    if (!input) return { error: INCOMPLETE };
+    const checked = checkContent(input, catalog.collections.map((c) => c.handle));
+    if (checked.value) content = checked.value;
+    else Object.assign(fieldErrors, checked.errors);
+  }
+  if (Object.keys(fieldErrors).length) return errorSummary(fieldErrors);
+
+  // 2. Schreiben: erst Preise (die Felder gehören zu den bisherigen Varianten), dann Inhalt (kann Varianten ändern)
+  let override: Awaited<ReturnType<typeof writePricing>>;
   try {
-    const overrides = await getOverrides();
-    after = await updateJSON<CustomProducts>(KEYS.custom, {}, (all) => {
-      const entry = all[handle];
-      const base = isDeleted(entry) ? undefined : (entry ?? catalog.products.find((p) => p.handle === handle));
-      if (!base) throw new NotFoundError();
-      before = base;
-      // Neue Varianten bekommen den Preis, der gerade im Shop für die erste Variante gilt
-      const first = applyOverride(base, overrides[handle]).variants[0];
-      const variants = buildVariants(handle, value.options, base.variants, { price: first?.price ?? 1000, compareAtPrice: first?.compareAtPrice });
-      return { ...all, [handle]: { ...base, ...value, variants } };
-    });
+    if (desired) override = await writePricing(handle, base, desired);
+    if (content) await writeContent(handle, content);
   } catch (error) {
+    refresh(handle);
     if (error instanceof NotFoundError) return { error: "Dieses Produkt gibt es nicht (mehr). Bitte lade die Seite neu." };
     if (error instanceof StoreUnavailableError) return { error: error.message };
-    console.error("[produkte] Inhalt speichern fehlgeschlagen", handle, error);
+    console.error("[produkte] Speichern fehlgeschlagen", handle, error);
     return { error: SAVE_FAILED };
   }
-  if (before && after) await deleteUnused(before.images.map((i) => i.src), usedImages(after));
-  // Die Auswahl „Echtes Foto / KI“ im Editor steht jetzt am Bild – eine ältere Auswahl aus der KI-Übersicht für diese Bilder entfernen
-  await clearAiOverrides(value.images.map((i) => mediaKey(i.src))).catch((e) => console.error("[produkte] KI-Auswahl aufräumen fehlgeschlagen", e));
 
   refresh(handle);
-  revalidatePath(`/admin/produkte/${handle}/inhalt`);
-  return { ok: true, message: "Gespeichert – die Änderungen sind in wenigen Sekunden im Shop zu sehen.", savedAt: Date.now() };
+  const message = desired?.hidden
+    ? "Gespeichert – das Produkt ist jetzt im Shop ausgeblendet."
+    : desired && !override && !content
+      ? "Gespeichert – alles entspricht wieder dem Original."
+      : "Gespeichert – die Änderungen sind in wenigen Sekunden im Shop zu sehen.";
+  return { ok: true, message, savedAt: Date.now() };
 }
-
-class NotFoundError extends Error {}
 
 /** Neues Produkt anlegen – danach geht es direkt zum Produkt */
 export async function createProduct(_prev: ProductFormState, form: FormData): Promise<ProductFormState> {

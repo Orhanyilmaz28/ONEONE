@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import Form from "next/form";
 import Image from "next/image";
 import Link from "next/link";
-import { Badge, Card, EmptyState, Notice, PageHeader, Table, btn, btnSecondary, input } from "@/components/admin/ui";
+import type { ReactNode } from "react";
+import { Badge, EmptyState, Notice, PageHeader, btn, btnSecondary, input } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
-import { type DeletedProduct, applyOverride, catalog, getCustomProducts, getOverrides, isAvailable, isDeleted, mergeBase, priceRange } from "@/lib/catalog";
+import { type DeletedProduct, getCustomProducts, getOverrides, isDeleted, mergeBase } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
-import type { Product } from "@/lib/types";
 import { restoreProduct } from "./actions";
-import { changedVariantCount } from "./pricing";
+import { FILTERS, type FilterKey, type Row, TODO_FILTERS, buildRows, groupRows, isFilter, listHref, matchesFilter, matchesSearch, productHref } from "./list";
 
 export const metadata: Metadata = { title: "Produkte" };
 
@@ -16,108 +16,12 @@ const BASE = "/admin/produkte";
 
 type SearchParams = Promise<Record<string, string | string[] | undefined>>;
 
-const FILTERS = [
-  { key: "", label: "Alle" },
-  { key: "sichtbar", label: "Im Shop" },
-  { key: "ausgeblendet", label: "Ausgeblendet" },
-  { key: "bestseller", label: "Bestseller" },
-  { key: "ausverkauft", label: "Ausverkauft" },
-  { key: "angepasst", label: "Angepasst" },
-] as const;
-/** Zusätzlicher Filter ohne eigenen Knopf in der Leiste – erreichbar über den Hinweis oben und den Startklar-Check */
-const MATERIAL_FILTER = "material-fehlt";
-type FilterKey = (typeof FILTERS)[number]["key"] | typeof MATERIAL_FILTER;
-
-function isFilter(v: string): v is FilterKey {
-  return v === MATERIAL_FILTER || FILTERS.some((f) => f.key === v);
-}
-
 function first(v: string | string[] | undefined) {
   return (Array.isArray(v) ? v[0] : v) ?? "";
 }
 
 /** Link mit Filter + Suche (leere Werte weglassen) */
-function hrefWith(filter: FilterKey, q: string) {
-  const params = new URLSearchParams();
-  if (filter) params.set("filter", filter);
-  if (q) params.set("q", q);
-  const s = params.toString();
-  return s ? `${BASE}?${s}` : BASE;
-}
-
-/** Spaltenköpfe. „relative“ hält die unsichtbare Beschriftung in der scrollbaren Tabelle – sonst ließe sich die Seite seitlich schieben. */
-const TABLE_HEAD = [
-  "Produkt",
-  "Kollektion",
-  "Preis",
-  "Varianten",
-  "Status",
-  <span className="relative" key="edit">
-    <span className="sr-only">Bearbeiten</span>
-  </span>,
-];
-
-const collectionTitle = new Map(catalog.collections.map((c) => [c.handle, c.title]));
-
-/** Eine Zeile der Übersicht: aktueller Stand eines Produkts samt Kennzeichen */
-type Row = {
-  product: Product;
-  hidden: boolean;
-  featured: boolean;
-  soldOut: boolean;
-  unavailable: number;
-  changed: number;
-  /** Im Shop sichtbar, aber ohne Zutaten & Nährwerte (Pflicht nach Lebensmittelinformationsverordnung) */
-  materialMissing: boolean;
-  min: number;
-  max: number;
-  /** Streichpreis(e) der günstigsten Variante(n), falls vorhanden */
-  compare?: number;
-  collections: string[];
-};
-
-function toRow(base: Product, override: Parameters<typeof applyOverride>[1]): Row {
-  const product = applyOverride(base, override);
-  const { min, max } = priceRange(product);
-  const cheapest = product.variants.filter((v) => v.price === min && v.compareAtPrice !== undefined && v.compareAtPrice > v.price);
-  return {
-    product,
-    hidden: Boolean(override?.hidden),
-    featured: Boolean(product.featured),
-    soldOut: !isAvailable(product),
-    unavailable: product.variants.filter((v) => !v.available).length,
-    changed: changedVariantCount(override),
-    materialMissing: !override?.hidden && !product.material,
-    min,
-    max,
-    compare: cheapest.length ? Math.min(...cheapest.map((v) => v.compareAtPrice ?? 0)) : undefined,
-    collections: product.collections.map((c) => collectionTitle.get(c) ?? c),
-  };
-}
-
-function matchesFilter(row: Row, filter: FilterKey) {
-  switch (filter) {
-    case "sichtbar":
-      return !row.hidden;
-    case "ausgeblendet":
-      return row.hidden;
-    case "bestseller":
-      return row.featured;
-    case "ausverkauft":
-      return row.soldOut;
-    case "angepasst":
-      return row.changed > 0;
-    case MATERIAL_FILTER:
-      return row.materialMissing;
-    default:
-      return true;
-  }
-}
-
-function matchesSearch(row: Row, q: string) {
-  const needle = q.toLowerCase();
-  return [row.product.title, row.product.handle, ...row.collections].join(" ").toLowerCase().includes(needle);
-}
+const hrefWith = (filter: FilterKey, q: string) => listHref(filter, q);
 
 export default async function ProductsPage({ searchParams }: { searchParams: SearchParams }) {
   await requireAdmin();
@@ -127,17 +31,28 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   const q = first(sp.q).trim().slice(0, 100);
 
   const [overrides, custom] = await Promise.all([getOverrides(), getCustomProducts()]);
-  const rows = mergeBase(custom).map((p) => toRow(p, overrides[p.handle]));
+  const rows = buildRows(mergeBase(custom), overrides);
   const deleted = Object.entries(custom).filter((e): e is [string, DeletedProduct] => isDeleted(e[1]));
   const justDeleted = first(sp.geloescht).slice(0, 120);
 
   const searched = q ? rows.filter((r) => matchesSearch(r, q)) : rows;
   const counts = Object.fromEntries(FILTERS.map((f) => [f.key, searched.filter((r) => matchesFilter(r, f.key)).length])) as Record<string, number>;
+  const totals = Object.fromEntries(FILTERS.map((f) => [f.key, rows.filter((r) => matchesFilter(r, f.key)).length])) as Record<string, number>;
   const visible = searched.filter((r) => matchesFilter(r, filter));
 
-  const hiddenTotal = rows.filter((r) => r.hidden).length;
-  const soldOutTotal = rows.filter((r) => r.soldOut && !r.hidden).length;
-  const materialMissingTotal = rows.filter((r) => r.materialMissing).length;
+  // Kasten „Zu erledigen“
+  const materialMissing = rows.filter((r) => r.materialMissing);
+  const artNrMissing = rows.filter((r) => !r.artNr);
+  const duplicates = [...new Set(rows.filter((r) => r.artNrDuplicate.length).map((r) => r.artNr as string))].map((nr) => ({
+    nr,
+    titles: rows.filter((r) => r.artNr === nr).map((r) => r.product.title),
+  }));
+  const soldOutVisible = rows.filter((r) => r.soldOut && !r.hidden);
+  const todoCount = materialMissing.length + artNrMissing.length + duplicates.length + soldOutVisible.length;
+
+  const groups = groupRows(visible);
+
+  const todoFilter = filter in TODO_FILTERS ? TODO_FILTERS[filter as keyof typeof TODO_FILTERS] : null;
 
   return (
     <>
@@ -150,49 +65,65 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
             Neues Produkt
           </Link>
         }
-        description="Hier legst du fest, was im Shop zu sehen ist und was es kostet. Klick auf ein Produkt, um Preise, Bilder, Texte und Varianten zu ändern – oder lege mit „Neues Produkt“ ein weiteres an."
+        description="Klick auf ein Produkt, um Preis, Bilder und Texte zu ändern. Gespeichertes ist nach wenigen Sekunden im Shop zu sehen."
         title="Produkte"
       />
 
       {justDeleted ? (
-        <div className="mb-3" role="status">
+        <div className="mb-4" role="status">
           <Notice title={`„${justDeleted}“ wurde gelöscht`} tone="green">
             Das Produkt ist nicht mehr im Shop zu sehen.
           </Notice>
         </div>
       ) : null}
 
-      <div className="mb-6">
-        <Notice title="Änderungen sind in wenigen Sekunden live" tone="blue">
-          Sobald du speicherst, sehen deine Kund:innen die neuen Preise im Shop. An der Kasse gilt immer der aktuelle Preis – auch für Artikel, die schon im
-          Warenkorb liegen.
-        </Notice>
-        {materialMissingTotal > 0 && filter !== MATERIAL_FILTER ? (
-          <div className="mt-3">
-            <Notice title={materialMissingTotal === 1 ? "Bei 1 Produkt fehlen Zutaten & Nährwerte" : `Bei ${materialMissingTotal} Produkten fehlen Zutaten & Nährwerte`}>
-              Beim Online-Verkauf müssen Kund:innen vor dem Kauf Zutaten, Allergene und Nährwerte sehen (Lebensmittelinformationsverordnung).{" "}
-              <Link className="whitespace-nowrap font-medium underline underline-offset-2 hover:no-underline" href={hrefWith(MATERIAL_FILTER, "")} scroll={false}>
-                {materialMissingTotal === 1 ? "Produkt zeigen" : "Diese Produkte zeigen"} →
-              </Link>
-            </Notice>
-          </div>
-        ) : null}
-      </div>
+      {/* ── Zu erledigen ── */}
+      {todoCount > 0 ? (
+        <details className="group mb-6 rounded-3xl border border-amber-200 bg-amber-50/60" open={!filter && !q}>
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-3xl px-5 py-3.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-amber-200 [&::-webkit-details-marker]:hidden">
+            <span className="font-medium text-[15px] text-amber-950">Zu erledigen</span>
+            <span className="flex items-center gap-1.5 text-[13px] text-amber-900/70">
+              <span className="group-open:hidden">anzeigen</span>
+              <span className="hidden group-open:inline">einklappen</span>
+              <svg aria-hidden className="size-4 transition group-open:rotate-180" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </span>
+          </summary>
+          <ul className="divide-y divide-amber-200/70 border-amber-200/70 border-t px-5 text-[14px]">
+            {materialMissing.length ? (
+              <TodoLine href={hrefWith("material-fehlt", "")} note="Pflicht im Online-Shop">
+                {materialMissing.length === 1 ? "1 Produkt ohne Zutaten & Nährwerte" : `${materialMissing.length} Produkte ohne Zutaten & Nährwerte`}
+              </TodoLine>
+            ) : null}
+            {artNrMissing.length ? (
+              <TodoLine href={hrefWith("artnr-fehlt", "")}>{artNrMissing.length === 1 ? "1 Produkt ohne Artikelnummer" : `${artNrMissing.length} Produkte ohne Artikelnummer`}</TodoLine>
+            ) : null}
+            {duplicates.map((d) => (
+              <TodoLine href={hrefWith("artnr-doppelt", "")} key={d.nr}>
+                Artikelnummer {d.nr} doppelt ({d.titles.join(" und ")})
+              </TodoLine>
+            ))}
+            {soldOutVisible.length ? (
+              <TodoLine href={hrefWith("ausverkauft", "")}>{soldOutVisible.length === 1 ? "1 Produkt ausverkauft" : `${soldOutVisible.length} Produkte ausverkauft`}</TodoLine>
+            ) : null}
+          </ul>
+        </details>
+      ) : null}
 
-      {/* Filter + Suche */}
-      <div className="mb-5 flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
-        {/* Handy: Knöpfe brechen um (aktiver Filter bleibt sichtbar); ab Tablet als Leiste */}
-        {/* Zu schmal für alle Knöpfe? Dann lässt sich die Leiste seitlich schieben, statt abgeschnitten zu werden */}
-        <nav aria-label="Produkte filtern" className="no-scrollbar min-w-0 overflow-x-auto xl:shrink-0">
-          <ul className="flex flex-wrap gap-1.5 sm:w-max sm:flex-nowrap sm:gap-1 sm:rounded-full sm:border sm:border-line sm:bg-card sm:p-1">
-            {FILTERS.map((f) => {
+      {/* ── Filter + Suche ── */}
+      <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        {/* Zu schmal für alle Knöpfe? Dann lässt sich die Leiste seitlich schieben */}
+        <nav aria-label="Produkte filtern" className="no-scrollbar -mx-4 min-w-0 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:shrink-0">
+          <ul className="flex w-max gap-1 rounded-full border border-line bg-card p-1">
+            {FILTERS.filter((f) => !("onlyIfAny" in f) || totals[f.key] > 0 || filter === f.key).map((f) => {
               const active = f.key === filter;
-              const warn = (f.key === "ausverkauft" || f.key === "ausgeblendet") && counts[f.key] > 0;
+              const warn = f.key === "zu-erledigen" && counts[f.key] > 0;
               return (
                 <li key={f.key || "alle"}>
                   <Link
                     aria-current={active ? "page" : undefined}
-                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white ring-1 ring-ink sm:ring-0" : "bg-card text-ink/70 ring-1 ring-line hover:bg-ink/5 hover:text-ink sm:bg-transparent sm:ring-0"}`}
+                    className={`flex items-center gap-2 whitespace-nowrap rounded-full px-3 py-1.5 text-sm transition focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10 ${active ? "bg-accent text-white" : "text-ink/70 hover:bg-ink/5 hover:text-ink"}`}
                     href={hrefWith(f.key, q)}
                     scroll={false}
                   >
@@ -209,12 +140,12 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
           </ul>
         </nav>
 
-        <Form action={BASE} className="relative w-full sm:max-w-sm xl:w-56" role="search" scroll={false}>
+        <Form action={BASE} className="relative w-full lg:w-64" role="search" scroll={false}>
           {filter ? <input name="filter" type="hidden" value={filter} /> : null}
           <label className="sr-only" htmlFor="product-search">
             Produkte durchsuchen
           </label>
-          <input className={`${input} pr-12`} defaultValue={q} id="product-search" name="q" placeholder="Produkt suchen" type="search" />
+          <input className={`${input} pr-12`} defaultValue={q} id="product-search" name="q" placeholder="Name oder Artikelnummer" type="search" />
           <button
             aria-label="Suchen"
             className="absolute top-1/2 right-1.5 flex size-9 -translate-y-1/2 items-center justify-center rounded-full text-ink/60 transition hover:bg-ink/5 hover:text-ink focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
@@ -237,11 +168,10 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
         </p>
       ) : null}
 
-      {filter === MATERIAL_FILTER && visible.length > 0 ? (
+      {todoFilter && visible.length > 0 ? (
         <div className="mb-4" role="status">
-          <Notice title={`Nur Produkte ohne Zutaten & Nährwerte (${visible.length})`}>
-            Produkt öffnen, im Feld <b>Zutaten & Nährwerte</b> die Angaben von der Dose eintragen und speichern. Ist alles
-            eingetragen, ist diese Liste leer.{" "}
+          <Notice title={`${todoFilter.title} (${visible.length})`}>
+            {todoFilter.how}{" "}
             <Link className="whitespace-nowrap font-medium underline underline-offset-2 hover:no-underline" href={hrefWith("", q)} scroll={false}>
               Alle Produkte zeigen
             </Link>
@@ -252,47 +182,40 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
       {visible.length === 0 ? (
         <EmptyState action={{ href: BASE, label: "Alle Produkte zeigen" }} title="Keine passenden Produkte">
           {q
-            ? "Versuch es mit einem anderen Suchbegriff, z. B. „Classic“ oder „Lime“."
+            ? "Versuch es mit einem anderen Suchbegriff, z. B. „Classic“ oder einer Artikelnummer wie „D31031“."
             : filter === "ausverkauft"
               ? "Super – gerade ist nichts ausverkauft."
               : filter === "ausgeblendet"
                 ? "Alle Produkte sind im Shop zu sehen."
                 : filter === "angepasst"
                   ? "Bei keinem Produkt wurden Preise oder Verfügbarkeit geändert – es gelten überall die Original-Werte."
-                  : filter === MATERIAL_FILTER
-                    ? "Super – bei allen Produkten im Shop sind Zutaten & Nährwerte eingetragen."
+                  : filter === "zu-erledigen" || todoFilter
+                    ? "Super – hier ist nichts mehr zu erledigen."
                     : "Gerade passt kein Produkt zu diesem Filter."}
         </EmptyState>
       ) : (
-        <>
-          {/* Handy: Karten */}
-          <ul className="space-y-3 md:hidden">
-            {visible.map((r) => (
-              <li key={r.product.handle}>
-                <ProductCard row={r} />
-              </li>
-            ))}
-          </ul>
-
-          {/* Ab Tablet: Tabelle */}
-          <div className="hidden md:block">
-            <Card padded={false}>
-              <div className="px-6 pb-1">
-                <Table head={TABLE_HEAD}>
-                  {visible.map((r) => (
-                    <ProductRow key={r.product.handle} row={r} />
-                  ))}
-                </Table>
-              </div>
-            </Card>
-          </div>
-        </>
+        <div className="space-y-6">
+          {groups.map((g) => (
+            <section aria-labelledby={`gruppe-${g.key}`} key={g.key}>
+              <h2 className="mb-2 px-1 font-medium text-[12.5px] text-muted uppercase tracking-[0.08em]" id={`gruppe-${g.key}`}>
+                {g.title} <span className="font-normal">· {g.rows.length}</span>
+              </h2>
+              <ul className="divide-y divide-line overflow-hidden rounded-3xl border border-line bg-card shadow-[0_1px_2px_rgba(20,20,20,0.04)]">
+                {g.rows.map((r) => (
+                  <li key={r.product.handle}>
+                    <ProductLine filter={filter} q={q} row={r} />
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ))}
+        </div>
       )}
 
       <p className="mt-5 text-[13px] text-muted leading-relaxed">
         {rows.length} Produkte insgesamt
-        {hiddenTotal ? ` · ${hiddenTotal} ausgeblendet` : ""}
-        {soldOutTotal ? ` · ${soldOutTotal} ausverkauft` : ""}.
+        {totals.ausgeblendet ? ` · ${totals.ausgeblendet} ausgeblendet` : ""}
+        {soldOutVisible.length ? ` · ${soldOutVisible.length} ausverkauft` : ""}.
       </p>
 
       {deleted.length ? (
@@ -327,122 +250,96 @@ export default async function ProductsPage({ searchParams }: { searchParams: Sea
   );
 }
 
-function Thumb({ product, className = "" }: { product: Product; className?: string }) {
-  const image = product.images[0];
+function TodoLine({ href, note, children }: { href: string; note?: string; children: ReactNode }) {
   return (
-    <div className={`relative shrink-0 overflow-hidden rounded-xl bg-cream ring-1 ring-line ${className}`}>
-      {image ? <Image alt="" className="object-cover" fill sizes="64px" src={image.src} /> : null}
-    </div>
-  );
-}
-
-function PriceText({ row }: { row: Row }) {
-  return (
-    <span className="flex flex-col">
-      <span className="font-medium tabular-nums">{row.min === row.max ? formatPrice(row.min) : `${formatPrice(row.min)} – ${formatPrice(row.max)}`}</span>
-      {row.compare ? (
-        <span className="text-[12.5px] text-muted tabular-nums">
-          statt <s>{formatPrice(row.compare)}</s>
+    <li>
+      <Link
+        className="-mx-2 flex items-center justify-between gap-3 rounded-xl px-2 py-2.5 transition hover:bg-amber-100/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300"
+        href={href}
+        scroll={false}
+      >
+        <span className="text-amber-950">
+          {children}
+          {note ? <span className="text-amber-900/60"> · {note}</span> : null}
         </span>
-      ) : null}
-    </span>
+        <span className="whitespace-nowrap font-medium text-amber-900 underline underline-offset-2">zeigen →</span>
+      </Link>
+    </li>
   );
 }
 
-function StatusBadges({ row, partial = false }: { row: Row; partial?: boolean }) {
-  return (
-    <div className="flex flex-wrap gap-1.5">
-      {row.hidden ? <Badge>Ausgeblendet</Badge> : <Badge tone="green">Sichtbar</Badge>}
-      {row.featured ? (
-        <Badge tone="amber">
-          <svg aria-hidden className="size-3" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
-          </svg>
-          Bestseller
-        </Badge>
-      ) : null}
-      {row.soldOut ? <Badge tone="red">Ausverkauft</Badge> : null}
-      {row.materialMissing ? <Badge tone="amber">Zutaten fehlen</Badge> : null}
-      {partial && row.unavailable > 0 && !row.soldOut ? <Badge tone="amber">{row.unavailable} ausverkauft</Badge> : null}
-      {row.changed ? <Badge tone="blue">Angepasst</Badge> : null}
-    </div>
-  );
-}
-
-function VariantText({ row }: { row: Row }) {
-  const n = row.product.variants.length;
-  return (
-    <span className="flex flex-col">
-      <span className="tabular-nums">{n === 1 ? "1 Variante" : `${n} Varianten`}</span>
-      {row.unavailable > 0 && !row.soldOut ? <span className="text-[12.5px] text-amber-800 tabular-nums">{row.unavailable} ausverkauft</span> : null}
-    </span>
-  );
-}
-
-function ProductRow({ row }: { row: Row }) {
+function ProductLine({ row, filter, q }: { row: Row; filter: FilterKey; q: string }) {
   const p = row.product;
-  return (
-    <tr className="relative transition hover:bg-ink/[0.025]">
-      <td className="py-3 pr-4 align-middle">
-        <div className="flex items-center gap-3.5">
-          <Thumb className={`h-[60px] w-12 ${row.hidden ? "opacity-50 grayscale" : ""}`} product={p} />
-          <div className="min-w-0">
-            <Link
-              className="font-medium after:absolute after:inset-0 after:rounded-lg after:content-[''] focus-visible:outline-none focus-visible:after:ring-2 focus-visible:after:ring-ink/30"
-              href={`${BASE}/${p.handle}`}
-            >
-              {p.title}
-            </Link>
-            {p.subtitle ? <div className="max-w-[260px] truncate text-[13px] text-muted">{p.subtitle}</div> : null}
-          </div>
-        </div>
-      </td>
-      <td className="py-3 pr-4 align-middle text-ink/80">{row.collections.join(", ")}</td>
-      <td className="whitespace-nowrap py-3 pr-4 align-middle">
-        <PriceText row={row} />
-      </td>
-      <td className="whitespace-nowrap py-3 pr-4 align-middle text-ink/80">
-        <VariantText row={row} />
-      </td>
-      <td className="py-3 pr-4 align-middle">
-        <StatusBadges row={row} />
-      </td>
-      <td className="py-3 text-right align-middle">
-        <span aria-hidden className="inline-flex items-center gap-1 whitespace-nowrap text-[13px] text-muted">
-          <span className="hidden xl:inline">Bearbeiten</span>
-          <svg className="size-3.5" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
-            <path d="m9 6 6 6-6 6" />
-          </svg>
-        </span>
-      </td>
-    </tr>
-  );
-}
-
-function ProductCard({ row }: { row: Row }) {
-  const p = row.product;
+  const image = p.images[0];
+  const n = p.variants.length;
+  // Beim Blättern im Produkt bleibt die gleiche Auswahl (Filter/Suche) erhalten
+  const href = productHref(p.handle, filter, q);
   return (
     <Link
-      className="flex gap-4 rounded-3xl border border-line bg-card p-3.5 shadow-[0_1px_2px_rgba(20,20,20,0.04)] transition hover:border-ink/30 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-ink/10"
-      href={`${BASE}/${p.handle}`}
+      className="flex items-center gap-3.5 px-4 py-3 transition hover:bg-ink/[0.025] focus-visible:bg-ink/[0.03] focus-visible:outline-none sm:px-5 sm:py-2.5"
+      href={href}
     >
-      <Thumb className={`h-[100px] w-20 ${row.hidden ? "opacity-50 grayscale" : ""}`} product={p} />
-      <div className="flex min-w-0 flex-1 flex-col">
-        <span className="font-medium leading-snug">{p.title}</span>
-        <span className="truncate text-[13px] text-muted">{row.collections.join(", ")}</span>
-        <div className="mt-1.5 flex items-baseline justify-between gap-3 text-sm">
-          <span className="tabular-nums">
-            <span className="font-medium">{row.min === row.max ? formatPrice(row.min) : `ab ${formatPrice(row.min)}`}</span>
-            {row.compare ? <s className="ml-1.5 text-[12.5px] text-muted">{formatPrice(row.compare)}</s> : null}
-          </span>
-          <span className="shrink-0 text-[12.5px] text-muted">
-            {p.variants.length === 1 ? "1 Variante" : `${p.variants.length} Varianten`}
-          </span>
-        </div>
-        <div className="mt-2">
-          <StatusBadges partial row={row} />
-        </div>
+      <div className={`relative h-14 w-11 shrink-0 overflow-hidden rounded-lg bg-cream ring-1 ring-line sm:h-12 sm:w-9 ${row.hidden ? "opacity-50 grayscale" : ""}`}>
+        {image ? <Image alt="" className="object-cover" fill sizes="44px" src={image.src} /> : null}
       </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5 font-medium text-[15px] leading-snug">
+          <span className="truncate">{p.title}</span>
+          {row.featured ? (
+            <svg aria-label="Bestseller" className="size-3.5 shrink-0 text-amber-500" fill="currentColor" role="img" viewBox="0 0 24 24">
+              <path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9L12 3Z" />
+            </svg>
+          ) : null}
+        </div>
+        <div className="text-[12.5px] text-muted tabular-nums">
+          {row.artNr ? (
+            <span className={row.artNrDuplicate.length ? "text-amber-800" : ""}>
+              {row.artNr}
+              {row.artNrDuplicate.length ? " (doppelt)" : ""}
+            </span>
+          ) : (
+            <span className="text-amber-800">ohne Art.-Nr.</span>
+          )}
+          {n > 1 ? ` · ${n} Varianten` : ""}
+        </div>
+        <StatusBadges className="mt-1.5 sm:hidden" row={row} />
+      </div>
+      <StatusBadges className="hidden justify-end sm:flex" row={row} />
+      <span className="flex w-20 shrink-0 flex-col items-end text-right sm:w-24">
+        <span className="font-medium text-[14px] tabular-nums">{row.min === row.max ? formatPrice(row.min) : `ab ${formatPrice(row.min)}`}</span>
+        {row.compare ? <s className="text-[12px] text-muted tabular-nums">{formatPrice(row.compare)}</s> : null}
+      </span>
+      <svg aria-hidden className="size-4 shrink-0 text-muted" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+        <path d="m9 6 6 6-6 6" />
+      </svg>
     </Link>
   );
+}
+
+/** Nur Abweichungen zeigen – „Sichtbar“ ist der Normalfall und bekommt kein Abzeichen */
+function StatusBadges({ row, className = "" }: { row: Row; className?: string }) {
+  const badges = [
+    row.hidden ? <Badge key="h">Ausgeblendet</Badge> : null,
+    row.soldOut ? (
+      <Badge key="s" tone="red">
+        Ausverkauft
+      </Badge>
+    ) : row.unavailable > 0 ? (
+      <Badge key="u" tone="amber">
+        {row.unavailable} ausverkauft
+      </Badge>
+    ) : null,
+    row.materialMissing ? (
+      <Badge key="m" tone="amber">
+        Zutaten fehlen
+      </Badge>
+    ) : null,
+    row.changed ? (
+      <Badge key="c" tone="blue">
+        Angepasst
+      </Badge>
+    ) : null,
+  ].filter(Boolean);
+  if (!badges.length) return null;
+  return <div className={`flex flex-wrap gap-1.5 ${className}`}>{badges}</div>;
 }

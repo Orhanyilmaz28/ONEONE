@@ -223,7 +223,7 @@ export function checkContent(input: ContentInput, knownCollections: string[]): {
   if (input.images.length > LIMITS.images) errors.images = `Bitte höchstens ${LIMITS.images} Bilder.`;
   // KI-Kennzeichnung je Bild übernehmen; „original“ wird nicht gespeichert (gilt ohne Angabe)
   const images = input.images.map((img) => ({ src: img.src, alt: oneLine(img.alt).slice(0, LIMITS.alt) || title, ...(isAiMediaType(img.type) && img.type !== "original" ? { type: img.type } : {}) }));
-  if (images.some((img) => !/^\/(media|produkte|imported|bilder)\/[\w./-]+$/.test(img.src) || img.src.includes(".."))) errors.images = "Ein Bild ist ungültig. Bitte lade die Seite neu.";
+  if (images.some((img) => !/^\/(media|produkte|dosen|dosen-foto|imported|bilder)\/[\w./-]+$/.test(img.src) || img.src.includes(".."))) errors.images = "Ein Bild ist ungültig. Bitte lade die Seite neu.";
 
   const collections = input.collections.filter((c) => knownCollections.includes(c));
 

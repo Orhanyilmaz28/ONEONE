@@ -1,13 +1,22 @@
 import type { Metadata } from "next";
-import { EmptyState, Notice, PageHeader, btnSecondary } from "@/components/admin/ui";
+import { EmptyState, Notice } from "@/components/admin/ui";
 import { requireAdmin } from "@/lib/admin-auth";
+import { aiMediaType } from "@/lib/ai-media";
+import { getAiOverrides } from "@/lib/ai-media-store";
 import { applyOverride, catalog, getBaseProducts, getOverrides } from "@/lib/catalog";
-import { changedVariantCount } from "../pricing";
-import { BackLink, ProductTabs } from "../product-nav";
-import { type EditorProduct, ProductEditor } from "../product-editor";
 import { strictReads } from "@/lib/store";
+import { skuInfo } from "../checks";
+import { htmlToText } from "../content";
+import { FILTERS, TODO_FILTERS, buildRows, groupRows, isFilter, listHref, matchesFilter, matchesSearch, productHref } from "../list";
+import { changedVariantCount } from "../pricing";
+import type { EditorProduct } from "../pricing-fields";
+import { BackLink } from "../product-nav";
+import { ProductWorkspace, type WorkspaceNav } from "../product-workspace";
 
-type Props = { params: Promise<{ handle: string }>; searchParams: Promise<Record<string, string | string[] | undefined>> };
+type SearchParams = Record<string, string | string[] | undefined>;
+type Props = { params: Promise<{ handle: string }>; searchParams: Promise<SearchParams> };
+
+const first = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v) ?? "";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const handle = (await params).handle;
@@ -18,8 +27,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function EditProductPage({ params, searchParams }: Props) {
   await requireAdmin();
   const { handle } = await params;
-  const created = (await searchParams).angelegt === "1";
-  const [all, overrides] = await strictReads(() => Promise.all([getBaseProducts(), getOverrides()]));
+  const sp = await searchParams;
+  const created = first(sp.angelegt) === "1";
+  const [all, overrides, aiOverrides] = await strictReads(() => Promise.all([getBaseProducts(), getOverrides(), getAiOverrides()]));
   const base = all.find((p) => p.handle === handle);
 
   if (!base) {
@@ -65,33 +75,75 @@ export default async function EditProductPage({ params, searchParams }: Props) {
     changed: hidden || featuredChanged || variantsChanged ? { hidden, featured: featuredChanged, variants: variantsChanged } : null,
   };
 
+  // Blättern in derselben Reihenfolge (und mit derselben Auswahl) wie in der Produktliste
+  const listeParam = first(sp.liste);
+  const filter = isFilter(listeParam) ? listeParam : "";
+  const q = first(sp.suche).trim().slice(0, 100);
+  const rows = buildRows(all, overrides);
+  let order = groupRows(rows.filter((r) => (!q || matchesSearch(r, q)) && matchesFilter(r, filter))).flatMap((g) => g.rows.map((r) => r.product.handle));
+  let index = order.indexOf(handle);
+  // Passt das Produkt (z. B. nach dem Eintragen der Zutaten) nicht mehr zur Auswahl, an seiner alten Stelle weiterblättern
+  if (index === -1) {
+    const full = groupRows(rows).flatMap((g) => g.rows.map((r) => r.product.handle));
+    const after = full.slice(full.indexOf(handle) + 1).find((h) => order.includes(h));
+    index = after ? order.indexOf(after) : order.length;
+    order = [...order.slice(0, index), handle, ...order.slice(index)];
+  }
+  const label = filter ? (filter in TODO_FILTERS ? "Zu erledigen" : FILTERS.find((f) => f.key === filter)?.label) : q ? `Suche „${q}“` : undefined;
+  const nav: WorkspaceNav = {
+    listHref: listHref(filter, q),
+    prevHref: index > 0 ? productHref(order[index - 1], filter, q) : undefined,
+    nextHref: index < order.length - 1 ? productHref(order[index + 1], filter, q) : undefined,
+    position: index + 1,
+    total: order.length,
+    listLabel: label,
+  };
+
+  const sku = skuInfo(all.map((p) => p.handle))[handle];
+  const titleOf = new Map(all.map((p) => [p.handle, p.title]));
+
   return (
     <>
-      <BackLink />
-      <PageHeader
-        actions={
-          hidden ? (
-            <span className="inline-flex items-center rounded-full border border-line border-dashed px-4 py-2 text-[14px] text-muted">Im Shop ausgeblendet</span>
-          ) : (
-            <a className={btnSecondary} href={`/products/${handle}`} rel="noreferrer" target="_blank">
-              Im Shop ansehen ↗
-            </a>
-          )
-        }
-        description="Preise, Streichpreise und Verfügbarkeit je Variante ändern, Zutaten & Nährwerte pflegen – und festlegen, ob das Produkt im Shop und auf der Startseite erscheint."
-        title={base.title}
-      />
-      <ProductTabs active="preise" handle={handle} />
       {created ? (
         <div className="mb-6" role="status">
           <Notice title="Produkt angelegt" tone="green">
             {hidden
-              ? "Es ist noch ausgeblendet. Prüfe Preise und Material und schalte es unter „Sichtbarkeit“ ein, wenn alles passt."
-              : "Es ist jetzt im Shop zu sehen. Hier kannst du die Preise je Variante noch anpassen."}
+              ? "Es ist noch ausgeblendet. Prüfe Preise und Zutaten und schalte „Im Shop sichtbar“ ein, wenn alles passt."
+              : "Es ist jetzt im Shop zu sehen. Hier kannst du alles noch anpassen."}
           </Notice>
         </div>
       ) : null}
-      <ProductEditor featuredCount={featuredCount} product={product} />
+      <ProductWorkspace
+        content={{
+          collections: catalog.collections.map((c) => ({ handle: c.handle, title: c.title })),
+          existingVariants: base.variants.map((v) => v.options),
+          fromCatalog: catalog.products.some((p) => p.handle === handle),
+          initial: {
+            title: base.title,
+            subtitle: base.subtitle ?? "",
+            description: htmlToText(base.descriptionHtml),
+            images: base.images.map((i) => ({ src: i.src, alt: i.alt, type: aiMediaType(i.src, i.type, aiOverrides) })),
+            collections: base.collections,
+            highlights: (base.highlights ?? []).join("\n"),
+            capacity: base.capacity ?? "",
+            absorbency: base.absorbency ? String(base.absorbency) : "",
+            packSize: base.packSize ? String(base.packSize) : "",
+            options: base.options.map((o) => ({ name: o.name, values: o.values.join(", ") })),
+          },
+        }}
+        featuredCount={featuredCount}
+        key={handle}
+        nav={nav}
+        product={product}
+        sku={{
+          artNr: sku.artNr,
+          ean: sku.spec?.gtin,
+          gebinde: sku.spec?.gebinde.split(" · ")[0],
+          tray: sku.spec?.tray.split(" · ")[0],
+          mhd: sku.spec?.mhd.split(" · ")[0],
+          duplicateWith: sku.duplicateOf.map((h) => titleOf.get(h) ?? h),
+        }}
+      />
     </>
   );
 }
