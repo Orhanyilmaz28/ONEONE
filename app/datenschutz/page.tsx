@@ -77,12 +77,26 @@ export default async function Page() {
         <li>Newsletter-Anmeldungen (E-Mail-Adresse und Zeitpunkt der Anmeldung, siehe Abschnitt {n(9)}),</li>
         <li>eingereichte Produktbewertungen einschließlich Vorname, E-Mail-Adresse und ggf. Bestellnummer (siehe Abschnitt 8),</li>
         <li>der Versandstatus von Bestellungen (z. B. „versendet“, Versanddienstleister und Sendungsnummer),</li>
-        <li>Angaben aus Händler- und Influencer-Registrierungen samt Bestellungen, Rechnungen, Provisionen und Gutschriften (siehe Abschnitt {n(10)}).</li>
+        <li>Angaben aus Händler- und Influencer-Registrierungen samt Bestellungen, Rechnungen, Provisionen und Gutschriften (siehe Abschnitt {n(10)}),</li>
+        <li>
+          interne Bearbeitungsvermerke unseres Büros zu Bestellungen (z. B. Freigabe, Lieferschein, Versandstatus) und Kundenservice-Fälle (z. B. Anfragen,
+          Reklamationen, Retouren) mit Name, Kontaktdaten, Bestellbezug und Bearbeitungsnotizen.
+        </li>
       </ul>
       <p>
         Mit Upstash haben wir einen Vertrag über Auftragsverarbeitung (<Basis>Art. 28 DSGVO</Basis>) geschlossen. Sollten dabei Daten in die USA übermittelt
         werden (z. B. im Rahmen von Wartung oder Support), geschieht das auf Grundlage der EU-Standardvertragsklauseln (<Basis>Art. 46 Abs. 2 lit. c DSGVO</Basis>).
-        Die Rechtsgrundlage für die Speicherung richtet sich nach dem jeweiligen Zweck (Abschnitte 5, 8 und 9).
+        Die Rechtsgrundlage für die Speicherung richtet sich nach dem jeweiligen Zweck (Abschnitte 5, 8 und 9); für Kundenservice-Fälle ist es die
+        Vertragserfüllung (<Basis>Art. 6 Abs. 1 lit. b DSGVO</Basis>) bzw. unser berechtigtes Interesse an der Bearbeitung deines Anliegens (
+        <Basis>Art. 6 Abs. 1 lit. f DSGVO</Basis>).
+      </p>
+      <p>
+        <b>Datensicherung:</b> Damit bei einem Fehler nichts verloren geht, legen wir täglich eine Sicherungskopie dieser Datenbank an. Die Kopie wird vor dem
+        Hochladen verschlüsselt und im Speicherdienst „R2“ der Cloudflare, Inc. (USA) abgelegt – in einem Speicherbereich, der auf die Europäische Union
+        beschränkt ist. Cloudflare kann die Inhalte nicht lesen. Rechtsgrundlage ist unser berechtigtes Interesse an der Datensicherheit (
+        <Basis>Art. 6 Abs. 1 lit. f DSGVO</Basis>, <Basis>Art. 32 DSGVO</Basis>). Cloudflare ist nach dem EU-US Data Privacy Framework zertifiziert (
+        <Basis>Art. 45 DSGVO</Basis>); mit Cloudflare besteht ein Vertrag über Auftragsverarbeitung (<Basis>Art. 28 DSGVO</Basis>). Datenschutzhinweise
+        von Cloudflare: <Ext href="https://www.cloudflare.com/privacypolicy/" />
       </p>
 
       <h2>4. Warenkorb und Cookies</h2>
@@ -228,7 +242,8 @@ export default async function Page() {
         Wir speichern personenbezogene Daten nur so lange, wie es für den jeweiligen Zweck nötig ist. Bestell- und Rechnungsdaten müssen wir aus steuer- und
         handelsrechtlichen Gründen bis zu zehn Jahre aufbewahren (§ 147 AO, § 257 HGB) – das gilt auch für Händler-Rechnungen und Provisionsgutschriften.
         Abgelehnte Händler- und Influencer-Bewerbungen löschen wir, sobald wir sie für die Bearbeitung nicht mehr brauchen. Newsletter-Adressen löschen wir nach deiner Abmeldung,
-        Bewertungen auf Wunsch.
+        Bewertungen auf Wunsch. Kundenservice-Fälle bewahren wir so lange auf wie die zugehörigen Bestelldaten, ohne Bestellbezug höchstens drei Jahre nach
+        Abschluss (Verjährungsfrist, § 195 BGB). Sicherungskopien werden automatisch gelöscht: tägliche nach 30 Tagen, wöchentliche nach zwölf Wochen (die jeweils neueste Sicherung bleibt erhalten).
       </p>
 
       <h2>{n(13)}. Deine Rechte</h2>
