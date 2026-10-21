@@ -1,6 +1,6 @@
 import { adminConfigured, safeEqual } from "../admin-token";
 import { logSecurityEvent } from "./audit";
-import { hitLimits } from "./rate-limit";
+import { type LimitName, hitLimits, releaseLimits } from "./rate-limit";
 import { type AdminSession, createSession, readSession, revokeAllSessions, revokeSession, saveSession } from "./sessions";
 import { confirmSetup, encryptionConfigured, takeSetupSecret, twoFactorEnabled, twoFactorRequired, useRecoveryCode, verifySecondFactor } from "./two-factor";
 import { enableUserTwoFactor, getUser, noteLogin, verifyLogin, verifyUserSecondFactor } from "../office/users";
@@ -27,11 +27,12 @@ export function checkPassword(input: string) {
  * ohne eingerichtete 2FA geht es nur zur Einrichtung, nie direkt ins Dashboard.
  */
 async function staffPasswordStep(username: string, password: string, o: Origin): Promise<LoginResult> {
-  const limit = await hitLimits([
+  const checks: [LimitName, string][] = [
     ["loginIp", o.ip],
     ["loginGlobal", "all"],
     ["loginUser", username.trim().toLowerCase()],
-  ]);
+  ];
+  const limit = await hitLimits(checks);
   if (!limit.ok) {
     await logSecurityEvent("rate_limited", { ...o, detail: "Passwort (Büro-Zugang)" });
     return { ok: false, error: "rate_limited", retryAfter: limit.retryAfter };
@@ -41,6 +42,8 @@ async function staffPasswordStep(username: string, password: string, o: Origin):
     await logSecurityEvent("login_failed", { ...o, detail: "Passwort (Büro-Zugang)" });
     return { ok: false, error: "invalid" };
   }
+  // richtiges Passwort: Versuch zählt nicht zur Sperre (nur Fehlversuche sperren)
+  await releaseLimits(checks);
   if (!encryptionConfigured()) return { ok: false, error: "setup_unavailable" };
   const stage = user.totp ? "2fa" : "setup";
   const { token } = await createSession(stage, { ...o, userId: user.id, uv: user.version });
@@ -53,10 +56,11 @@ export async function passwordStep(password: string, o: Origin, username = ""): 
   if (username.trim()) return staffPasswordStep(username, password, o);
   if (!adminConfigured()) return { ok: false, error: "not_configured" };
   // zuerst zählen (atomar), dann prüfen – parallele Versuche werden alle gezählt
-  const limit = await hitLimits([
+  const checks: [LimitName, string][] = [
     ["loginIp", o.ip],
     ["loginGlobal", "all"],
-  ]);
+  ];
+  const limit = await hitLimits(checks);
   if (!limit.ok) {
     await logSecurityEvent("rate_limited", { ...o, detail: "Passwort" });
     return { ok: false, error: "rate_limited", retryAfter: limit.retryAfter };
@@ -65,6 +69,8 @@ export async function passwordStep(password: string, o: Origin, username = ""): 
     await logSecurityEvent("login_failed", { ...o, detail: "Passwort" });
     return { ok: false, error: "invalid" };
   }
+  // richtiges Passwort: Versuch zählt nicht zur Sperre (nur Fehlversuche sperren)
+  await releaseLimits(checks);
   if (await twoFactorEnabled()) {
     const { token } = await createSession("2fa", o);
     await logSecurityEvent("login_password_ok", { ...o, detail: "zweiter Faktor ausstehend" });

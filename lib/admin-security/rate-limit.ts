@@ -41,9 +41,11 @@ export type LimitName = keyof typeof LIMITS;
 
 export type LimitResult = { ok: boolean; count: number; retryAfter: number };
 
+const limitKey = (name: LimitName, subject: string) => `tt:adm:rl:${name}:${sha256(subject).slice(0, 32)}`;
+
 export async function hitLimit(name: LimitName, subject: string): Promise<LimitResult> {
   const { max, window } = LIMITS[name];
-  const { count, ttl } = await kv().incrWindow(`tt:adm:rl:${name}:${sha256(subject).slice(0, 32)}`, window);
+  const { count, ttl } = await kv().incrWindow(limitKey(name, subject), window);
   return { ok: count <= max, count, retryAfter: Math.max(1, ttl) };
 }
 
@@ -53,4 +55,12 @@ export async function hitLimits(checks: [LimitName, string][]): Promise<LimitRes
   const blocked = results.filter((r) => !r.ok);
   if (!blocked.length) return { ok: true, count: 0, retryAfter: 0 };
   return { ok: false, count: Math.max(...blocked.map((b) => b.count)), retryAfter: Math.max(...blocked.map((b) => b.retryAfter)) };
+}
+
+/**
+ * Gezählte Versuche zurückgeben (z. B. nach richtigem Passwort): Nur Fehlversuche sollen zur Sperre führen.
+ * Gezählt wird weiterhin vorher (atomar), damit parallele falsche Versuche nie durchrutschen.
+ */
+export async function releaseLimits(checks: [LimitName, string][]): Promise<void> {
+  await Promise.all(checks.map(([n, s]) => kv().decrFloor(limitKey(n, s))));
 }

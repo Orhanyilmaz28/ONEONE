@@ -9,7 +9,7 @@ export const catalog = data as Catalog;
 export type ProductOverride = {
   /** Produkt im Shop ausblenden */
   hidden?: boolean;
-  /** Als Bestseller auf der Startseite zeigen */
+  /** Bestseller: in der Produktliste bei „Beliebt“ zuerst und im Vorschaubild beim Teilen */
   featured?: boolean;
   variants?: Record<string, { price?: number; compareAtPrice?: number | null; available?: boolean }>;
   /** Zutaten, Allergene & Nährwerte („“ = Angabe aus dem Katalog entfernen). Der Feldname „material“ stammt aus dem Textil-Shop. */

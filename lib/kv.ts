@@ -13,6 +13,8 @@ export interface KvBackend {
   del(...keys: string[]): Promise<number>;
   /** Atomar hochzählen; beim ersten Zählen läuft der Schlüssel nach `ttl` Sekunden ab. Liefert Stand und Restlaufzeit. */
   incrWindow(key: string, ttl: number): Promise<{ count: number; ttl: number }>;
+  /** Atomar um 1 herunterzählen (nie unter 0), Restlaufzeit bleibt – z. B. erfolgreiche Anmeldung zurückgeben */
+  decrFloor(key: string): Promise<number>;
   /** Atomar: Wert nur setzen, wenn er größer ist als der gespeicherte (für TOTP-Wiederverwendungsschutz) */
   setIfGreater(key: string, value: number): Promise<boolean>;
   sadd(key: string, ...members: string[]): Promise<number>;
@@ -66,6 +68,15 @@ function redisBackend(url: string, token: string): KvBackend {
         Math.max(1, Math.ceil(ttl)),
       ]);
       return { count: Number(count), ttl: Number(rest) };
+    },
+    async decrFloor(key) {
+      const r = await call<number>([
+        "EVAL",
+        "local v = tonumber(redis.call('GET', KEYS[1]) or '0') if v > 0 then return redis.call('DECR', KEYS[1]) end return 0",
+        1,
+        key,
+      ]);
+      return Number(r);
     },
     async setIfGreater(key, value) {
       const r = await call<number>([
@@ -133,6 +144,13 @@ export function memoryBackend(now: () => number = Date.now): KvBackend {
       const exp = e?.exp ?? now() + Math.ceil(ttl) * 1000;
       data.set(key, { value: String(count), exp });
       return { count, ttl: Math.ceil((exp - now()) / 1000) };
+    },
+    async decrFloor(key) {
+      const e = live(key);
+      const cur = typeof e?.value === "string" ? Number(e.value) : 0;
+      if (!e || cur <= 0) return 0;
+      data.set(key, { value: String(cur - 1), exp: e.exp });
+      return cur - 1;
     },
     async setIfGreater(key, value) {
       const cur = Number(str(key) ?? "-1");

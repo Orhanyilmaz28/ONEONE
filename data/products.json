@@ -387,7 +387,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Energy Drink",
@@ -439,7 +439,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Energy Drink",
@@ -491,7 +491,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Energy Drink",
@@ -542,7 +542,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Energy Drink",
@@ -697,7 +697,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Ice Coffee",
@@ -748,7 +748,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Ice Coffee",
@@ -799,7 +799,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "250-ml-Dose",
         "Ice Coffee",
@@ -850,7 +850,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "Ice Tea",
         "Gekühlt am besten"
@@ -900,7 +900,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "Ice Tea",
         "Gekühlt am besten"
@@ -950,7 +950,7 @@
           "cans": 24
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "Ice Tea",
         "Gekühlt am besten"
@@ -1000,7 +1000,7 @@
           "cans": 12
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "500-ml-Flasche",
         "Ohne Kohlensäure"
@@ -1051,7 +1051,7 @@
           "cans": 12
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "500-ml-Flasche",
         "Wenig Kohlensäure"
@@ -1102,7 +1102,7 @@
           "cans": 12
         }
       ],
-      "featured": true,
+      "featured": false,
       "highlights": [
         "500-ml-Flasche",
         "Sprudelnd"

@@ -40,7 +40,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
   const featuredChanged = override?.featured !== undefined && override.featured !== Boolean(base.featured);
   const variantsChanged = changedVariantCount(override);
 
-  // Bestseller, die gerade im Shop zu sehen sind (für den Hinweis „bis zu 8“)
+  // Bestseller, die gerade im Shop zu sehen sind (für den Hinweis „am besten 6–8“)
   const featuredCount = all.filter((p) => !overrides[p.handle]?.hidden && (overrides[p.handle]?.featured ?? p.featured)).length;
 
   const collectionTitle = new Map(catalog.collections.map((c) => [c.handle, c.title]));
