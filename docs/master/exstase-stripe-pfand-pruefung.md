@@ -68,3 +68,14 @@ Büro-Pfand = voll, Büro-Brutto = Zahlung, USt, Versand, Erstattung, Umsatz nac
 1. Ein Stripe-Testkauf zur Bestätigung der Verteilung (Testmodus, keine echte Zahlung).
 2. Entscheidung A oder B und Freigabe der Checkout-Änderung (Zahlungsfluss).
 3. Rechtliche/steuerliche Prüfung der Punkte in Abschnitt 5.
+
+## 7. Umsetzung Variante A (21.10.2026, von Orhan gewählt)
+- **Bestätigung vorher:** Orhans Testkauf (1 × Tropical + 1 × Classic, Mix 3 %) im alten Checkout: 36,00 − 1,08 + 12,00 + 5,90 = **52,82 €**. Zahlung korrekt.
+- `app/api/checkout/route.ts`: kein Stripe-Gutschein mehr. Warenpositionen über `discountedGoodsLines` (Rabatt nur auf Waren, im Positionspreis, Cent-genau, ggf. geteilte Zeile). Einwegpfand immer 0,25 € je Dose.
+- Positionsbeschreibung „inkl. Mix-Rabatt 3 %“ bzw. „inkl. Code … (10 %)“. Metadaten: `items` je Stripe-Position (z. B. `classic:2,classic:1`, alle Leser summieren je Produkt), neu `discount` (Cent) und `discountLabel`.
+- Stripe-Aktionscodes nur noch ohne eigenen Rabatt und ohne Influencer-Code (wie bisher praktisch).
+- Büro (`fromStripe`): ohne Stripe-Rabatt, aber mit `metadata.discount` → Ware vor Rabatt, Rabatt aus den Metadaten. Alte Bestellungen mit Gutschein bleiben unverändert.
+- Danke-Seite: Zeile „Darin enthalten: Mix-Rabatt …“ (nur Hinweis, keine zweite Abbuchung).
+- Provision, Versandgrenze, Zahlungsbetrag: unverändert.
+- Tests: neu `tests/checkout-deposit-a.test.mts` (echter Checkout-Code, Stripe abgefangen, kein Netz), AP6-Fälle auf A umgestellt. Gesamt **354/354**.
+- Nächster Schritt: zweiter Stripe-Testkauf (Testmodus) nach dem Deployment.

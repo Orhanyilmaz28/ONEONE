@@ -908,13 +908,12 @@ describe("Ausfälle und Nebenwirkungen", () => {
     assert.doesNotMatch(header, /Bürostatus|Freigabe|Logistik/, "keine neuen Spalten im Excel-Export");
   });
 
-  test("40 Stripe/Pfand (nur Analyse): Rabatt wird von Stripe auch auf die Pfandzeile verteilt; Büro zeigt Pfand ungekürzt", async () => {
+  test("40 Stripe/Pfand: alte Bestellungen (Gutschein auch auf Pfand) zeigen im Büro das Pfand ungekürzt; neuer Checkout ohne Gutschein", async () => {
     const o = b2c();
     assert.equal(o.deposit, 1200, "Pfand im Büro = ungekürzter Betrag der Pfandzeile");
     assert.equal(LINES[1].amount_discount, 60, "Stripe-Testdaten: Anteil des Gutscheins auf der Pfandzeile");
     const route = await fs.readFile(path.join(ROOT, "app/api/checkout/route.ts"), "utf8");
-    assert.match(route, /amount_off: discount/, "fester Betrag als Einmal-Gutschein");
-    assert.doesNotMatch(route, /applies_to/, "Gutschein gilt (noch) für alle Positionen inklusive Pfand");
+    assert.doesNotMatch(route, /amount_off/, "seit Korrektur A kein Gutschein mehr: Rabatt nur auf Waren, Pfand bleibt voll");
   });
 
   test("47/48 Phase 3A/3B unverändert: Lieferschein-Nummern und Dokumente laufen weiter (eigene Testdateien)", async () => {

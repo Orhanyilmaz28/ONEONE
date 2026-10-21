@@ -1,19 +1,10 @@
 /**
- * AP6 – vorbereitete, STANDARDMÄSSIG ABGESCHALTETE Korrektur: Rabatte nur auf Waren, nie auf das Einwegpfand.
+ * Pfand-Korrektur A (aktiv seit 21.10.2026, von Orhan freigegeben): Rabatte nur auf Waren, nie auf das Einwegpfand.
  *
- * Ausgangslage (app/api/checkout/route.ts): Mix- bzw. Influencer-Rabatt wird als Stripe-Gutschein mit `amount_off`
- * OHNE `applies_to` angelegt. Damit sind alle Positionen der Checkout-Sitzung rabattfähig – auch „Einwegpfand“.
- * Stripe verteilt den Betrag dann auf die Positionen (je Position `amount_discount`). Der Gesamtbetrag stimmt,
- * der Pfand-Posten kann aber unter 0,25 € je Dose ausgewiesen werden (Rechnung, Positionsauswertung).
- *
- * Diese Datei wird vom Checkout NICHT benutzt. Einschalten nur nach ausdrücklicher Freigabe (Zahlungsänderung):
- * Checkout baut dann die Positionen mit `discountedGoodsLines` (Rabatt im Positionspreis, Pfand unverändert, kein
- * Gutschein) statt mit Gutschein. Rein, ohne Netz – vollständig testbar.
+ * Früher (bis 21.10.2026) hat der Checkout Mix-/Code-Rabatte als Stripe-Gutschein ohne `applies_to` angehängt; Stripe
+ * hat den Betrag dann auch auf die Pfandzeile verteilt. Jetzt baut app/api/checkout/route.ts die Warenpositionen mit
+ * `discountedGoodsLines` (Rabatt im Positionspreis, Pfand unverändert, kein Gutschein). Rein, ohne Netz – vollständig testbar.
  */
-export const DEPOSIT_FIX_FLAG = "CHECKOUT_DEPOSIT_FIX";
-/** Bewusst nur lesbar gemacht – der Checkout fragt diesen Schalter (noch) nicht ab */
-export const depositFixEnabled = (env: Record<string, string | undefined> = process.env) => env[DEPOSIT_FIX_FLAG] === "1";
-
 export type GoodsLine = { handle: string; title: string; unitAmount: number; quantity: number; cansPerUnit: number };
 
 /**
@@ -51,7 +42,8 @@ export function simulateCurrent(lines: GoodsLine[], discount: number, depositPer
   };
 }
 
-export type StripeLinePlan = { title: string; quantity: number; unitAmount: number; handle: string };
+/** `source` = Index der Warenkorb-Zeile (bei geteilten Zeilen gleich), damit Variante/Bild eindeutig bleiben */
+export type StripeLinePlan = { title: string; quantity: number; unitAmount: number; handle: string; source: number };
 
 /**
  * Korrigierte Positionen: Rabatt nur auf Waren, im Positionspreis enthalten. Weil Stripe nur ganze Cent je Stück kennt,
@@ -66,8 +58,8 @@ export function discountedGoodsLines(lines: GoodsLine[], discount: number, depos
     const total = goods[i] - parts[i];
     const per = Math.floor(total / l.quantity);
     const extra = total - per * l.quantity; // so viele Stück bekommen 1 Cent mehr
-    if (l.quantity - extra > 0) out.push({ title: l.title, quantity: l.quantity - extra, unitAmount: per, handle: l.handle });
-    if (extra > 0) out.push({ title: l.title, quantity: extra, unitAmount: per + 1, handle: l.handle });
+    if (l.quantity - extra > 0) out.push({ title: l.title, quantity: l.quantity - extra, unitAmount: per, handle: l.handle, source: i });
+    if (extra > 0) out.push({ title: l.title, quantity: extra, unitAmount: per + 1, handle: l.handle, source: i });
   });
   const cans = lines.reduce((n, l) => n + l.cansPerUnit * l.quantity, 0);
   return { lines: out, perLineDiscount: parts, deposit: { cans, unitAmount: depositPerCan, total: cans * depositPerCan } };

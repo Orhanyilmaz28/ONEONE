@@ -8,6 +8,7 @@ import { getAccountsConfig } from "@/lib/customers";
 import { findByCode } from "@/lib/influencers";
 import { SHOP_VAT } from "@/lib/influencer-rules";
 import { type MixLine, mixDiscount } from "@/lib/mix";
+import { type GoodsLine, discountedGoodsLines } from "@/lib/checkout-deposit-fix";
 
 type Body = { lines?: { variantId?: unknown; quantity?: unknown }[]; code?: unknown };
 
@@ -29,8 +30,10 @@ export async function POST(request: Request) {
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
   let subtotal = 0;
   let cans = 0;
-  const metaParts: string[] = [];
   const mixLines: MixLine[] = [];
+  const goodsLines: GoodsLine[] = [];
+  // Stripe-Produktdaten je Warenkorb-Zeile (Name, Variante, Bild) – die Positionen werden erst nach der Rabattberechnung gebaut
+  const productData: Stripe.Checkout.SessionCreateParams.LineItem.PriceData.ProductData[] = [];
 
   // Preise werden ausschließlich serverseitig aus dem Katalog gelesen – nie vom Client übernommen.
   for (const line of body.lines ?? []) {
@@ -52,39 +55,18 @@ export async function POST(request: Request) {
     subtotal += variant.price * quantity;
     mixLines.push({ handle: product.handle, quantity, price: variant.price });
     cans += cansOf(variant) * quantity;
-    metaParts.push(`${product.handle}:${quantity}`);
+    goodsLines.push({ handle: product.handle, title: product.title, unitAmount: variant.price, quantity, cansPerUnit: cansOf(variant) });
     const image = product.images[0]?.src;
-    lineItems.push({
-      quantity,
-      price_data: {
-        currency: "eur",
-        unit_amount: variant.price,
-        tax_behavior: "inclusive",
-        product_data: {
-          name: product.title,
-          ...(product.variants.length > 1 ? { description: variant.title } : {}),
-          ...(image?.startsWith("https://") ? { images: [image] } : {}),
-          metadata: { handle: product.handle, variantId: variant.id },
-        },
-      },
+    productData.push({
+      name: product.title,
+      ...(product.variants.length > 1 ? { description: variant.title } : {}),
+      ...(image?.startsWith("https://") ? { images: [image] } : {}),
+      metadata: { handle: product.handle, variantId: variant.id },
     });
   }
 
-  if (lineItems.length === 0) {
+  if (goodsLines.length === 0) {
     return Response.json({ error: "Dein Warenkorb ist leer." }, { status: 400 });
-  }
-
-  // Einwegpfand: 0,25 € je Dose, separat ausgewiesen. Zählt nicht zum Warenwert (Grenze für kostenlosen Versand).
-  if (cans > 0) {
-    lineItems.push({
-      quantity: cans,
-      price_data: {
-        currency: "eur",
-        unit_amount: DEPOSIT_PER_CAN,
-        tax_behavior: "inclusive",
-        product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", metadata: { handle: "pfand" } },
-      },
-    });
   }
 
   // Versandkosten aus den Einstellungen im Dashboard (gleiche Regeln wie shippingRules in components/trust.tsx):
@@ -100,6 +82,40 @@ export async function POST(request: Request) {
   const codeDiscount = influencer ? Math.round((subtotal * influencer.discountPct) / 100) : 0;
   const useCode = codeDiscount > mix.discount;
   const discount = Math.max(mix.discount, codeDiscount);
+  const discountLabel = discount > 0 ? (useCode && influencer ? `Code ${influencer.code} (${influencer.discountPct} %)` : `Mix-Rabatt ${mix.pct} %`).slice(0, 40) : "";
+
+  // Rabatt nur auf die Ware, direkt im Positionspreis (kein Stripe-Gutschein). So bleibt das Einwegpfand immer
+  // voll 0,25 € je Dose. Wegen ganzer Cent kann eine Position geteilt werden (z. B. 2 × 17,10 € und 1 × 17,11 €).
+  const plan = discountedGoodsLines(goodsLines, discount, DEPOSIT_PER_CAN);
+  const metaParts: string[] = [];
+  for (const line of plan.lines) {
+    const data = productData[line.source];
+    if (!data) continue;
+    metaParts.push(`${line.handle}:${line.quantity}`);
+    lineItems.push({
+      quantity: line.quantity,
+      price_data: {
+        currency: "eur",
+        unit_amount: line.unitAmount,
+        tax_behavior: "inclusive",
+        product_data: discount > 0 ? { ...data, description: [data.description, `inkl. ${discountLabel}`].filter(Boolean).join(" · ") } : data,
+      },
+    });
+  }
+
+  // Einwegpfand: 0,25 € je Dose, separat ausgewiesen und nie rabattiert. Zählt nicht zum Warenwert (Grenze für kostenlosen Versand).
+  if (cans > 0) {
+    lineItems.push({
+      quantity: cans,
+      price_data: {
+        currency: "eur",
+        unit_amount: DEPOSIT_PER_CAN,
+        tax_behavior: "inclusive",
+        product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", metadata: { handle: "pfand" } },
+      },
+    });
+  }
+
   const freeShipping = shippingCost === 0 || (freeFrom > 0 && subtotal - discount >= freeFrom);
   const shippingOptions: Stripe.Checkout.SessionCreateParams.ShippingOption[] = [
     {
@@ -130,7 +146,8 @@ export async function POST(request: Request) {
     });
   }
 
-  // Für die Live-Statistik („heute bestellt“): Produkt-Handles mit Menge, z. B. "classic:2,lime:1"
+  // Für die Live-Statistik („heute bestellt“): Produkt-Handles mit Menge je Stripe-Position, z. B. "classic:2,lime:1"
+  // (geteilte Positionen erscheinen zweimal, z. B. "classic:2,classic:1" – alle Leser summieren je Handle)
   const itemsMeta = metaParts.join(",").slice(0, 480);
   // Basis der Provision: Warenwert nach Rabatt ohne MwSt. (Pfand und Versand zählen nicht)
   const refMeta: Record<string, string> = influencer?.code
@@ -141,25 +158,15 @@ export async function POST(request: Request) {
   const customer = (await getAccountsConfig()).enabled ? await getCurrentCustomer().catch(() => null) : null;
 
   try {
-    // Mix- bzw. Code-Rabatt als einmaliger Gutschein (Stripe erlaubt Rabatt und Rabattcodes nicht gleichzeitig – dann entfällt das Codefeld)
-    const coupon =
-      discount > 0
-        ? await stripe.coupons.create({
-            amount_off: discount,
-            currency: "eur",
-            duration: "once",
-            max_redemptions: 1,
-            redeem_by: Math.floor(Date.now() / 1000) + 24 * 3600,
-            name: (useCode && influencer ? `Code ${influencer.code} (${influencer.discountPct} %)` : `Mix-Rabatt ${mix.pct} % (${mix.sorts} Sorten, ${mix.trays} Trays)`).slice(0, 40),
-          })
-        : null;
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
-      metadata: { items: itemsMeta, ...(customer ? { customerId: customer.id } : {}), ...refMeta },
+      // discount/discountLabel: Rabatt steckt im Positionspreis – das Büro liest ihn von hier (Stripe kennt ihn nicht als Rabatt)
+      metadata: { items: itemsMeta, ...(discount > 0 ? { discount: String(discount), discountLabel } : {}), ...(customer ? { customerId: customer.id } : {}), ...refMeta },
       ...(customer ? { customer_email: customer.email } : {}),
       locale: "de",
       line_items: lineItems,
-      ...(coupon ? { discounts: [{ coupon: coupon.id }] } : influencer ? {} : { allow_promotion_codes: true }),
+      // Stripe-Aktionscodes nur ohne eigenen Rabatt und ohne Influencer-Code (sonst gälte doppelter Rabatt)
+      ...(discount > 0 || influencer ? {} : { allow_promotion_codes: true }),
       billing_address_collection: "auto",
       shipping_address_collection: { // EU-Länder ohne Zollabwicklung (Schweiz bewusst nicht: Zoll + Schweizer MwSt.)
       allowed_countries: ["DE", "AT", "NL", "BE", "LU", "FR", "IT", "DK"] },

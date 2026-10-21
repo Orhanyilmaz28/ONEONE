@@ -65,6 +65,12 @@ export default async function SuccessPage({ searchParams }: Props) {
                 <span>−{formatPrice(session.total_details.amount_discount)}</span>
               </li>
             ) : null}
+            {!session.total_details?.amount_discount && Number(session.metadata?.discount) > 0 ? (
+              <li className="flex justify-between gap-4 py-3 text-muted">
+                <span>Darin enthalten: {session.metadata?.discountLabel || "Rabatt"}</span>
+                <span>−{formatPrice(Number(session.metadata?.discount))}</span>
+              </li>
+            ) : null}
           </ul>
           <div className="mt-4 flex justify-between border-line border-t pt-4 font-medium">
             <span>Gesamt</span>
