@@ -5,7 +5,7 @@ Tests lokal: `redis-server --port 6390|6392|6393 --save "" --appendonly no --dae
 `REDIS_TEST_URL=http://127.0.0.1:8791 REDIS_TEST_TOKEN=testtoken BACKUP_TEST_SOURCE_URL=http://127.0.0.1:8793 BACKUP_TEST_TARGET_URL=http://127.0.0.1:8794 npm test`.
 
 ## Aktuelles Arbeitspaket
-AP3 – Phase 3D Büroautomatisierung
+AP4 – Phase 3E Kundenservice, Reklamationen, Retouren
 
 ## Status
 | AP | Status | Tests (gesamt danach) |
@@ -13,23 +13,26 @@ AP3 – Phase 3D Büroautomatisierung
 | Analyse | Abgeschlossen | 261/261 |
 | 1 Firmendaten | Abgeschlossen, Veröffentlichung benötigt Freigabe | 273/273, tsc ok, build ok |
 | 2 Phase 3C | Abgeschlossen (war in main; Lücke Mix-Momentaufnahme geschlossen, Checkout-Teil braucht Freigabe) | 277/277, tsc ok, build ok |
-| 3 Phase 3D | in Arbeit | – |
+| 3 Phase 3D | Abgeschlossen (E-Mail-Versand braucht Freigabe) | 295/295, tsc ok, build ok |
 | 4 Phase 3E | offen | – |
 | 5 Phase 3F | offen | – |
 | 6 Stripe/Pfand | offen | – |
 | 7 Phase 3G | offen | – |
 
 ## Implementiert
+- AP3: automatische Büroberichte (Zeitplan Europe/Berlin, standardmäßig aus), Berichtshistorie, Benachrichtigungen/Erinnerungen ohne Kundendaten, Cron `/api/cron/office` täglich, Leistungsmessung `scripts/perf-office.mts`.
 - AP2: `lib/mix-snapshot.ts` – Mixpaket-Inhalt zum Kaufzeitpunkt aus Stripe-Metadaten `mix` lesen (Schreiben im Checkout vorbereitet, nicht aktiv).
 - AP1: zentrale Firmendaten (Fax, Website, Geschäftsführer-Reihenfolge), Impressum § 5 DDG, Firmendaten-Abgleich im Dashboard (Übernahme nur per Klick), Steuernummer intern (Rechnungsdaten), Absender-Momentaufnahme auf Lieferscheinen.
 
 ## Offene Probleme
+- Stripe-Ladezeit bei sehr vielen Privatbestellungen nicht gemessen (nur geschätzt).
 - Registerangaben nicht amtlich verifiziert.
 - Stripe-Rechnungen nutzen die Firmendaten aus dem Stripe-Konto.
 
 ## Freigabepflichtig
+- AP3: `OFFICE_REPORT_EMAILS=1` (Bericht-E-Mails); neuer Cron wird erst mit Deployment aktiv.
 - AP2: Checkout schreibt `metadata.mix` (Mix-Zusammensetzung beim Kauf).
 - AP1: Veröffentlichung Firmendaten/Impressum; „Betreiberangaben übernehmen“ (Redis-Änderung durch Orhan).
 
 ## Nächster Schritt
-AP3: Berichtsautomatisierung (Einstellungen, Zeitplan Europe/Berlin, standardmäßig aus), Benachrichtigungen/Erinnerungen intern, Fehlerüberwachung, Berichtshistorie.
+AP4: Kundenfälle (Ticketnummern atomar), Reklamationen, Retouren, Erstattungsanfragen ohne Stripe-Erstattung, Vorlagen ohne Versand, Rechte, Protokoll.

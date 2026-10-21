@@ -27,6 +27,14 @@ export const LIMITS = {
   officeWorkflow: { max: 600, window: 60 * 60 },
   /** Büro-Zugänge anlegen/ändern: je IP 30 pro Stunde */
   officeUsers: { max: 30, window: 60 * 60 },
+  /** Automatische Berichte einstellen: je IP 30 pro Stunde */
+  officeAutomation: { max: 30, window: 60 * 60 },
+  /** Berichte manuell erstellen: je Person 20 pro Stunde (lädt Stripe-Daten) */
+  officeReports: { max: 20, window: 60 * 60 },
+  /** Kundenservice (Tickets anlegen/bearbeiten): je Person 600 pro Stunde */
+  officeService: { max: 600, window: 60 * 60 },
+  /** Verkaufsanalysen exportieren: je Person 60 pro Stunde */
+  officeAnalytics: { max: 60, window: 60 * 60 },
 } as const;
 
 export type LimitName = keyof typeof LIMITS;

@@ -9,6 +9,8 @@ import { can } from "@/lib/office/roles";
 import { officeUrl } from "@/lib/office/model";
 import { loadOfficeOrders } from "@/lib/office/source";
 import { ATTENTION_LABEL, attention } from "@/lib/office/workflow";
+import { type AutomationConfig, type Notice as OfficeNotice, NOTIFY_LABEL, REMINDER_LABEL, notifications, reminders } from "@/lib/office/automation";
+import { getConfig } from "@/lib/office/automation-service";
 import { type SearchParams, paramsOf } from "./shared";
 
 export const metadata: Metadata = { title: "Büroverwaltung" };
@@ -33,6 +35,15 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
   const products = await productLookup();
   const loaded = await loadOfficeOrders(overviewStart(now), ranges.year.to, products);
   const k = computeKpis(loaded.orders, period, now);
+  // Benachrichtigungen (letzte 7 Tage) und Erinnerungen – nur Bestellnummer und Grund, keine Kundendaten
+  let auto: AutomationConfig | null = null;
+  try {
+    auto = await getConfig();
+  } catch {
+    auto = null;
+  }
+  const hints: OfficeNotice[] = auto ? [...reminders(loaded.orders, auto, now), ...notifications(loaded.orders, auto, now - 7 * 86_400_000, products)] : [];
+  const hintLabel = (h: OfficeNotice) => (h.reminder ? REMINDER_LABEL[h.kind as keyof typeof REMINDER_LABEL] : NOTIFY_LABEL[h.kind as keyof typeof NOTIFY_LABEL]);
   const link = (extra: Record<string, string>) => `/admin/buero/bestellungen?${new URLSearchParams({ zeitraum: periodKey, ...extra }).toString()}`;
 
   const counts: { label: string; value: number | null; href?: string; hint?: string }[] = [
@@ -144,6 +155,36 @@ export default async function OfficeOverview({ searchParams }: { searchParams: S
           </p>
         ) : null}
       </Card>
+
+      {auto === null || hints.length ? (
+        <Card className="mb-8" title={`Benachrichtigungen und Erinnerungen (${hints.length})`}>
+          {auto === null ? (
+            <p className="text-[14px] text-red-700">Die Einstellungen für Benachrichtigungen konnten gerade nicht geladen werden.</p>
+          ) : (
+            <ul className="divide-y divide-line text-[14px]">
+              {hints.slice(0, 15).map((h) => (
+                <li className="flex flex-wrap items-baseline gap-2 py-2" key={`${h.reminder ? "r" : "n"}:${h.id}`}>
+                  <Badge tone={h.reminder ? "amber" : "blue"}>{hintLabel(h)}</Badge>
+                  {h.orderKey ? (
+                    <Link className="font-medium tabular-nums underline-offset-4 hover:underline" href={officeUrl({ key: h.orderKey })}>
+                      {h.order}
+                    </Link>
+                  ) : null}
+                  <span className="text-muted">{h.text}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+          {hints.length > 15 ? <p className="mt-3 text-[13px] text-muted">… und {hints.length - 15} weitere.</p> : null}
+          {can(me.role, "office.automation") ? (
+            <p className="mt-3 text-[13px]">
+              <Link className="underline underline-offset-4" href="/admin/buero/einstellungen/berichte">
+                Einstellen
+              </Link>
+            </p>
+          ) : null}
+        </Card>
+      ) : null}
 
       <h2 className="mb-3 font-medium text-[15px]">Umsatz (brutto, ohne Stornos, abzüglich Erstattungen)</h2>
       <div className="mb-8 grid grid-cols-2 gap-3 xl:grid-cols-4">

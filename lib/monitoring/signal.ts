@@ -14,7 +14,9 @@ export type IncidentType =
   | "backup_failed"
   | "restore_failed"
   | "backup_overdue"
-  | "error_spike";
+  | "error_spike"
+  | "office_report_failed"
+  | "stripe_unreachable";
 
 export const INCIDENT_LABEL: Record<IncidentType, string> = {
   redis_unreachable: "Datenbank nicht erreichbar",
@@ -25,6 +27,8 @@ export const INCIDENT_LABEL: Record<IncidentType, string> = {
   restore_failed: "Wiederherstellung fehlgeschlagen",
   backup_overdue: "Sicherung überfällig",
   error_spike: "Ungewöhnlich viele Fehler",
+  office_report_failed: "Automatischer Bürobericht fehlgeschlagen",
+  stripe_unreachable: "Stripe nicht erreichbar",
 };
 
 export type Incident = { at: string; type: IncidentType; detail?: string };

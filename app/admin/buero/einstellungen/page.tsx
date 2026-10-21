@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Badge, Card, Notice, PageHeader, btn, btnDanger, btnSecondary, formatDateTime, input, label } from "@/components/admin/ui";
 import { requireOffice } from "@/lib/admin-auth";
 import { OFFICE_ROLES, ROLE_LABEL, ROLE_TEXT, type Role, can } from "@/lib/office/roles";
@@ -12,7 +13,11 @@ export const dynamic = "force-dynamic";
 const ROLES: Role[] = ["admin", "buero", "lesen"];
 const RIGHTS: [string, Record<Role, boolean>][] = [
   ["Büro-Übersicht und Bestellungen ansehen", { admin: true, buero: true, lesen: true }],
-  ["Excel-Exporte erstellen", { admin: true, buero: true, lesen: false }],
+  ["Excel-Exporte und PDF-Dokumente erstellen", { admin: true, buero: true, lesen: false }],
+  ["Bürostatus bearbeiten (prüfen, freigeben, Logistik, Versand)", { admin: true, buero: true, lesen: false }],
+  ["Berichtshistorie ansehen", { admin: true, buero: true, lesen: true }],
+  ["Berichte manuell erstellen", { admin: true, buero: true, lesen: false }],
+  ["Automatische Berichte, Benachrichtigungen und Erinnerungen einstellen", { admin: true, buero: false, lesen: false }],
   ["Büro-Zugänge verwalten", { admin: true, buero: false, lesen: false }],
   ["Restliches Dashboard (Produkte, Preise, Einstellungen, Sicherheit …)", { admin: true, buero: false, lesen: false }],
 ];
@@ -41,6 +46,15 @@ export default async function OfficeSettingsPage({ searchParams }: { searchParam
         </p>
         <p className="mt-1 text-[14px] text-muted">{ROLE_TEXT[me.role]}</p>
       </Card>
+
+      {can(me.role, "office.automation") ? (
+        <Card className="mb-6" title="Automatische Berichte">
+          <p className="text-[14px] text-muted">Zeitpläne für Tages-, Wochen- und Monatsberichte, Benachrichtigungen und Erinnerungen fürs Büro.</p>
+          <Link className={`${btnSecondary} mt-3`} href="/admin/buero/einstellungen/berichte">
+            Automatische Berichte einstellen
+          </Link>
+        </Card>
+      ) : null}
 
       <Card className="mb-6" padded={false} title="Rollen">
         <div className="overflow-x-auto px-6 py-4">
