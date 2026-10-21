@@ -14,9 +14,11 @@ export async function saveBankAction(_prev: BankState, form: FormData): Promise<
   const bank = String(form.get("bank") ?? "").trim().slice(0, 80);
   const dueDays = Math.min(120, Math.max(0, Math.round(Number(form.get("dueDays")) || 0)));
   const note = String(form.get("note") ?? "").trim().slice(0, 1500);
+  const taxNumber = String(form.get("taxNumber") ?? "").replace(/\s+/g, "").slice(0, 20);
+  if (taxNumber && !/^\d{2,3}\/\d{3,4}\/\d{4,5}$|^\d{10,13}$/.test(taxNumber)) return { error: "Die Steuernummer sieht nicht richtig aus (z. B. 123/4567/8901)." };
   if (iban && !/^[A-Z]{2}\d{2}[A-Z0-9]{10,30}$/.test(iban)) return { error: "Die IBAN sieht nicht richtig aus (z. B. DE89 3704 0044 0532 0130 00)." };
   if (bic && !/^[A-Z0-9]{8}([A-Z0-9]{3})?$/.test(bic)) return { error: "Die BIC sieht nicht richtig aus (8 oder 11 Zeichen)." };
-  await saveInvoiceSettings({ iban: iban.replace(/(.{4})/g, "$1 ").trim(), bic, bank, dueDays, note });
+  await saveInvoiceSettings({ iban: iban.replace(/(.{4})/g, "$1 ").trim(), bic, bank, dueDays, note, taxNumber });
   revalidatePath("/admin/haendler", "layout");
   return { ok: "Rechnungsdaten gespeichert – gelten für alle neuen bzw. neu gespeicherten Rechnungen." };
 }

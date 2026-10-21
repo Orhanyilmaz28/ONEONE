@@ -37,6 +37,10 @@ const EVENT_LABEL: Record<SecurityEventType, string> = {
   office_user_changed: "Büro-Zugang geändert",
   office_user_deleted: "Büro-Zugang gelöscht",
   office_denied: "Büro: Zugriff verweigert",
+  company_data_applied: "Firmendaten übernommen",
+  office_ticket: "Büro: Kundenservice",
+  office_reports: "Büro: Automatische Berichte",
+  office_analytics: "Büro: Verkaufsanalyse",
 };
 const BAD: SecurityEventType[] = ["login_failed", "second_factor_failed", "rate_limited", "twofa_disabled", "office_denied"];
 

@@ -1,6 +1,6 @@
 import { Fragment, type ReactNode } from "react";
 import { company as staticCompany } from "@/lib/company";
-import { RETURN_COST_SENTENCE, type ReturnCostPayer, type Settings } from "@/lib/settings-defaults";
+import { OPTIONAL_COMPANY_FIELDS, RETURN_COST_SENTENCE, type ReturnCostPayer, type Settings, managersOf } from "@/lib/settings-defaults";
 import type { ImportedPage } from "@/lib/types";
 
 export function LegalPage({ title, children }: { title: string; children: ReactNode }) {
@@ -40,6 +40,8 @@ const MISSING_LABEL: Record<CompanyKey, string> = {
   country: "Land",
   email: "E-Mail-Adresse",
   phone: "Telefonnummer",
+  fax: "Telefax",
+  website: "Website",
   vatId: "USt-IdNr.",
   register: "Registereintrag",
 };
@@ -68,7 +70,19 @@ export type CompanyView = Record<CompanyKey, ReactNode> & {
   domain: string;
   /** Name der verantwortlichen Person, z. B. „Christopher Walich“ aus „Geschäftsführer: Christopher Walich“ */
   person: ReactNode;
+  /** Geschäftsführer in der gespeicherten Reihenfolge (leer = nicht angegeben) */
+  managers: string[];
+  /** Registergericht und Registernummer getrennt (leer, wenn nicht eindeutig erkennbar) */
+  registerCourt: string;
+  registerNumber: string;
 };
+
+/** „Amtsgericht Düsseldorf, HRB 90042“ → { court: "Amtsgericht Düsseldorf", number: "HRB 90042" } */
+export function splitRegister(register: string): { court: string; number: string } {
+  const m = /^(.*?)[,;]?\s*(HR[AB]\s*\d+\s*[A-Z]?)\s*$/i.exec((register ?? "").trim());
+  if (!m || !m[1].trim()) return { court: "", number: "" };
+  return { court: m[1].trim().replace(/[,;]$/, ""), number: m[2].replace(/\s+/g, " ").toUpperCase() };
+}
 
 /**
  * Firmendaten aus den Einstellungen für Rechtstexte aufbereiten:
@@ -78,7 +92,8 @@ export function companyView(company: Settings["company"]): CompanyView {
   const view = {} as Record<CompanyKey, ReactNode>;
   for (const key of Object.keys(MISSING_LABEL) as CompanyKey[]) {
     const value = String(company[key] ?? "").trim();
-    view[key] = isMissing(value) ? <MissingValue label={MISSING_LABEL[key]} /> : value;
+    // Freiwillige Angaben (Fax, Website) bleiben leer statt gelb markiert
+    view[key] = isMissing(value) ? (OPTIONAL_COMPANY_FIELDS.includes(key) ? "" : <MissingValue label={MISSING_LABEL[key]} />) : value;
   }
   const owner = String(company.owner ?? "").trim();
   // „Geschäftsführer: Christopher Walich“ → „Christopher Walich“
@@ -91,7 +106,8 @@ export function companyView(company: Settings["company"]): CompanyView {
   } catch {
     // feste Angabe behalten
   }
-  return { ...view, domain, person };
+  const reg = splitRegister(String(company.register ?? ""));
+  return { ...view, domain, person, managers: managersOf(owner), registerCourt: reg.court, registerNumber: reg.number };
 }
 
 /* ───────────────────────── Widerrufsbelehrung & Muster-Widerrufsformular ───────────────────────── */

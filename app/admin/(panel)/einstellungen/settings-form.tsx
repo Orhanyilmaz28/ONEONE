@@ -427,12 +427,24 @@ function ImprintPreview({ company }: { company: Settings["company"] }) {
         <p>
           <span className="text-muted">Vertreten durch</span>
           <br />
-          {c.owner}
+          {c.managers.length ? `Geschäftsführer: ${c.managers.join(", ")}` : c.owner}
         </p>
         <p>
           Telefon: {c.phone}
+          {c.fax ? (
+            <>
+              <br />
+              Telefax: {c.fax}
+            </>
+          ) : null}
           <br />
           E-Mail: {c.email}
+          {c.website ? (
+            <>
+              <br />
+              Website: {c.website}
+            </>
+          ) : null}
         </p>
         <p>
           USt-IdNr.: {c.vatId}

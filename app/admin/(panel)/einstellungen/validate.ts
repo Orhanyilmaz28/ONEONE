@@ -78,8 +78,9 @@ export const COMPANY_FIELDS: CompanyField[] = [
   {
     key: "owner",
     label: "Vertreten durch",
-    help: "Wer die Firma vertritt – mit Funktion davor.",
-    placeholder: "z. B. Geschäftsführer: Max Mustermann",
+    help: "Wer die Firma vertritt – mit Funktion davor. Mehrere Geschäftsführer mit Komma trennen; die Reihenfolge wird so übernommen.",
+    placeholder: "z. B. Geschäftsführer: Christopher Walich, Orhan Yilmaz",
+    wide: true,
   },
   {
     key: "street",
@@ -120,6 +121,19 @@ export const COMPANY_FIELDS: CompanyField[] = [
     placeholder: "z. B. +49 2834 123456",
     type: "tel",
     autoComplete: "tel",
+  },
+  {
+    key: "fax",
+    label: "Telefax (freiwillig)",
+    help: "Steht im Impressum und auf Dokumenten, wenn ausgefüllt. Leer lassen, wenn es kein Fax gibt.",
+    placeholder: "z. B. 0211 157 759-29",
+    type: "tel",
+  },
+  {
+    key: "website",
+    label: "Unternehmenswebsite (freiwillig)",
+    help: "Mit https:// davor. Steht im Impressum, wenn ausgefüllt.",
+    placeholder: "z. B. https://exstase.com",
   },
   {
     key: "vatId",
@@ -171,12 +185,19 @@ function checkCompany(field: CompanyField, raw: string, country: string): { valu
     case "email":
       if (!EMAIL.test(value)) return { value, error: "Das sieht nicht wie eine E-Mail-Adresse aus – Beispiel: hello@exstase.com." };
       break;
-    case "phone": {
+    case "phone":
+    case "fax": {
       const digits = value.replace(/\D/g, "").length;
       if (!PHONE.test(value) || digits < 6 || digits > 15)
         return { value, error: "Bitte nur Ziffern, Leerzeichen und ein + am Anfang – Beispiel: +49 2834 123456." };
       break;
     }
+    case "website":
+      if (!/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(value)) return { value, error: "Bitte die vollständige Adresse mit https:// eingeben – Beispiel: https://exstase.com." };
+      break;
+    case "register":
+      if (!/HR[AB]\s*\d+/i.test(value)) return { value, error: "Bitte Registergericht und Nummer angeben – Beispiel: Amtsgericht Düsseldorf, HRB 90042." };
+      break;
     case "vatId":
       if (value.startsWith("DE") ? !/^DE\d{9}$/.test(value) : !/^[A-Z]{2}[0-9A-Z]{8,12}$/.test(value))
         return { value, error: "Bitte im Format DE123456789 eingeben – also DE und 9 Ziffern." };

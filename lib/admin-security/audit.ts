@@ -28,7 +28,11 @@ export type SecurityEventType =
   | "office_user_created"
   | "office_user_changed"
   | "office_user_deleted"
-  | "office_denied";
+  | "office_denied"
+  | "company_data_applied"
+  | "office_ticket"
+  | "office_reports"
+  | "office_analytics";
 
 export type SecurityEvent = { at: string; type: SecurityEventType; ip: string; ua: string; detail?: string };
 

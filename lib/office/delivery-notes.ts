@@ -43,7 +43,28 @@ export type NoteBasis = {
   customerNote: string;
   shippedAt?: number;
   remark: string;
+  /**
+   * Absender (Firmendaten) zum Zeitpunkt der Ausstellung – seit dem Master-Auftrag (AP1). Fehlt bei älteren Lieferscheinen;
+   * deren Archivkopien zeigen dann die aktuellen Firmendaten mit einem Hinweis.
+   */
+  seller?: SellerSnapshot;
 };
+/** Firmendaten auf dem Lieferschein (öffentliche Angaben, keine Bankdaten) */
+export type SellerSnapshot = { name: string; brand: string; owner: string; street: string; city: string; country: string; email: string; phone: string; fax?: string; website?: string; vatId: string; register: string };
+export const sellerSnapshot = (c: SellerSnapshot): SellerSnapshot => ({
+  name: c.name ?? "",
+  brand: c.brand ?? "",
+  owner: c.owner ?? "",
+  street: c.street ?? "",
+  city: c.city ?? "",
+  country: c.country ?? "",
+  email: c.email ?? "",
+  phone: c.phone ?? "",
+  fax: c.fax ?? "",
+  website: c.website ?? "",
+  vatId: c.vatId ?? "",
+  register: c.register ?? "",
+});
 export type NoteVersion = { version: number; fp: string; at: string; by: string; basis: NoteBasis };
 
 export type StoredNote = {
@@ -77,7 +98,7 @@ export const MAX_REMARK = 300;
 const cleanRemark = (v: string) => v.replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, MAX_REMARK);
 
 /** Datenbasis eines Lieferscheins aus der Bestellung (Mixpaket-Inhalt aus den Produktdaten zum Zeitpunkt des Drucks) */
-export function noteBasis(o: OfficeOrder, remark: string, products: Map<string, Product>): NoteBasis {
+export function noteBasis(o: OfficeOrder, remark: string, products: Map<string, Product>, seller?: SellerSnapshot): NoteBasis {
   return {
     order: o.number,
     channel: o.channel,
@@ -94,6 +115,7 @@ export function noteBasis(o: OfficeOrder, remark: string, products: Map<string, 
     customerNote: o.customerNote,
     ...(o.shippedAt ? { shippedAt: o.shippedAt } : {}),
     remark,
+    ...(seller ? { seller: sellerSnapshot(seller) } : {}),
   };
 }
 
@@ -106,11 +128,13 @@ export function basisFingerprint(b: NoteBasis) {
     n: b.customerNote,
     s: b.shippedAt ?? null,
     r: b.remark,
+    // Absender nur, wenn festgehalten (ältere Fingerabdrücke bleiben gültig, solange ohne Absender verglichen wird)
+    ...(b.seller ? { v: [b.seller.name, b.seller.owner, b.seller.street, b.seller.city, b.seller.country, b.seller.phone, b.seller.fax ?? "", b.seller.email, b.seller.vatId, b.seller.register] } : {}),
   };
   return createHash("sha256").update(JSON.stringify(content)).digest("hex").slice(0, 24);
 }
 
-export const noteFingerprint = (o: OfficeOrder, remark: string, products: Map<string, Product>) => basisFingerprint(noteBasis(o, remark, products));
+export const noteFingerprint = (o: OfficeOrder, remark: string, products: Map<string, Product>, seller?: SellerSnapshot) => basisFingerprint(noteBasis(o, remark, products, seller));
 
 /** Bestellung aus einer gespeicherten Datenbasis (für die Archivkopie einer älteren Version) */
 export function orderFromBasis(key: string, b: NoteBasis): OfficeOrder {
@@ -159,10 +183,10 @@ export const formatNoteNumber = (year: number, seq: number) => `LS-${year}-${Str
  * Rein: nächster Stand des Lieferscheins einer Bestellung.
  * `prev` = vorhandener Lieferschein (neu oder aus dem alten Nummernbuch), `number` = frisch vergebene Nummer (nur wenn noch keiner existiert).
  */
-export function applyIssueOne(prev: StoredNote | null, o: OfficeOrder, number: string | null, by: string, action: "heruntergeladen" | "gedruckt", now: number, products: Map<string, Product>, remark?: string): StoredNote {
+export function applyIssueOne(prev: StoredNote | null, o: OfficeOrder, number: string | null, by: string, action: "heruntergeladen" | "gedruckt", now: number, products: Map<string, Product>, remark?: string, seller?: SellerSnapshot): StoredNote {
   const at = new Date(now).toISOString();
   const r = remark === undefined ? (prev?.remark ?? "") : cleanRemark(remark);
-  const basis = noteBasis(o, r, products);
+  const basis = noteBasis(o, r, products, seller);
   const fp = basisFingerprint(basis);
   if (!prev) {
     if (!number) throw new Error("Keine Lieferscheinnummer vergeben");
@@ -230,7 +254,7 @@ async function reserveNumbers(count: number, year: number, legacySeq: number): P
  * (Erstellen zwei Personen im selben Augenblick den ersten Lieferschein derselben Bestellung, bleibt höchstens eine Nummer
  * ungenutzt – vergeben wird sie nie zweimal.)
  */
-export async function issueNotes(orders: OfficeOrder[], by: string, action: "heruntergeladen" | "gedruckt", products: Map<string, Product>, now = Date.now(), remark?: string): Promise<Map<string, StoredNote>> {
+export async function issueNotes(orders: OfficeOrder[], by: string, action: "heruntergeladen" | "gedruckt", products: Map<string, Product>, now = Date.now(), remark?: string, seller?: SellerSnapshot): Promise<Map<string, StoredNote>> {
   const [current, legacy] = await Promise.all([getManyJSONStrict<StoredNote>(orders.map((o) => noteKey(o.key))), readLegacy()]);
   const year = berlinParts(now).y;
   const need = orders.filter((o, i) => !current[i] && !legacy.notes[o.key]);
@@ -247,7 +271,7 @@ export async function issueNotes(orders: OfficeOrder[], by: string, action: "her
         let result: StoredNote | null = null;
         await updateJSON<StoredNote | null>(noteKey(o.key), null, (cur) => {
           const prev = cur ?? legacy.notes[o.key] ?? null;
-          result = applyIssueOne(prev, o, prev ? null : (numbers.get(o.key) ?? null), by, action, now, products, remark);
+          result = applyIssueOne(prev, o, prev ? null : (numbers.get(o.key) ?? null), by, action, now, products, remark, seller);
           return result;
         });
         if (result) out.set(o.key, result);
