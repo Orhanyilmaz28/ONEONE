@@ -1,5 +1,5 @@
 import { Fragment, type ReactNode } from "react";
-import { company as staticCompany } from "@/lib/company";
+import { publicDomain } from "@/lib/company";
 import { OPTIONAL_COMPANY_FIELDS, RETURN_COST_SENTENCE, type ReturnCostPayer, type Settings, managersOf } from "@/lib/settings-defaults";
 import type { ImportedPage } from "@/lib/types";
 
@@ -98,14 +98,8 @@ export function companyView(company: Settings["company"]): CompanyView {
   const owner = String(company.owner ?? "").trim();
   // „Geschäftsführer: Christopher Walich“ → „Christopher Walich“
   const person = isMissing(owner) ? <MissingValue label="Verantwortliche Person" /> : owner.replace(/^[^:]*:\s*/, "");
-  // Domain aus der Shop-Adresse (NEXT_PUBLIC_SITE_URL), sonst die feste Angabe
-  let domain = staticCompany.domain;
-  try {
-    const host = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "").hostname.replace(/^www\./, "");
-    if (host && host !== "localhost") domain = host;
-  } catch {
-    // feste Angabe behalten
-  }
+  // Sichtbare Domain: nie die technische Vercel-Adresse, sonst exstaseshop.com
+  const domain = publicDomain();
   const reg = splitRegister(String(company.register ?? ""));
   return { ...view, domain, person, managers: managersOf(owner), registerCourt: reg.court, registerNumber: reg.number };
 }
