@@ -67,12 +67,18 @@ export async function loadAnalytics(req: AnalyticsRequest, now = Date.now(), dep
       errors.push("Händlerliste nicht lesbar (Händler ohne aktuelle Bestellung fehlen).");
       return [];
     }),
-    getInfluencers().catch(() => []),
+    getInfluencers().catch(() => {
+      errors.push("Creator-Liste nicht lesbar (Creator-Namen bei Codes fehlen).");
+      return [];
+    }),
     getCommissions().catch(() => {
       errors.push("Provisionsbuch nicht lesbar (Provisionen fehlen).");
       return [];
     }),
-    getJSONStrict<DealerOrder[]>(KEYS.dealerOrders, []).catch(() => [] as DealerOrder[]),
+    getJSONStrict<DealerOrder[]>(KEYS.dealerOrders, []).catch(() => {
+      errors.push("Händler-Bestellliste nicht lesbar (letzte Bestellung je Händler fehlt).");
+      return [] as DealerOrder[];
+    }),
   ]);
   const lastOrder = new Map<string, number>();
   for (const o of Array.isArray(dealerOrders) ? dealerOrders : []) {

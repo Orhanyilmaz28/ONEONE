@@ -159,6 +159,11 @@ export async function filterUnsent(items: Notice[]): Promise<Notice[]> {
   return out;
 }
 
+/** Markierung zurücknehmen (z. B. E-Mail-Versand fehlgeschlagen) – die Hinweise erscheinen in der nächsten Zusammenfassung erneut. */
+export async function releaseUnsent(items: Notice[]): Promise<void> {
+  if (items.length) await kv().del(...items.map((i) => SENT_PREFIX + i.id.slice(0, 160)));
+}
+
 /* ───────────── Ausführung ───────────── */
 
 export type RunDeps = {
@@ -294,6 +299,7 @@ async function runDigest(cfg: AutomationConfig, deps: RunDeps): Promise<ReportEn
     const fresh = await filterUnsent(all);
     const t = digestText(fresh, `${SITE_URL}/admin/buero`);
     const mail = fresh.length ? await mailOut(cfg.digestRecipients, t.subject, t.text, deps.send ?? sendMail) : { mail: "aus" as const, mailInfo: "nichts Neues" };
+    if (mail.mail === "fehler") await releaseUnsent(fresh).catch(() => undefined);
     const entry: ReportEntry = { ...base, status: "ok", items: fresh.length, ...mail, durationMs: Date.now() - started };
     await saveReport(entry, deps.now);
     return entry;

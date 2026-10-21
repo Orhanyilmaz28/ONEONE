@@ -257,6 +257,15 @@ describe("AP4: Speicher", () => {
     assert.equal(next.number, "KS-2027-00001");
   });
 
+  test("Fall nicht speicherbar → Nummer wird wieder freigegeben (kein Verzeichniseintrag ohne Fall)", async () => {
+    // Speicherplatz für KS-2026-00001 ist (künstlich) belegt → Speichern des Falls schlägt fehl
+    await store.setJSON(svc.ticketKey("KS-2026-00001"), { number: "fremd" });
+    await assert.rejects(() => svc.createTicket(draft({}), ANNA, NOW));
+    const idx = await store.getJSON<{ seq: Record<string, number>; list: string[] }>(store.KEYS.officeTickets, { seq: {}, list: [] });
+    assert.deepEqual(idx.list, []);
+    assert.equal(idx.seq["2026"] ?? 0, 0, "Zähler zurückgesetzt – nächste Nummer ohne Lücke");
+  });
+
   test("Bearbeiten mit altem Stand → Konflikt, nichts überschrieben", async () => {
     const t = await svc.createTicket(draft({}), ANNA, NOW);
     const a = await svc.updateTicket(t.number, { action: "prioritaet", priority: "hoch" }, t.rev, ANNA, NOW);

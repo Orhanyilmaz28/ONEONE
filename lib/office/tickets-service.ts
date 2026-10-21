@@ -44,14 +44,34 @@ async function reserveNumber(now: number): Promise<string> {
   return number;
 }
 
+/**
+ * Reservierung zurücknehmen, wenn der Fall nicht gespeichert werden konnte: Eintrag aus dem Verzeichnis entfernen und –
+ * falls seitdem keine weitere Nummer vergeben wurde – den Zähler zurücksetzen (sonst bleibt nur eine Lücke, nie eine Dublette).
+ */
+async function releaseNumber(number: string): Promise<void> {
+  const m = /^KS-(\d{4})-(\d{5,})$/.exec(number);
+  if (!m) return;
+  await updateJSON<Index>(KEYS.officeTickets, { seq: {}, list: [] }, (cur) => {
+    const seq = { ...(cur?.seq ?? {}) };
+    const list = (Array.isArray(cur?.list) ? cur.list : []).filter((n) => n !== number);
+    if (seq[m[1]] === Number(m[2])) seq[m[1]] = Number(m[2]) - 1;
+    return { seq, list };
+  });
+}
+
 /** Neuen Fall anlegen. Liefert den gespeicherten Fall. */
 export async function createTicket(draft: Extract<ReturnType<typeof validateCreate>, { ok: true }>["draft"], actor: Actor, now = Date.now()): Promise<Ticket> {
   const number = await reserveNumber(now);
   const t = newTicket(number, draft, actor, now);
-  await updateJSON<Ticket | null>(ticketKey(number), null, (cur) => {
-    if (cur) throw new TicketStoreError("Fallnummer bereits belegt");
-    return t;
-  });
+  try {
+    await updateJSON<Ticket | null>(ticketKey(number), null, (cur) => {
+      if (cur) throw new TicketStoreError("Fallnummer bereits belegt");
+      return t;
+    });
+  } catch (e) {
+    await releaseNumber(number).catch(() => undefined);
+    throw e;
+  }
   return t;
 }
 
