@@ -367,40 +367,10 @@ export default async function AdminHome() {
         </div>
       ) : null}
 
-      {/* Kennzahlen */}
+      {/* Das Wichtigste zuerst: drei Kennzahlen */}
       <section aria-label="Kennzahlen" className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3">
-        <Stat
-          hint={o.today.orders === 1 ? "1 Bestellung" : `${o.today.orders} Bestellungen`}
-          icon={<StatIcon name="euro" />}
-          label="Umsatz heute"
-          value={money(o.today.revenue)}
-        />
-        <Stat
-          hint={o.week.orders === 1 ? "1 Bestellung" : `${o.week.orders} Bestellungen`}
-          icon={<StatIcon name="calendar" />}
-          label="Umsatz 7 Tage"
-          value={money(o.week.revenue)}
-        />
-        <Stat
-          hint={<Trend current={o.month.revenue} format={money} previous={o.previousMonth.revenue} />}
-          icon={<StatIcon name="chart" />}
-          label="Umsatz 30 Tage"
-          value={money(o.month.revenue)}
-        />
-        <Stat
-          hint={<Trend current={o.month.orders} format={(n) => `${n} Bestellungen`} previous={o.previousMonth.orders} />}
-          icon={<StatIcon name="bag" />}
-          label="Bestellungen 30 Tage"
-          value={o.month.orders.toLocaleString("de-DE")}
-        />
-        <Stat
-          hint={o.month.orders ? <Trend current={o.month.average} format={money} previous={o.previousMonth.average} /> : "Noch keine Bestellungen"}
-          icon={<StatIcon name="receipt" />}
-          label="Ø Bestellwert"
-          value={o.month.orders ? money(o.month.average) : "–"}
-        />
         <Link
-          className="rounded-3xl outline-none transition hover:[&>div]:border-ink/40 [&>div]:transition-colors focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+          className="col-span-2 rounded-3xl outline-none transition hover:[&>div]:border-ink/40 [&>div]:transition-colors focus-visible:ring-2 focus-visible:ring-ink/30 focus-visible:ring-offset-2 focus-visible:ring-offset-paper lg:order-last lg:col-span-1"
           href="/admin/bestellungen"
         >
           <Stat
@@ -416,6 +386,18 @@ export default async function AdminHome() {
             value={openCount.toLocaleString("de-DE")}
           />
         </Link>
+        <Stat
+          hint={o.today.orders === 1 ? "1 Bestellung" : `${o.today.orders} Bestellungen`}
+          icon={<StatIcon name="euro" />}
+          label="Umsatz heute"
+          value={money(o.today.revenue)}
+        />
+        <Stat
+          hint={<Trend current={o.month.revenue} format={money} previous={o.previousMonth.revenue} />}
+          icon={<StatIcon name="chart" />}
+          label="Umsatz 30 Tage"
+          value={money(o.month.revenue)}
+        />
       </section>
       {o.cancelled ? (
         <p className="mt-3 text-[13px] text-muted">
@@ -423,34 +405,52 @@ export default async function AdminHome() {
         </p>
       ) : null}
 
-      {/* Umsatz-Diagramm + Bestseller links, Aufgaben rechts (auf dem Handy: Diagramm → Aufgaben → Bestseller) */}
+      {/* Aufgaben rechts (auf dem Handy zuerst), Diagramm + Bestseller links */}
       <div className="mt-6 grid grid-cols-1 items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,23rem)]">
-        <div className="xl:col-start-1 xl:row-start-1">
-          <Card actions={<span className="text-[13px] text-muted">Letzte 30 Tage</span>} title="Umsatz pro Tag">
-            {o.month.revenue ? (
-              <dl className="mb-5 flex flex-wrap gap-x-8 gap-y-3">
-                <div>
-                  <dt className="text-[13px] text-muted">Gesamt</dt>
-                  <dd className="font-medium text-[20px] tracking-[-0.01em]">{formatPrice(o.month.revenue)}</dd>
-                </div>
-                <div>
-                  <dt className="text-[13px] text-muted">Ø pro Tag</dt>
-                  <dd className="font-medium text-[20px] tracking-[-0.01em]">{formatPrice(avgPerDay)}</dd>
-                </div>
-                <div>
-                  <dt className="text-[13px] text-muted">Bester Tag</dt>
-                  <dd className="font-medium text-[20px] tracking-[-0.01em]">
-                    {formatPrice(best.revenue)} <span className="font-normal text-[14px] text-muted tracking-normal">am {formatLongDay(best.key)}</span>
-                  </dd>
-                </div>
-              </dl>
-            ) : null}
-            <RevenueChart days={o.days} />
-          </Card>
-        </div>
-
         <div className="xl:col-start-2 xl:row-span-2 xl:row-start-1">
           <TodoList newsletter={newsletter} now={now} openOrders={o.openOrders} pendingReviews={pendingReviews} />
+        </div>
+
+        <div className="xl:col-start-1 xl:row-start-1">
+          <Card actions={<span className="text-[13px] text-muted">Letzte 30 Tage</span>} title="Umsatz pro Tag">
+            <dl className="mb-5 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 2xl:grid-cols-5">
+              <div>
+                <dt className="text-[13px] text-muted">Letzte 7 Tage</dt>
+                <dd className="font-medium text-[18px] tracking-[-0.01em]">{money(o.week.revenue)}</dd>
+                <dd className="text-[12.5px] text-muted">{o.week.orders === 1 ? "1 Bestellung" : `${o.week.orders} Bestellungen`}</dd>
+              </div>
+              <div>
+                <dt className="text-[13px] text-muted">Bestellungen 30 Tage</dt>
+                <dd className="font-medium text-[18px] tracking-[-0.01em]">{o.month.orders.toLocaleString("de-DE")}</dd>
+                <dd className="text-[12.5px] text-muted">
+                  <Trend current={o.month.orders} format={(n) => `${n} Bestellungen`} previous={o.previousMonth.orders} />
+                </dd>
+              </div>
+              <div>
+                <dt className="text-[13px] text-muted">Ø Bestellwert</dt>
+                <dd className="font-medium text-[18px] tracking-[-0.01em]">{o.month.orders ? money(o.month.average) : "–"}</dd>
+                {o.month.orders ? (
+                  <dd className="text-[12.5px] text-muted">
+                    <Trend current={o.month.average} format={money} previous={o.previousMonth.average} />
+                  </dd>
+                ) : null}
+              </div>
+              {o.month.revenue ? (
+                <>
+                  <div>
+                    <dt className="text-[13px] text-muted">Ø pro Tag</dt>
+                    <dd className="font-medium text-[18px] tracking-[-0.01em]">{formatPrice(avgPerDay)}</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[13px] text-muted">Bester Tag</dt>
+                    <dd className="font-medium text-[18px] tracking-[-0.01em]">{formatPrice(best.revenue)}</dd>
+                    <dd className="text-[12.5px] text-muted">am {formatLongDay(best.key)}</dd>
+                  </div>
+                </>
+              ) : null}
+            </dl>
+            <RevenueChart days={o.days} />
+          </Card>
         </div>
 
         <div className="xl:col-start-1 xl:row-start-2">

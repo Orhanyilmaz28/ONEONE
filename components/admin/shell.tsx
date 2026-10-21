@@ -16,7 +16,7 @@ export async function AdminShell({ children, navOnly, who }: { children: React.R
   return (
     <div className="mx-auto flex max-w-[1400px] flex-col gap-6 px-4 py-5 lg:flex-row lg:gap-8 lg:px-6 lg:py-8">
       <aside className="lg:sticky lg:top-8 lg:h-[calc(100vh-4rem)] lg:w-60 lg:shrink-0">
-        <div className="flex h-full flex-col gap-5 rounded-[1.75rem] border border-line bg-card p-4 lg:p-5">
+        <div className="no-scrollbar flex h-full flex-col gap-5 rounded-[1.75rem] border border-line bg-card p-4 lg:overflow-y-auto lg:p-5">
           <div className="flex items-center justify-between lg:block">
             <Link aria-label="EXSTASE Dashboard" href="/admin">
               <Logo className="h-11 w-auto" />
