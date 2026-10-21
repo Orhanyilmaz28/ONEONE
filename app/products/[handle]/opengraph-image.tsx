@@ -2,6 +2,7 @@ import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { notFound } from "next/navigation";
 import { ImageResponse } from "next/og";
+import { toJpeg } from "@/lib/og-jpeg";
 import { burstSvg } from "@/components/logo-paths";
 import { catalog, getCollection, getProduct, priceRange } from "@/lib/catalog";
 import { SITE_URL, formatPrice } from "@/lib/format";
@@ -13,7 +14,7 @@ import { SITE_URL, formatPrice } from "@/lib/format";
 
 export const alt = "Produktbild von EXSTASE Energy";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 export function generateStaticParams() {
   return catalog.products.map((p) => ({ handle: p.handle }));
@@ -73,7 +74,7 @@ export default async function ProductOpengraphImage({ params }: { params: Promis
   const titleSize = product.title.length > 22 ? 58 : 68;
   const chips = product.highlights?.slice(0, 3) ?? ["250-ml-Dose", "Versand aus Deutschland"];
 
-  return new ImageResponse(
+  return toJpeg(new ImageResponse(
     (
       <div style={{ display: "flex", width: "100%", height: "100%", position: "relative", background: PAPER, color: INK }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -131,5 +132,5 @@ export default async function ProductOpengraphImage({ params }: { params: Promis
       </div>
     ),
     size
-  );
+  ));
 }

@@ -1,8 +1,10 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
+import { toJpeg } from "@/lib/og-jpeg";
 import { burstSvg } from "@/components/logo-paths";
 import { catalog } from "@/lib/catalog";
+import { company } from "@/lib/company";
 import { SITE_URL } from "@/lib/format";
 
 /*
@@ -12,7 +14,7 @@ import { SITE_URL } from "@/lib/format";
 
 export const alt = "EXSTASE Energy – Pure Ekstase in jeder Dose";
 export const size = { width: 1200, height: 630 };
-export const contentType = "image/png";
+export const contentType = "image/jpeg";
 
 const BG = "#0b0b12";
 const LIME = "#8dc63f";
@@ -45,14 +47,8 @@ async function photo(src: string | undefined, width: number, height: number) {
   }
 }
 
-const host = (() => {
-  try {
-    const h = new URL(SITE_URL).hostname.replace(/^www\./, "");
-    return h === "localhost" ? null : h;
-  } catch {
-    return null;
-  }
-})();
+/** Nach außen immer die Shop-Domain zeigen, nie die technische vercel.app-Adresse */
+const host = company.domain;
 
 export default async function OpengraphImage() {
   const featured = catalog.products.filter((p) => p.featured && p.images[0]).slice(0, 3);
@@ -60,7 +56,7 @@ export default async function OpengraphImage() {
   const tilt = [-6, 2, 7];
   const pos = [{ left: 0, top: 150 }, { left: 190, top: 40 }, { left: 380, top: 170 }];
 
-  return new ImageResponse(
+  return toJpeg(new ImageResponse(
     (
       <div style={{ display: "flex", width: "100%", height: "100%", background: BG, color: "#fff", position: "relative", overflow: "hidden" }}>
         <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", width: 640, padding: "64px 0 60px 72px" }}>
@@ -90,5 +86,5 @@ export default async function OpengraphImage() {
       </div>
     ),
     size
-  );
+  ));
 }
