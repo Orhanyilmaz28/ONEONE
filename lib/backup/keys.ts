@@ -70,6 +70,10 @@ export function classifyKey(key: string): KeyClass {
   if (key.startsWith("tt:media:proof-")) return { include: true, category: "Gewerbenachweise" };
   if (key.startsWith("tt:media:pass-")) return { include: true, category: "Artikelpässe (Uploads)" };
   if (key.startsWith("tt:media:")) return { include: true, category: "Produktbilder & Medien" };
+  if (key.startsWith("tt:office-ticket")) return { include: true, category: "Kundenservice" };
+  if (key.startsWith("tt:office-reports:")) return { include: true, category: "Büroberichte (Historie)" };
+  if (key === "tt:office-auto:config") return { include: true, category: "Büroautomatisierung" };
+  if (key.startsWith("tt:office-auto:")) return { include: false, category: "Büroautomatisierung (Betrieb)", reason: "Laufsperren, Versuchszähler und Meldemarker (laufen von selbst ab)" };
   if (key.startsWith("tt:once:")) return { include: true, category: "Einmal-Marker (Schutz vor doppelten E-Mails)" };
   if (key === "tt:adm:audit") return { include: true, category: "Sicherheitsprotokoll" };
   if (LABELS[key]) return { include: true, category: LABELS[key] };

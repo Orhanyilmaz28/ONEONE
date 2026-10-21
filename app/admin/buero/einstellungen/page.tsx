@@ -17,6 +17,8 @@ const RIGHTS: [string, Record<Role, boolean>][] = [
   ["Bürostatus bearbeiten (prüfen, freigeben, Logistik, Versand)", { admin: true, buero: true, lesen: false }],
   ["Berichtshistorie ansehen", { admin: true, buero: true, lesen: true }],
   ["Berichte manuell erstellen", { admin: true, buero: true, lesen: false }],
+  ["Kundenfälle ansehen", { admin: true, buero: true, lesen: true }],
+  ["Kundenfälle anlegen und bearbeiten (Reklamationen, Retouren, Erstattungsanfragen)", { admin: true, buero: true, lesen: false }],
   ["Automatische Berichte, Benachrichtigungen und Erinnerungen einstellen", { admin: true, buero: false, lesen: false }],
   ["Büro-Zugänge verwalten", { admin: true, buero: false, lesen: false }],
   ["Restliches Dashboard (Produkte, Preise, Einstellungen, Sicherheit …)", { admin: true, buero: false, lesen: false }],

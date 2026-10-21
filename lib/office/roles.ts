@@ -13,8 +13,8 @@ export type Role = "admin" | StaffRole;
 export const ROLE_LABEL: Record<Role, string> = { admin: "Administrator", buero: "Büromitarbeiter", lesen: "Büro-Lesezugriff" };
 export const ROLE_TEXT: Record<Role, string> = {
   admin: "Voller Zugriff auf das Dashboard, verwaltet die Büro-Zugänge und die automatischen Berichte.",
-  buero: "Büroverwaltung ansehen, Bestellungen prüfen, freigeben, zurückstellen, Logistik-Weitergabe und Versand dokumentieren, Exporthistorie und Berichte ansehen, Berichte manuell erstellen, Excel-Exporte und PDF-Dokumente erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit, keine Status-Korrekturen.",
-  lesen: "Büroverwaltung, Bearbeitungsverlauf und Berichte nur am Bildschirm ansehen. Keine Downloads, keine Lieferscheinnummern, keine Änderungen.",
+  buero: "Büroverwaltung ansehen, Bestellungen prüfen, freigeben, zurückstellen, Logistik-Weitergabe und Versand dokumentieren, Exporthistorie und Berichte ansehen, Berichte manuell erstellen, Kundenfälle bearbeiten, Excel-Exporte und PDF-Dokumente erstellen. Kein Zugriff auf Produkte, Preise, Einstellungen oder Sicherheit, keine Status-Korrekturen.",
+  lesen: "Büroverwaltung, Bearbeitungsverlauf, Berichte und Kundenfälle nur am Bildschirm ansehen. Keine Downloads, keine Lieferscheinnummern, keine Änderungen.",
 };
 
 /**

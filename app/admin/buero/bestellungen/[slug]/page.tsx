@@ -14,6 +14,8 @@ import { loadOfficeOrder } from "@/lib/office/source";
 import { PaymentBadge, ProcessingBadge, ShippingBadge } from "../../shared";
 import { OfficeStatusBadge, WorkflowCard, WorkflowDialog, isDialog } from "../../workflow-ui";
 import { changedSinceRelease } from "@/lib/office/workflow";
+import { TICKET_KIND_LABEL, TICKET_STATUS_LABEL, TICKET_STATUS_TONE, type Ticket } from "@/lib/office/tickets";
+import { listTickets } from "@/lib/office/tickets-service";
 
 export const metadata: Metadata = { title: "Bestellung · Büro" };
 export const dynamic = "force-dynamic";
@@ -72,6 +74,14 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
   } catch {
     notesOk = false;
   }
+  let tickets: Ticket[] | null = null;
+  if (can(me.role, "office.service.view")) {
+    try {
+      tickets = (await listTickets()).filter((t) => t.order?.key === o.key);
+    } catch {
+      tickets = null;
+    }
+  }
   const company = await companyInfo();
   const companyMissing = missingCompanyFields(company);
   const issues = deliveryNoteIssues(o);
@@ -100,11 +110,18 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
       </p>
       <PageHeader
         actions={
-          me.role === "admin" ? (
-            <Link className={btnSecondary} href={originalUrl(o)}>
-              Originalbestellung öffnen
-            </Link>
-          ) : null
+          <>
+            {can(me.role, "office.service") ? (
+              <Link className={btnSecondary} href={`/admin/buero/kundenservice/neu?bestellung=${slug}`}>
+                Kundenfall anlegen
+              </Link>
+            ) : null}
+            {me.role === "admin" ? (
+              <Link className={btnSecondary} href={originalUrl(o)}>
+                Originalbestellung öffnen
+              </Link>
+            ) : null}
+          </>
         }
         description={`${CHANNEL_LABEL[o.channel]} · ${formatDateTime(o.createdAt)}${o.exportedAt ? ` · zuletzt exportiert ${formatDateTime(o.exportedAt)}` : ""}`}
         title={`Bestellung ${o.number}`}
@@ -130,6 +147,20 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
         </div>
       ) : null}
       {isDialog(aktion) ? <WorkflowDialog action={aktion} back={back} me={me} now={now} o={o} products={products} /> : null}
+      {tickets?.length ? (
+        <Card className="mb-6" title={`Kundenfälle zu dieser Bestellung (${tickets.length})`}>
+          <ul className="flex flex-wrap gap-x-5 gap-y-2 text-[14px]">
+            {tickets.map((t) => (
+              <li key={t.number}>
+                <Link className="font-medium tabular-nums underline-offset-4 hover:underline" href={`/admin/buero/kundenservice/${t.number}`}>
+                  {t.number}
+                </Link>{" "}
+                <span className="text-muted">{TICKET_KIND_LABEL[t.kind]}</span> <Badge tone={TICKET_STATUS_TONE[t.status]}>{TICKET_STATUS_LABEL[t.status]}</Badge>
+              </li>
+            ))}
+          </ul>
+        </Card>
+      ) : null}
       <WorkflowCard back={back} fehler={str("bearbeitung")} konflikt={str("konflikt") === "1"} me={me} o={o} ok={str("erledigt", 30)} products={products} />
 
       <div className="mb-6 grid gap-4 md:grid-cols-3">
