@@ -461,26 +461,7 @@ describe("Lieferscheinnummern", () => {
     assert.equal(legacyAfter.seq["2026"], 7, "altes Nummernbuch wird nur gelesen");
   });
 
-  const redisUrl = process.env.REDIS_TEST_URL;
-  const local = Boolean(redisUrl && /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(redisUrl));
-  test("Parallele Erstellung gegen echte (lokale Test-)Redis: keine doppelte Nummer", { skip: !local ? "REDIS_TEST_URL (lokal) nicht gesetzt" : false }, async () => {
-    process.env.UPSTASH_REDIS_REST_URL = redisUrl;
-    process.env.UPSTASH_REDIS_REST_TOKEN = process.env.REDIS_TEST_TOKEN;
-    const fresh = await import(`../lib/office/delivery-notes.ts?redis=${Date.now()}`);
-    try {
-      const list = Array.from({ length: 20 }, (_, i) => b2c({ id: `cs_test_RED${String(i).padStart(3, "0")}` }));
-      const keys = [store.KEYS.officeDeliveryNotes, store.KEYS.officeNoteSeq, ...list.map((o) => notes.noteKey(o.key))];
-      await fetch(redisUrl as string, { method: "POST", headers: { Authorization: `Bearer ${process.env.REDIS_TEST_TOKEN}` }, body: JSON.stringify(["DEL", ...keys, ...keys.map((k) => `tt:ver:${k}`)]) });
-      const results = await Promise.all(list.map((o) => fresh.issueNotes([o], "anna", "heruntergeladen", PRODUCTS, NOW)));
-      assert.equal(new Set(results.map((m: Map<string, { number: string }>, i: number) => m.get(list[i].key)?.number)).size, 20);
-      // gleichzeitig dieselbe Bestellung → eine Nummer
-      const same = await Promise.all(Array.from({ length: 6 }, () => fresh.issueNotes([list[3]], "ben", "gedruckt", PRODUCTS, NOW)));
-      assert.equal(new Set(same.map((m: Map<string, { number: string }>) => m.get(list[3].key)?.number)).size, 1);
-    } finally {
-      delete process.env.UPSTASH_REDIS_REST_URL;
-      delete process.env.UPSTASH_REDIS_REST_TOKEN;
-    }
-  });
+  // Redis-Paralleltest: siehe tests/master-ap7-redis-notes.test.mts (Umgebung vor dem Import gesetzt)
 });
 
 /* ───────────── 4. Versandliste ───────────── */
