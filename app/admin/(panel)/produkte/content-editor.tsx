@@ -4,28 +4,24 @@ import { type DragEvent, type ReactNode, startTransition, useActionState, useEff
 import { Card, btn, btnSecondary, input, label } from "@/components/admin/ui";
 import type { AiMediaType } from "@/lib/ai-media";
 import type { ProductImage } from "@/lib/types";
-import { type ProductFormState, createProduct, deleteProduct, saveContent } from "./actions";
-import { type ContentInput, LIMITS, type OptionInput, checkContent, combinations, parseValues, slugify, textToHtml, variantCount } from "./content";
+import { type ProductFormState, createProduct, deleteProduct } from "./actions";
+import { type ContentInput, LIMITS, type OptionInput, checkContent, parseValues, slugify, textToHtml, variantCount } from "./content";
 import { MATERIAL_MAX, centsToInput, checkMaterial, checkVariant, cleanMaterial, parseEuro } from "./pricing";
 
 const btnSecondarySm = btnSecondary.replace("px-5 py-2.5", "px-4 py-2");
 const invalidInput = "border-red-300 bg-red-50/40 focus:border-red-400 focus:ring-red-100";
 
 export type ContentEditorProps = {
-  mode: "edit" | "create";
-  handle?: string;
+  /** Nur noch zum Anlegen – bearbeitet wird in product-workspace.tsx */
+  mode: "create";
   initial: ContentInput;
   collections: { handle: string; title: string }[];
-  /** Nur beim Bearbeiten: bestehende Varianten (für „x neu, y entfällt“) */
-  existingVariants?: Record<string, string>[];
-  /** Nur beim Bearbeiten: stammt das Produkt aus dem ursprünglichen Sortiment? (dann wiederherstellbar) */
-  fromCatalog?: boolean;
 };
 
 type SaleValues = { price: string; compare: string; material: string; visible: boolean; featured: boolean };
 
-export function ContentEditor({ mode, handle = "", initial, collections, existingVariants = [], fromCatalog = false }: ContentEditorProps) {
-  const [state, action, pending] = useActionState<ProductFormState, FormData>(mode === "create" ? createProduct : saveContent, {});
+export function ContentEditor({ mode, initial, collections }: ContentEditorProps) {
+  const [state, action, pending] = useActionState<ProductFormState, FormData>(createProduct, {});
   const initialKey = JSON.stringify(initial);
   const [values, setValues] = useState<ContentInput>(initial);
   const [syncedKey, setSyncedKey] = useState(initialKey);
@@ -56,7 +52,7 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
   const errorCount =
     Object.keys(check.errors).length + (mode === "create" ? Object.keys(priceCheck.errors).length + (materialCheck.error ? 1 : 0) : 0);
 
-  const dirty = mode === "create" ? Boolean(values.title.trim() || values.images.length) : JSON.stringify(values) !== initialKey;
+  const dirty = Boolean(values.title.trim() || values.images.length);
 
   useEffect(() => {
     if (!dirty || pending) return;
@@ -81,7 +77,6 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
       return;
     }
     const data = new FormData();
-    data.set("handle", handle);
     data.set("content", JSON.stringify(values));
     if (mode === "create") {
       data.set("price", sale.price);
@@ -95,18 +90,6 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
 
   /* ── Varianten-Vorschau ── */
   const optionCount = variantCount(values.options);
-  const variantDiff = useMemo(() => {
-    if (mode !== "edit") return null;
-    const opts = values.options.map((o) => ({ name: o.name.replace(/\s+/g, " ").trim(), values: parseValues(o.values) })).filter((o) => o.name && o.values.length);
-    const key = (o: Record<string, string>) =>
-      Object.entries(o)
-        .map(([n, v]) => `${n.toLowerCase()}=${v.toLowerCase()}`)
-        .sort()
-        .join("|");
-    const next = new Set(combinations(opts).map(key));
-    const prev = new Set(existingVariants.map(key));
-    return { added: [...next].filter((k) => !prev.has(k)).length, removed: [...prev].filter((k) => !next.has(k)).length };
-  }, [mode, values.options, existingVariants]);
 
   /* ── Statuszeile ── */
   let status: { tone: "neutral" | "amber" | "red" | "green"; text: string };
@@ -114,10 +97,8 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
   else if (uploading) status = { tone: "neutral", text: uploading === 1 ? "1 Bild wird hochgeladen …" : `${uploading} Bilder werden hochgeladen …` };
   else if (submitted && errorCount) status = { tone: "red", text: errorCount === 1 ? "Bitte korrigiere das rot markierte Feld." : `Bitte korrigiere die ${errorCount} rot markierten Felder.` };
   else if (showResult && state.error) status = { tone: "red", text: state.error };
-  else if (mode === "edit" && dirty) status = { tone: "amber", text: "Ungespeicherte Änderungen" };
   else if (showResult && state.message) status = { tone: "green", text: state.message };
-  else if (mode === "create") status = { tone: "neutral", text: "Pflicht sind nur Name und Preis – alles andere kannst du später ergänzen." };
-  else status = { tone: "neutral", text: "Alles gespeichert" };
+  else status = { tone: "neutral", text: "Pflicht sind nur Name und Preis – alles andere kannst du später ergänzen." };
   const barSticky = dirty || pending || uploading > 0 || status.tone === "red" || status.tone === "green";
 
   const slug = slugify(values.title);
@@ -181,18 +162,7 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
                 ) : (
                   <>
                     Ergibt <b className="tabular-nums">{optionCount === 1 ? "1 Variante" : `${optionCount} Varianten`}</b>
-                    {variantDiff && (variantDiff.added || variantDiff.removed) ? (
-                      <>
-                        {" "}
-                        ({variantDiff.added ? `${variantDiff.added} neu` : ""}
-                        {variantDiff.added && variantDiff.removed ? ", " : ""}
-                        {variantDiff.removed ? `${variantDiff.removed} fällt weg` : ""}).
-                        {variantDiff.added ? " Neue Varianten bekommen den Preis der ersten Variante – anpassen kannst du ihn danach unter „Preise & Verfügbarkeit“." : ""}
-                        {variantDiff.removed ? " Weggefallene Varianten verschwinden aus dem Shop." : ""}
-                      </>
-                    ) : (
-                      "."
-                    )}
+                    .
                     {mode === "create" ? " Alle Varianten bekommen zuerst den Preis unten – einzeln ändern kannst du ihn nach dem Anlegen." : ""}
                   </>
                 )}
@@ -264,30 +234,15 @@ export function ContentEditor({ mode, handle = "", initial, collections, existin
               <span className={status.tone === "red" ? "text-red-700" : status.tone === "green" ? "text-emerald-800" : "text-ink/80"}>{status.text}</span>
             </p>
             <div className="flex shrink-0 gap-2">
-              {mode === "edit" && dirty ? (
-                <button
-                  className={`${btnSecondary} flex-1 sm:flex-none`}
-                  disabled={pending}
-                  onClick={() => {
-                    setValues(initial);
-                    setSubmitted(false);
-                    setDismissed(state);
-                  }}
-                  type="button"
-                >
-                  Verwerfen
-                </button>
-              ) : null}
-              <button className={`${btn} flex-1 sm:flex-none sm:min-w-32`} disabled={pending || uploading > 0 || (mode === "edit" && !dirty)} type="submit">
+              <button className={`${btn} flex-1 sm:flex-none sm:min-w-32`} disabled={pending || uploading > 0} type="submit">
                 {pending ? <Spinner /> : null}
-                {mode === "create" ? (pending ? "Wird angelegt …" : "Produkt anlegen") : pending ? "Speichern …" : "Speichern"}
+                {pending ? "Wird angelegt …" : "Produkt anlegen"}
               </button>
             </div>
           </div>
         </div>
       </form>
 
-      {mode === "edit" ? <DeleteCard fromCatalog={fromCatalog} handle={handle} title={initial.title} /> : null}
     </>
   );
 }
@@ -333,7 +288,7 @@ async function uploadImage(file: File): Promise<{ src: string }> {
   return { src: body.src };
 }
 
-function ImageManager({
+export function ImageManager({
   images,
   onChange,
   onUploading,
@@ -555,7 +510,7 @@ function IconButton({ label: text, onClick, disabled, children }: { label: strin
 
 /* ───────────────────────── Texte ───────────────────────── */
 
-function FieldLabel({ htmlFor, text, optional, required, counter }: { htmlFor: string; text: string; optional?: boolean; required?: boolean; counter?: ReactNode }) {
+export function FieldLabel({ htmlFor, text, optional, required, counter }: { htmlFor: string; text: string; optional?: boolean; required?: boolean; counter?: ReactNode }) {
   return (
     <div className="flex items-end justify-between gap-3">
       <label className={label} htmlFor={htmlFor}>
@@ -568,7 +523,7 @@ function FieldLabel({ htmlFor, text, optional, required, counter }: { htmlFor: s
   );
 }
 
-function Counter({ length, max }: { length: number; max: number }) {
+export function Counter({ length, max }: { length: number; max: number }) {
   return (
     <span aria-hidden className={`mb-1.5 shrink-0 text-[12.5px] tabular-nums ${length > max ? "text-red-700" : length > max * 0.9 ? "text-amber-700" : "text-muted"}`}>
       {length}/{max}
@@ -576,7 +531,7 @@ function Counter({ length, max }: { length: number; max: number }) {
   );
 }
 
-function TextField({
+export function TextField({
   label: text,
   value,
   onChange,
@@ -622,7 +577,7 @@ function TextField({
   );
 }
 
-function TextArea({
+export function TextArea({
   label: text,
   value,
   onChange,
@@ -662,7 +617,7 @@ function TextArea({
   );
 }
 
-function SelectField({ label: text, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
+export function SelectField({ label: text, value, onChange, options }: { label: string; value: string; onChange: (v: string) => void; options: [string, string][] }) {
   const id = useId();
   return (
     <div>
@@ -678,7 +633,7 @@ function SelectField({ label: text, value, onChange, options }: { label: string;
   );
 }
 
-function DescriptionField({ value, onChange, error }: { value: string; onChange: (v: string) => void; error?: string }) {
+export function DescriptionField({ value, onChange, error }: { value: string; onChange: (v: string) => void; error?: string }) {
   const id = useId();
   const [preview, setPreview] = useState(false);
   const textRef = useRef<HTMLTextAreaElement>(null);
@@ -779,7 +734,7 @@ const SUGGESTIONS: OptionInput[] = [
   { name: "Packung", values: "6er Pack, 12er Pack, 24er Pack" },
 ];
 
-function OptionsEditor({ options, onChange, errors }: { options: OptionInput[]; onChange: (o: OptionInput[]) => void; errors: Record<string, string | undefined> }) {
+export function OptionsEditor({ options, onChange, errors }: { options: OptionInput[]; onChange: (o: OptionInput[]) => void; errors: Record<string, string | undefined> }) {
   const id = useId();
   const update = (i: number, patch: Partial<OptionInput>) => onChange(options.map((o, k) => (k === i ? { ...o, ...patch } : o)));
   const unused = SUGGESTIONS.filter((s) => !options.some((o) => o.name.trim().toLowerCase() === s.name.toLowerCase()));
@@ -936,7 +891,7 @@ function Euro({ id, value, onChange, onBlur, placeholder, error }: { id: string;
   );
 }
 
-function Check({ label: text, description, checked, onChange }: { label: string; description?: string; checked: boolean; onChange: (v: boolean) => void }) {
+export function Check({ label: text, description, checked, onChange }: { label: string; description?: string; checked: boolean; onChange: (v: boolean) => void }) {
   const id = useId();
   return (
     <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-line px-4 py-3 transition hover:border-ink/30 has-focus-visible:ring-4 has-focus-visible:ring-ink/15" htmlFor={id}>
@@ -951,18 +906,18 @@ function Check({ label: text, description, checked, onChange }: { label: string;
 
 /* ───────────────────────── Löschen ───────────────────────── */
 
-function DeleteCard({ handle, title, fromCatalog }: { handle: string; title: string; fromCatalog: boolean }) {
+/** „Produkt löschen“ mit Rückfrage (steht eingeklappt auf der Bearbeiten-Seite) */
+export function DeleteSection({ handle, title, fromCatalog }: { handle: string; title: string; fromCatalog: boolean }) {
   const [state, action, pending] = useActionState<ProductFormState, FormData>(deleteProduct, {});
   const [confirm, setConfirm] = useState(false);
   return (
-    <div className="mt-10">
-      <Card title="Produkt löschen">
+    <div>
         <p className="text-[14px] text-ink/80 leading-relaxed">
           Das Produkt verschwindet aus dem Shop, aus Suchergebnissen und aus Warenkörben.{" "}
           {fromCatalog
             ? "Es gehört zum ursprünglichen Sortiment und lässt sich später in der Produktliste unter „Gelöschte Produkte“ wiederherstellen."
             : "Selbst angelegte Produkte lassen sich nicht wiederherstellen – auch die Bilder werden gelöscht."}{" "}
-          Nur vorübergehend nicht verkaufen? Dann besser unter „Preise & Verfügbarkeit“ ausblenden.
+          Nur vorübergehend nicht verkaufen? Dann besser oben „Im Shop sichtbar“ ausschalten.
         </p>
         {confirm ? (
           <form action={action} aria-label="Löschen bestätigen" className="mt-4 rounded-2xl border border-red-200 bg-red-50/60 p-4">
@@ -997,14 +952,13 @@ function DeleteCard({ handle, title, fromCatalog }: { handle: string; title: str
             {state.error}
           </p>
         ) : null}
-      </Card>
     </div>
   );
 }
 
 /* ───────────────────────── Kleinteile ───────────────────────── */
 
-function StatusDot({ tone }: { tone: "neutral" | "amber" | "red" | "green" }) {
+export function StatusDot({ tone }: { tone: "neutral" | "amber" | "red" | "green" }) {
   if (tone === "green")
     return (
       <svg aria-hidden className="size-4 shrink-0 text-emerald-600" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
@@ -1015,7 +969,7 @@ function StatusDot({ tone }: { tone: "neutral" | "amber" | "red" | "green" }) {
   return <span aria-hidden className={`size-2 shrink-0 rounded-full ${color}`} />;
 }
 
-function Spinner() {
+export function Spinner() {
   return <span aria-hidden className="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white" />;
 }
 

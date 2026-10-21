@@ -145,7 +145,7 @@ function MediaCard({ item, type, onChoose, saving }: { item: MediaItem; type: Ai
           {item.usage.join(" · ")}
         </p>
         {item.product ? (
-          <Link className="w-fit text-[12px] text-ink/60 underline-offset-2 hover:text-ink hover:underline" href={`/admin/produkte/${item.product.handle}/inhalt`}>
+          <Link className="w-fit text-[12px] text-ink/60 underline-offset-2 hover:text-ink hover:underline" href={`/admin/produkte/${item.product.handle}#bilder`}>
             Zum Produkt
           </Link>
         ) : null}

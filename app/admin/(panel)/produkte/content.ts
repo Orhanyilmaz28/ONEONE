@@ -189,6 +189,25 @@ export function buildVariants(handle: string, options: ProductOption[], previous
 /* ───────────────────────── Prüfen ───────────────────────── */
 
 /** Was im Formular „Bilder & Texte“ bearbeitet wird */
+/**
+ * Welche Varianten wurden nur umbenannt? Eindeutig ist das nur, wenn sich bloß der NAME einer Auswahl geändert hat
+ * (z. B. „Packung“ → „Größe“) und die Werte gleich geblieben sind. Geänderte Werte („6er“ → „24er“) gelten als neue
+ * Packungsgröße – sonst würden Preis und Pfand einer anderen Packung übernommen. Ergebnis: alte ID → neue ID.
+ */
+export function renamedVariants(previous: Variant[], next: Variant[], previousOptions: ProductOption[], nextOptions: ProductOption[]): Record<string, string> {
+  const nextIds = new Set(next.map((v) => v.id));
+  const prevIds = new Set(previous.map((v) => v.id));
+  const tuple = (v: Variant, options: ProductOption[]) => options.map((o) => (v.options[o.name] ?? "").toLowerCase()).join("|");
+  const added = new Map(next.filter((v) => !prevIds.has(v.id)).map((v) => [tuple(v, nextOptions), v.id]));
+  const out: Record<string, string> = {};
+  for (const v of previous) {
+    if (nextIds.has(v.id)) continue;
+    const id = added.get(tuple(v, previousOptions));
+    if (id) out[v.id] = id;
+  }
+  return out;
+}
+
 export type ContentInput = {
   title: string;
   subtitle: string;
@@ -223,7 +242,7 @@ export function checkContent(input: ContentInput, knownCollections: string[]): {
   if (input.images.length > LIMITS.images) errors.images = `Bitte höchstens ${LIMITS.images} Bilder.`;
   // KI-Kennzeichnung je Bild übernehmen; „original“ wird nicht gespeichert (gilt ohne Angabe)
   const images = input.images.map((img) => ({ src: img.src, alt: oneLine(img.alt).slice(0, LIMITS.alt) || title, ...(isAiMediaType(img.type) && img.type !== "original" ? { type: img.type } : {}) }));
-  if (images.some((img) => !/^\/(media|produkte|imported|bilder)\/[\w./-]+$/.test(img.src) || img.src.includes(".."))) errors.images = "Ein Bild ist ungültig. Bitte lade die Seite neu.";
+  if (images.some((img) => !/^\/(media|produkte|dosen|dosen-foto|imported|bilder)\/[\w./-]+$/.test(img.src) || img.src.includes(".."))) errors.images = "Ein Bild ist ungültig. Bitte lade die Seite neu.";
 
   const collections = input.collections.filter((c) => knownCollections.includes(c));
 
