@@ -23,6 +23,8 @@ export type ProductFormState = {
   fieldErrors?: Record<string, string>;
   /** Zeitpunkt der letzten erfolgreichen Speicherung (damit die Meldung neu erscheint) */
   savedAt?: number;
+  /** Gespeichert, aber bitte noch etwas prüfen (dann nicht automatisch weiterblättern) */
+  warning?: boolean;
 };
 
 const NOT_LOGGED_IN = "Du bist nicht mehr angemeldet. Bitte lade die Seite neu und melde dich wieder an.";
@@ -275,7 +277,7 @@ export async function saveProductAll(_prev: ProductFormState, form: FormData): P
   }
 
   refresh(handle);
-  if (remapFailed) return { ok: true, message: "Gespeichert – bitte die Preise oben kurz prüfen und bei Bedarf noch einmal speichern.", savedAt: Date.now() };
+  if (remapFailed) return { ok: true, message: "Gespeichert – bitte die Preise oben kurz prüfen und bei Bedarf noch einmal speichern.", warning: true, savedAt: Date.now() };
   const message = desired?.hidden
     ? "Gespeichert – das Produkt ist jetzt im Shop ausgeblendet."
     : desired && !override && !content

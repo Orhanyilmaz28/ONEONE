@@ -123,11 +123,11 @@ export function ProductWorkspace({ product, featuredCount, content, sku, nav }: 
 
   // „Speichern & nächstes“: nach erfolgreichem Speichern weiter
   useEffect(() => {
-    if (state.ok && state.savedAt && goAfterSave.current) {
+    if (state.ok && state.savedAt && !state.warning && goAfterSave.current) {
       const to = goAfterSave.current;
       goAfterSave.current = null;
       router.push(to);
-    } else if (!state.ok && state.error) goAfterSave.current = null;
+    } else if ((!state.ok && state.error) || state.warning) goAfterSave.current = null;
   }, [state, router]);
 
   /* ── Ändern ── */
@@ -282,10 +282,10 @@ export function ProductWorkspace({ product, featuredCount, content, sku, nav }: 
   else if (localError) status = { tone: "red", text: localError };
   else if (showResult && state.error) status = { tone: "red", text: state.error };
   else if (dirty) status = { tone: "amber", text: "Ungespeicherte Änderungen" };
-  else if (showResult && state.message) status = { tone: "green", text: state.message };
+  else if (showResult && state.message) status = { tone: state.warning ? "amber" : "green", text: state.message };
   else status = { tone: "neutral", text: "Alles gespeichert" };
   // Unten angeheftet nur, solange es etwas zu tun oder zu melden gibt – sonst liegt die Leiste ruhig am Ende
-  const barSticky = dirty || pending || uploading > 0 || status.tone === "red" || status.tone === "green";
+  const barSticky = dirty || pending || uploading > 0 || status.tone === "red" || status.tone === "green" || (showResult && Boolean(state.warning));
 
   return (
     <div ref={rootRef}>
