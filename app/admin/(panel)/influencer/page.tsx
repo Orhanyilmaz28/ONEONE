@@ -39,7 +39,7 @@ export default async function InfluencerAdminPage({ searchParams }: { searchPara
       </div>
       <Form action="/admin/influencer" className="mb-6 flex flex-wrap items-center gap-2">
         <input aria-label="Influencer suchen" className={`${input} max-w-sm`} defaultValue={q} name="q" placeholder="Suchen: Name, Kanal, E-Mail, Code …" type="search" />
-        <select aria-label="Status" className={`${input} w-auto`} defaultValue={status} name="status">
+        <select aria-label="Status" className={`${input} w-auto!`} defaultValue={status} name="status">
           <option value="">Alle Status</option>
           <option value="neu">Neu</option>
           <option value="freigegeben">Freigegeben</option>
