@@ -5,7 +5,7 @@ Tests lokal: `redis-server --port 6390|6392|6393 --save "" --appendonly no --dae
 `REDIS_TEST_URL=http://127.0.0.1:8791 REDIS_TEST_TOKEN=testtoken BACKUP_TEST_SOURCE_URL=http://127.0.0.1:8793 BACKUP_TEST_TARGET_URL=http://127.0.0.1:8794 npm test`.
 
 ## Aktuelles Arbeitspaket
-AP6 – Sonderprüfung Stripe, Gutscheine, Einwegpfand
+AP7 – Phase 3G Gesamt-QS und Live-Vorbereitung
 
 ## Status
 | AP | Status | Tests (gesamt danach) |
@@ -16,10 +16,11 @@ AP6 – Sonderprüfung Stripe, Gutscheine, Einwegpfand
 | 3 Phase 3D | Abgeschlossen (E-Mail-Versand braucht Freigabe) | 295/295, tsc ok, build ok |
 | 4 Phase 3E | Abgeschlossen (ohne Anhänge, ohne Versand, ohne Stripe-Erstattung) | 316/316, tsc ok, build ok |
 | 5 Phase 3F | Abgeschlossen (ohne Gewinn – keine Einkaufspreise) | 334/334, tsc ok, build ok |
-| 6 Stripe/Pfand | offen | – |
+| 6 Stripe/Pfand | Abgeschlossen (Korrektur vorbereitet, aus; Checkout unverändert) | 347/347, tsc ok, build ok |
 | 7 Phase 3G | offen | – |
 
 ## Implementiert
+- AP6: Prüfung Stripe/Pfand: Ursache = Gutschein ohne applies_to; Zahlung und Büro-Export korrekt, Pfand-Posten auf Stripe-Rechnung rabattiert; Korrektur `lib/checkout-deposit-fix.ts` (aus).
 - AP5: Verkaufsanalysen (Kennzahlen, Zeitvergleiche, Produkte/Gruppen/Sorten, Händler, Privatkunden, Codes/Provisionen aus Provisionsbuch, SVG-Diagramme, Filter, Excel/PDF-Export mit Rechten und Protokoll).
 - AP4: Kundenservice (Fälle KS-JJJJ-NNNNN atomar, Reklamationen, Retouren ohne Lagerbuchung, Erstattungsanfragen ohne Stripe, Vorlagen ohne Versand, Kundenhistorie, Rechte, Protokoll).
 - AP3: automatische Büroberichte (Zeitplan Europe/Berlin, standardmäßig aus), Berichtshistorie, Benachrichtigungen/Erinnerungen ohne Kundendaten, Cron `/api/cron/office` täglich, Leistungsmessung `scripts/perf-office.mts`.
@@ -33,9 +34,10 @@ AP6 – Sonderprüfung Stripe, Gutscheine, Einwegpfand
 - Stripe-Rechnungen nutzen die Firmendaten aus dem Stripe-Konto.
 
 ## Freigabepflichtig
+- AP6: Stripe-Testkauf zur Bestätigung; Checkout-Korrektur (A oder B); rechtliche Prüfung Pfand/USt-Satz Eiskaffee.
 - AP3: `OFFICE_REPORT_EMAILS=1` (Bericht-E-Mails); neuer Cron wird erst mit Deployment aktiv.
 - AP2: Checkout schreibt `metadata.mix` (Mix-Zusammensetzung beim Kauf).
 - AP1: Veröffentlichung Firmendaten/Impressum; „Betreiberangaben übernehmen“ (Redis-Änderung durch Orhan).
 
 ## Nächster Schritt
-AP6: Stripe-/Pfand-Prüfung mit 11 isolierten Testfällen, Ursache, vorbereitete (abgeschaltete) Korrektur, Bericht.
+AP7: Gesamt-QS (Git, Shop, Büro, Sicherheit, Datenintegrität, Leistung, Recht, E2E A–F, Livegang-Checkliste, Bewertung).
