@@ -224,6 +224,11 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
   const depositUnits = depositLines.reduce((n, l) => n + (l.quantity ?? 0), 0);
   const subtotal = session.amount_subtotal ?? lines.reduce((n, l) => n + (l.amount_subtotal ?? l.amount_total), 0);
   const gross = session.amount_total ?? 0;
+  // Ab Pfand-Korrektur A steckt der Rabatt im Positionspreis (kein Stripe-Gutschein). Der Checkout schreibt ihn dann
+  // in metadata.discount; Ware wird vor Rabatt ausgewiesen, damit Ware − Rabatt + Pfand + Versand = Zahlung bleibt.
+  const stripeDiscount = session.total_details?.amount_discount ?? 0;
+  const metaDiscount = Number(session.metadata?.discount);
+  const priceDiscount = !stripeDiscount && Number.isInteger(metaDiscount) && metaDiscount > 0 ? metaDiscount : 0;
   const stripeTax = session.total_details?.amount_tax ?? 0;
   const vat = stripeTax > 0 ? stripeTax : Math.round(gross - gross / (1 + VAT_RATE / 100));
 
@@ -254,8 +259,8 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
     delivery: ship ? addr(ship.name, ship.address) : null,
     lines: officeLines,
     priceBasis: "brutto",
-    goods: subtotal - deposit,
-    discount: session.total_details?.amount_discount ?? 0,
+    goods: subtotal - deposit + priceDiscount,
+    discount: stripeDiscount || priceDiscount,
     deposit,
     depositUnits: depositLines.length ? depositUnits : lines.length ? 0 : null,
     shipping: session.shipping_cost?.amount_total ?? session.total_details?.amount_shipping ?? 0,

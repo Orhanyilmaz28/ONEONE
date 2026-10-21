@@ -1,7 +1,7 @@
 /**
  * AP6 – Sonderprüfung Stripe, Gutscheine, Einwegpfand. 11 isolierte Testfälle (ohne Stripe-Netz):
- * heutiges Verhalten (Gutschein ohne applies_to → Rabatt auch auf Pfand, Simulation) gegen die vorbereitete,
- * abgeschaltete Korrektur (Rabatt nur auf Waren). Geprüft je Fall: Artikelwert, Rabatt, Pfand, Steuer, Versand,
+ * früheres Verhalten (Gutschein ohne applies_to → Rabatt auch auf Pfand, Simulation) gegen die seit 21.10.2026
+ * aktive Korrektur A (Rabatt nur auf Waren, im Positionspreis). Geprüft je Fall: Artikelwert, Rabatt, Pfand, Steuer, Versand,
  * Zahlungsbetrag, Rechnungsbetrag (= Stripe-Positionen), Büro-Exportbetrag (fromStripe), Erstattungen.
  */
 import assert from "node:assert/strict";
@@ -34,6 +34,8 @@ function session(lines: GoodsLine[], discount: number, mode: "heute" | "korrektu
   const items = lines.map((l) => `${l.handle}:${l.quantity}`).join(",");
   let stripeLines: { description: string; quantity: number; amount_total: number; amount_subtotal: number; amount_discount: number; price: { unit_amount: number } }[];
   let totalDiscount: number;
+  let metaItems = items;
+  let metaExtra: Record<string, string> = {};
   if (mode === "heute") {
     const s = fix.simulateCurrent(lines, discount);
     stripeLines = [
@@ -49,6 +51,9 @@ function session(lines: GoodsLine[], discount: number, mode: "heute" | "korrektu
       { description: "Einwegpfand", quantity: k.deposit.cans, amount_total: k.deposit.total, amount_subtotal: k.deposit.total, amount_discount: 0, price: { unit_amount: 25 } },
     ];
     totalDiscount = 0; // Rabatt steckt im Positionspreis
+    // wie der Checkout: Metadaten je Stripe-Position (geteilte Zeilen doppelt) + Rabatt als Zahl
+    metaItems = k.lines.map((x) => `${x.handle}:${x.quantity}`).join(",");
+    metaExtra = discount > 0 ? { discount: String(discount), discountLabel: "Mix-Rabatt" } : {};
   }
   const subtotal = stripeLines.reduce((n, l) => n + l.amount_subtotal, 0);
   const total = stripeLines.reduce((n, l) => n + l.amount_total, 0) + SHIP;
@@ -59,7 +64,7 @@ function session(lines: GoodsLine[], discount: number, mode: "heute" | "korrektu
       amount_total: total,
       amount_subtotal: subtotal,
       payment_status: "paid",
-      metadata: { items: mode === "heute" ? items : "", ...(ref ? { ref, refId: "inf1" } : {}) },
+      metadata: { items: metaItems, ...metaExtra, ...(ref ? { ref, refId: "inf1" } : {}) },
       customer_details: { name: "Test", email: "t@example.de" },
       shipping_cost: { amount_total: SHIP },
       total_details: { amount_discount: totalDiscount, amount_tax: 0 },
@@ -94,13 +99,19 @@ describe("AP6: Verteilung", () => {
     assert.deepEqual(fix.allocate([500], 900), [500]);
     assert.deepEqual(fix.allocate([0, 0], 50), [0, 0]);
   });
-  test("Korrektur ist abgeschaltet und wird vom Checkout nicht benutzt", async () => {
-    assert.equal(fix.depositFixEnabled({}), false);
-    assert.equal(fix.depositFixEnabled({ CHECKOUT_DEPOSIT_FIX: "1" }), true);
+  test("Korrektur A ist im Checkout aktiv: kein Gutschein mehr, Rabatt im Positionspreis, Rabatt in den Metadaten", async () => {
     const checkout = await fs.readFile(path.join(ROOT, "app/api/checkout/route.ts"), "utf8");
-    assert.ok(!checkout.includes("checkout-deposit-fix"), "Checkout unverändert");
-    assert.match(checkout, /coupons\.create\(\{\s*amount_off: discount/);
-    assert.ok(!/applies_to/.test(checkout), "Ursache im Code: Gutschein ohne applies_to");
+    assert.match(checkout, /discountedGoodsLines\(goodsLines, discount/);
+    assert.doesNotMatch(checkout, /coupons\.create|discounts:/, "kein Stripe-Gutschein mehr");
+    assert.match(checkout, /discount: String\(discount\), discountLabel/);
+    assert.match(checkout, /discount > 0 \|\| influencer \? \{\} : \{ allow_promotion_codes: true \}/, "Aktionscodes nur ohne eigenen Rabatt");
+  });
+  test("Büro: alte Bestellungen mit Stripe-Gutschein bleiben unverändert (metadata.discount wird dann ignoriert)", () => {
+    const lines = [L("classic", 2), L("tropical", 1)];
+    const { s, lines: sl, total } = session(lines, 216, "heute");
+    const o = model.fromStripe({ ...s, metadata: { ...s.metadata, discount: "999" } }, sl, { status: "offen" }, PRODUCTS, "EX-ALT");
+    assert.equal(o.discount, 216);
+    assert.equal(o.goods - o.discount + o.deposit + SHIP, total);
   });
 });
 
@@ -136,7 +147,11 @@ describe("AP6: 11 Testfälle", () => {
         } else {
           assert.equal(depositLine?.amount_total, cans * 25, "Korrektur: Pfand-Position immer voll");
           assert.equal(depositLine?.amount_discount, 0);
-          assert.equal(o.goods + o.deposit + SHIP, total, "Korrektur: Rabatt im Warenpreis");
+          assert.equal(o.goods - o.discount + o.deposit + SHIP, total, "Korrektur: Büro-Rechnung stimmt in Summe");
+          assert.equal(o.discount, discount, "Korrektur: Büro zeigt den Rabatt (aus metadata.discount)");
+          assert.equal(o.goods, goods, "Korrektur: Ware vor Rabatt");
+          // geteilte Zeilen werden über die Metadaten dem Produkt zugeordnet
+          assert.ok(o.lines.every((l) => l.handle), "Korrektur: jede Zeile hat ein Produkt");
           // jede Teilzeile ganzzahlig, Summe Ware exakt
           assert.equal(lines.filter((l) => l.description !== "Einwegpfand").reduce((n, l) => n + l.amount_total, 0), goods - discount);
         }

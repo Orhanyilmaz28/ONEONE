@@ -1,19 +1,10 @@
 /**
- * AP6 – vorbereitete, STANDARDMÄSSIG ABGESCHALTETE Korrektur: Rabatte nur auf Waren, nie auf das Einwegpfand.
+ * Pfand-Korrektur A (aktiv seit 21.10.2026, von Orhan freigegeben): Rabatte nur auf Waren, nie auf das Einwegpfand.
  *
- * Ausgangslage (app/api/checkout/route.ts): Mix- bzw. Influencer-Rabatt wird als Stripe-Gutschein mit `amount_off`
- * OHNE `applies_to` angelegt. Damit sind alle Positionen der Checkout-Sitzung rabattfähig – auch „Einwegpfand“.
- * Stripe verteilt den Betrag dann auf die Positionen (je Position `amount_discount`). Der Gesamtbetrag stimmt,
- * der Pfand-Posten kann aber unter 0,25 € je Dose ausgewiesen werden (Rechnung, Positionsauswertung).
- *
- * Diese Datei wird vom Checkout NICHT benutzt. Einschalten nur nach ausdrücklicher Freigabe (Zahlungsänderung):
- * Checkout baut dann die Positionen mit `discountedGoodsLines` (Rabatt im Positionspreis, Pfand unverändert, kein
- * Gutschein) statt mit Gutschein. Rein, ohne Netz – vollständig testbar.
+ * Früher (bis 21.10.2026) hat der Checkout Mix-/Code-Rabatte als Stripe-Gutschein ohne `applies_to` angehängt; Stripe
+ * hat den Betrag dann auch auf die Pfandzeile verteilt. Jetzt baut app/api/checkout/route.ts die Warenpositionen mit
+ * `discountedGoodsLines` (Rabatt im Positionspreis, Pfand unverändert, kein Gutschein). Rein, ohne Netz – vollständig testbar.
  */
-export const DEPOSIT_FIX_FLAG = "CHECKOUT_DEPOSIT_FIX";
-/** Bewusst nur lesbar gemacht – der Checkout fragt diesen Schalter (noch) nicht ab */
-export const depositFixEnabled = (env: Record<string, string | undefined> = process.env) => env[DEPOSIT_FIX_FLAG] === "1";
-
 export type GoodsLine = { handle: string; title: string; unitAmount: number; quantity: number; cansPerUnit: number };
 
 /**
