@@ -10,7 +10,7 @@ import { clearAiOverrides } from "@/lib/ai-media-store";
 import { deleteUnused } from "@/lib/media";
 import { KEYS, StoreUnavailableError, updateJSON } from "@/lib/store";
 import type { Product } from "@/lib/types";
-import { type ContentInput, buildVariants, checkContent, uniqueHandle } from "./content";
+import { type ContentInput, buildVariants, checkContent, renamedVariants, uniqueHandle } from "./content";
 import { type DesiredProduct, buildOverride, checkMaterial, checkVariant, field } from "./pricing";
 
 export type ProductFormState = {
@@ -169,8 +169,9 @@ function usedImages(custom: CustomProducts) {
 }
 
 /** Texte, Bilder, Kollektionen und Varianten eines Produkts schreiben und danach nicht mehr genutzte Bilder aufräumen */
-async function writeContent(handle: string, value: NonNullable<ReturnType<typeof checkContent>["value"]>) {
+async function writeContent(handle: string, value: NonNullable<ReturnType<typeof checkContent>["value"]>): Promise<Record<string, string>> {
   let before: Product | undefined;
+  let renamed: Record<string, string> = {};
   const overrides = await getOverrides();
   const after = await updateJSON<CustomProducts>(KEYS.custom, {}, (all) => {
     const entry = all[handle];
@@ -179,13 +180,32 @@ async function writeContent(handle: string, value: NonNullable<ReturnType<typeof
     before = base;
     // Neue Varianten bekommen den Preis, der gerade im Shop für die erste Variante gilt
     const first = applyOverride(base, overrides[handle]).variants[0];
-    const variants = buildVariants(handle, value.options, base.variants, { price: first?.price ?? 1000, compareAtPrice: first?.compareAtPrice });
+    const built = buildVariants(handle, value.options, base.variants, { price: first?.price ?? 1000, compareAtPrice: first?.compareAtPrice });
+    renamed = renamedVariants(base.variants, built);
+    // Umbenannte Varianten behalten Preis, Streichpreis, Verfügbarkeit und Stückzahl der bisherigen
+    const oldOf = new Map(Object.entries(renamed).map(([oldId, newId]) => [newId, base.variants.find((v) => v.id === oldId)]));
+    const variants = built.map((v) => {
+      const o = oldOf.get(v.id);
+      return o ? { ...o, id: v.id, title: v.title, options: v.options } : v;
+    });
     return { ...all, [handle]: { ...base, ...value, variants } };
   });
   const old = (before as Product | undefined)?.images.map((i) => i.src) ?? [];
   await deleteUnused(old, usedImages(after)).catch((e) => console.error("[produkte] Alte Bilder aufräumen fehlgeschlagen", e));
   // Die Auswahl „Echtes Foto / KI“ im Editor steht jetzt am Bild – eine ältere Auswahl aus der KI-Übersicht für diese Bilder entfernen
   await clearAiOverrides(value.images.map((i) => mediaKey(i.src))).catch((e) => console.error("[produkte] KI-Auswahl aufräumen fehlgeschlagen", e));
+  return renamed;
+}
+
+/** Nach dem Umbenennen von Varianten (z. B. „24er Tray“ → „24er Karton“) gespeicherte Preise mitnehmen */
+async function moveVariantOverrides(handle: string, renamed: Record<string, string>) {
+  if (!Object.keys(renamed).length) return;
+  await updateJSON<ProductOverrides>(KEYS.products, {}, (all) => {
+    const variants = all[handle]?.variants;
+    if (!variants) return all;
+    const next = Object.fromEntries(Object.entries(variants).map(([id, o]) => [renamed[id] ?? id, o]));
+    return { ...all, [handle]: { ...all[handle], variants: next } };
+  });
 }
 
 /**
@@ -229,11 +249,12 @@ export async function saveProductAll(_prev: ProductFormState, form: FormData): P
   }
   if (Object.keys(fieldErrors).length) return errorSummary(fieldErrors);
 
-  // 2. Schreiben: erst Preise (die Felder gehören zu den bisherigen Varianten), dann Inhalt (kann Varianten ändern)
+  // 2. Schreiben: erst Preise (die Felder gehören zu den bisherigen Varianten), dann Inhalt (kann Varianten ändern).
+  // Werden dabei Varianten umbenannt, wandern ihre Preise auf die neuen Varianten mit.
   let override: Awaited<ReturnType<typeof writePricing>>;
   try {
     if (desired) override = await writePricing(handle, base, desired);
-    if (content) await writeContent(handle, content);
+    if (content) await moveVariantOverrides(handle, await writeContent(handle, content));
   } catch (error) {
     refresh(handle);
     if (error instanceof NotFoundError) return { error: "Dieses Produkt gibt es nicht (mehr). Bitte lade die Seite neu." };

@@ -56,13 +56,13 @@ export function ProductWorkspace({ product, featuredCount, content, sku, nav }: 
   /* ── Preise & Verkauf ── */
   const initial = useMemo(() => toValues(product), [product]);
   const initialKey = JSON.stringify(initial);
-  const [values, setValues] = useState(initial);
+  const [valuesState, setValues] = useState(initial);
   const [syncedKey, setSyncedKey] = useState(initialKey);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   /* ── Bilder & Texte ── */
   const contentKey = JSON.stringify(content.initial);
-  const [text, setText] = useState<ContentInput>(content.initial);
+  const [textState, setText] = useState<ContentInput>(content.initial);
   const [syncedContentKey, setSyncedContentKey] = useState(contentKey);
   const [uploading, setUploading] = useState(0);
 
@@ -77,7 +77,10 @@ export function ProductWorkspace({ product, featuredCount, content, sku, nav }: 
   const goAfterSave = useRef<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
-  // Nach dem Speichern / Zurücksetzen kommt ein neuer Stand vom Server → Felder daran anpassen
+  // Nach dem Speichern / Zurücksetzen kommt ein neuer Stand vom Server → Felder daran anpassen.
+  // In diesem einen Durchlauf schon mit dem neuen Stand rechnen (Varianten können neue IDs haben).
+  const values = syncedKey !== initialKey ? initial : valuesState;
+  const text = syncedContentKey !== contentKey ? content.initial : textState;
   if (syncedKey !== initialKey) {
     setSyncedKey(initialKey);
     setValues(initial);

@@ -77,3 +77,21 @@ describe("Bilder", () => {
     assert.ok(checkContent({ ...base, images: [{ src: "/dosen-foto/../x.jpg", alt: "" }] }, []).errors.images);
   });
 });
+
+describe("Varianten umbenennen", async () => {
+  const { buildVariants, renamedVariants } = await import("../app/admin/(panel)/produkte/content");
+  const old = [
+    { id: "p-24er-tray", title: "24er Tray", price: 1800, available: true, options: { Packung: "24er Tray" } },
+    { id: "p-48er-tray", title: "48er Tray", price: 3500, available: false, options: { Packung: "48er Tray" } },
+  ];
+  test("umbenannte Varianten werden der Reihe nach zugeordnet", () => {
+    const next = buildVariants("p", [{ name: "Packung", values: ["24er Karton", "48er Karton"] }], old, { price: 1000 });
+    assert.deepEqual(renamedVariants(old, next), { "p-24er-tray": "p-24er-karton", "p-48er-tray": "p-48er-karton" });
+  });
+  test("nur hinzugefügt oder entfernt → keine Zuordnung", () => {
+    const more = buildVariants("p", [{ name: "Packung", values: ["24er Tray", "48er Tray", "72er Tray"] }], old, { price: 1000 });
+    assert.deepEqual(renamedVariants(old, more), {});
+    const less = buildVariants("p", [{ name: "Packung", values: ["24er Tray"] }], old, { price: 1000 });
+    assert.deepEqual(renamedVariants(old, less), {});
+  });
+});

@@ -189,6 +189,19 @@ export function buildVariants(handle: string, options: ProductOption[], previous
 /* ───────────────────────── Prüfen ───────────────────────── */
 
 /** Was im Formular „Bilder & Texte“ bearbeitet wird */
+/**
+ * Welche Varianten wurden nur umbenannt? Entfallene und neue Varianten werden der Reihe nach zugeordnet,
+ * wenn es gleich viele sind (z. B. „24er Tray“ → „24er Karton“). Ergebnis: alte ID → neue ID.
+ */
+export function renamedVariants(previous: Variant[], next: Variant[]): Record<string, string> {
+  const nextIds = new Set(next.map((v) => v.id));
+  const prevIds = new Set(previous.map((v) => v.id));
+  const gone = previous.filter((v) => !nextIds.has(v.id));
+  const added = next.filter((v) => !prevIds.has(v.id));
+  if (!gone.length || gone.length !== added.length) return {};
+  return Object.fromEntries(gone.map((v, i) => [v.id, added[i].id]));
+}
+
 export type ContentInput = {
   title: string;
   subtitle: string;
