@@ -13,7 +13,10 @@ export type FormState = { error?: string } | undefined;
 export type SetupState = { error?: string; recoveryCodes?: string[] } | undefined;
 
 const minutes = (s?: number) => Math.max(1, Math.ceil((s ?? 60) / 60));
-const rateMessage = (retryAfter?: number) => `Zu viele Versuche. Bitte in ${minutes(retryAfter)} Minute(n) erneut versuchen.`;
+const rateMessage = (retryAfter?: number) => {
+  const m = minutes(retryAfter);
+  return `Zu viele Versuche. Bitte in ${m === 1 ? "einer Minute" : `${m} Minuten`} erneut versuchen.`;
+};
 /** gleichmäßige Bremse bei Fehlern (zusätzlich zur Begrenzung in Redis) */
 const slow = () => new Promise((r) => setTimeout(r, 400 + Math.random() * 300));
 

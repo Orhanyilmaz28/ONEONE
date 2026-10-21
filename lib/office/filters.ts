@@ -28,7 +28,7 @@ export const STATUSES = [
   { key: "nicht_storniert", label: "Alle außer storniert" },
 ] as const;
 export const EXPORTED = [
-  { key: "", label: "Exportiert und nicht exportiert" },
+  { key: "", label: "Egal ob exportiert" },
   { key: "ja", label: "Bereits exportiert" },
   { key: "nein", label: "Noch nicht exportiert" },
 ] as const;

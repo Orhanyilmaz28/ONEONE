@@ -10,7 +10,7 @@ export function StatementForm({ id, months }: { id: string; months: { value: str
   return (
     <form action={action} className="flex flex-wrap items-center gap-2 text-[14px]">
       <input name="id" type="hidden" value={id} />
-      <select aria-label="Monat" className={`${input} w-auto`} defaultValue={months[0].value} name="month">
+      <select aria-label="Monat" className={`${input} w-auto!`} defaultValue={months[0].value} name="month">
         {months.map((m) => (
           <option key={m.value} value={m.value}>
             {m.label}

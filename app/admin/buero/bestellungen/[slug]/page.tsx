@@ -5,7 +5,7 @@ import { Badge, Card, Notice, PageHeader, Table, btn, btnSecondary, formatDateTi
 import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
 import { requireOffice } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
-import { CHANNEL_LABEL, type OfficeAddress, originalUrl, slugToKey } from "@/lib/office/model";
+import { CHANNEL_LABEL, type OfficeAddress, PROCESSING_LABEL, SHIPPING_LABEL, originalUrl, slugToKey } from "@/lib/office/model";
 import { MAX_REMARK, type StoredNote, readNotesFor } from "@/lib/office/delivery-notes";
 import { deliveryNoteIssues, missingCompanyFields } from "@/lib/office/documents";
 import { companyInfo } from "@/lib/office/documents-service";
@@ -13,7 +13,7 @@ import { can } from "@/lib/office/roles";
 import { loadOfficeOrder } from "@/lib/office/source";
 import { PaymentBadge, ProcessingBadge, ShippingBadge } from "../../shared";
 import { OfficeStatusBadge, WorkflowCard, WorkflowDialog, isDialog } from "../../workflow-ui";
-import { changedSinceRelease } from "@/lib/office/workflow";
+import { OFFICE_STATUS_LABEL, changedSinceRelease, officeStatus } from "@/lib/office/workflow";
 import { TICKET_KIND_LABEL, TICKET_STATUS_LABEL, TICKET_STATUS_TONE, type Ticket } from "@/lib/office/tickets";
 import { listTickets } from "@/lib/office/tickets-service";
 
@@ -126,11 +126,24 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
         description={`${CHANNEL_LABEL[o.channel]} · ${formatDateTime(o.createdAt)}${o.exportedAt ? ` · zuletzt exportiert ${formatDateTime(o.exportedAt)}` : ""}`}
         title={`Bestellung ${o.number}`}
       />
-      <div className="mb-6 flex flex-wrap gap-2">
-        <OfficeStatusBadge o={o} />
-        <PaymentBadge o={o} />
-        <ProcessingBadge o={o} />
-        <ShippingBadge o={o} />
+      {/* Je Status eine Beschriftung; gleichlautende Status (z. B. dreimal „Versendet“) nur einmal */}
+      <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2 text-[12px] text-muted">
+        <span className="inline-flex items-center gap-1.5">
+          Büro <OfficeStatusBadge o={o} />
+        </span>
+        <span className="inline-flex items-center gap-1.5">
+          Zahlung <PaymentBadge o={o} />
+        </span>
+        {PROCESSING_LABEL[o.processing] !== OFFICE_STATUS_LABEL[officeStatus(o, o.office)] ? (
+          <span className="inline-flex items-center gap-1.5">
+            Bestellung <ProcessingBadge o={o} />
+          </span>
+        ) : null}
+        {SHIPPING_LABEL[o.shippingStatus] !== OFFICE_STATUS_LABEL[officeStatus(o, o.office)] && SHIPPING_LABEL[o.shippingStatus] !== PROCESSING_LABEL[o.processing] ? (
+          <span className="inline-flex items-center gap-1.5">
+            Versand <ShippingBadge o={o} />
+          </span>
+        ) : null}
         {o.paymentMethod ? <Badge>{o.paymentMethod}</Badge> : null}
         {o.invoiceNumber ? <Badge tone="blue">Rechnung {o.invoiceNumber}</Badge> : null}
       </div>
