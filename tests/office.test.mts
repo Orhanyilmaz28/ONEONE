@@ -672,6 +672,23 @@ describe("Rollen und Büro-Zugänge", () => {
     await assert.rejects(users.createUser({ username: "anna.buero", name: "Doppelt", role: "lesen", password: "sicheres-passwort-2" }), users.OfficeUserError);
   });
 
+  test("Sperre: bekanntes Büro-Passwort hebt die Begrenzung für Admin-Rateversuche nicht auf", async () => {
+    await users.createUser({ username: "anna", name: "Anna", role: "buero", password: "sicheres-passwort-1" });
+    // abwechselnd: richtige Büro-Anmeldung und falsches Admin-Passwort von derselben IP
+    let wrongChecked = 0;
+    for (let i = 0; i < 30; i++) {
+      await flow.passwordStep("sicheres-passwort-1", O, "anna");
+      const r = await flow.passwordStep(`falsch-${i}`, O);
+      if (!r.ok && r.error === "invalid") wrongChecked++;
+    }
+    assert.equal(wrongChecked, 10, "nach 10 Fehlversuchen je IP ist Schluss – richtige Anmeldungen geben nur ihren eigenen Schritt zurück");
+    // auch gleichzeitig (parallel) gestartete Versuche kommen nicht über die Grenze
+    t += 15 * 60_000 + 1000;
+    const results = await Promise.all(Array.from({ length: 40 }, (_, i) => (i % 2 ? flow.passwordStep(`falsch-p${i}`, O) : flow.passwordStep("sicheres-passwort-1", O, "anna"))));
+    const wrongParallel = results.filter((r, i) => i % 2 && !r.ok && r.error === "invalid").length;
+    assert.ok(wrongParallel <= 10, `höchstens 10 Fehlversuche geprüft, waren ${wrongParallel}`);
+  });
+
   test("Anmeldung Büro-Zugang: Passwort → 2FA-Einrichtung (Pflicht) → volle Sitzung mit Rolle", async () => {
     const u = await users.createUser({ username: "anna", name: "Anna", role: "buero", password: "sicheres-passwort-1" });
     const bad = await flow.passwordStep("falsch-falsch-falsch", O, "anna");
