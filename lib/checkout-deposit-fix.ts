@@ -42,7 +42,8 @@ export function simulateCurrent(lines: GoodsLine[], discount: number, depositPer
   };
 }
 
-export type StripeLinePlan = { title: string; quantity: number; unitAmount: number; handle: string };
+/** `source` = Index der Warenkorb-Zeile (bei geteilten Zeilen gleich), damit Variante/Bild eindeutig bleiben */
+export type StripeLinePlan = { title: string; quantity: number; unitAmount: number; handle: string; source: number };
 
 /**
  * Korrigierte Positionen: Rabatt nur auf Waren, im Positionspreis enthalten. Weil Stripe nur ganze Cent je Stück kennt,
@@ -57,8 +58,8 @@ export function discountedGoodsLines(lines: GoodsLine[], discount: number, depos
     const total = goods[i] - parts[i];
     const per = Math.floor(total / l.quantity);
     const extra = total - per * l.quantity; // so viele Stück bekommen 1 Cent mehr
-    if (l.quantity - extra > 0) out.push({ title: l.title, quantity: l.quantity - extra, unitAmount: per, handle: l.handle });
-    if (extra > 0) out.push({ title: l.title, quantity: extra, unitAmount: per + 1, handle: l.handle });
+    if (l.quantity - extra > 0) out.push({ title: l.title, quantity: l.quantity - extra, unitAmount: per, handle: l.handle, source: i });
+    if (extra > 0) out.push({ title: l.title, quantity: extra, unitAmount: per + 1, handle: l.handle, source: i });
   });
   const cans = lines.reduce((n, l) => n + l.cansPerUnit * l.quantity, 0);
   return { lines: out, perLineDiscount: parts, deposit: { cans, unitAmount: depositPerCan, total: cans * depositPerCan } };

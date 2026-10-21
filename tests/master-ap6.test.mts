@@ -106,6 +106,20 @@ describe("AP6: Verteilung", () => {
     assert.match(checkout, /discount: String\(discount\), discountLabel/);
     assert.match(checkout, /discount > 0 \|\| influencer \? \{\} : \{ allow_promotion_codes: true \}/, "Aktionscodes nur ohne eigenen Rabatt");
   });
+  test("Korrektur A: zwei Varianten desselben Produkts bleiben getrennt (source) und das Büro erkennt die Packung trotz Rabattpreis", () => {
+    const multi: Product = { handle: "multi", title: "Multi", descriptionHtml: "", tags: [], collections: ["energy"], images: [], options: [], variants: [{ id: "m6", title: "6er", price: 600, available: true, options: {}, cans: 6 }, { id: "m24", title: "24er", price: 1800, available: true, options: {}, cans: 24 }], createdAt: "2026-01-01" };
+    const lines: GoodsLine[] = [
+      { handle: "multi", title: "Multi", unitAmount: 600, quantity: 3, cansPerUnit: 6 },
+      { handle: "multi", title: "Multi", unitAmount: 1800, quantity: 1, cansPerUnit: 24 },
+    ];
+    const k = fix.discountedGoodsLines(lines, 144);
+    assert.deepEqual([...new Set(k.lines.map((l) => l.source))], [0, 1]);
+    const stripeLines = k.lines.map((x) => ({ description: x.title, quantity: x.quantity, amount_total: x.unitAmount * x.quantity, amount_subtotal: x.unitAmount * x.quantity, amount_discount: 0, price: { unit_amount: x.unitAmount } }));
+    const sess = { id: "cs_multi", created: 1, amount_total: 3600 - 144, amount_subtotal: 3600 - 144, payment_status: "paid", metadata: { items: k.lines.map((x) => `${x.handle}:${x.quantity}`).join(","), discount: "144" }, total_details: { amount_discount: 0 } } as import("../lib/office/model").StripeSessionLike;
+    const o = model.fromStripe(sess, stripeLines, { status: "offen" }, new Map([["multi", multi]]), "EX-M");
+    assert.deepEqual(o.lines.map((l) => l.unit), k.lines.map((x) => (x.source === 0 ? "6er" : "24er")));
+    assert.equal(o.warnings.length, 0);
+  });
   test("Büro: alte Bestellungen mit Stripe-Gutschein bleiben unverändert (metadata.discount wird dann ignoriert)", () => {
     const lines = [L("classic", 2), L("tropical", 1)];
     const { s, lines: sl, total } = session(lines, 216, "heute");

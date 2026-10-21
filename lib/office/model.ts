@@ -191,6 +191,13 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
 
   const goodsLines = lines.filter((l) => !isDepositLine(l));
   const depositLines = lines.filter(isDepositLine);
+  // Ab Pfand-Korrektur A steckt der Rabatt im Positionspreis (kein Stripe-Gutschein). Der Checkout schreibt ihn dann
+  // in metadata.discount; Ware wird vor Rabatt ausgewiesen, damit Ware − Rabatt + Pfand + Versand = Zahlung bleibt.
+  const stripeDiscount = session.total_details?.amount_discount ?? 0;
+  const metaDiscount = Number(session.metadata?.discount);
+  const priceDiscount = !stripeDiscount && Number.isInteger(metaDiscount) && metaDiscount > 0 ? metaDiscount : 0;
+  const paidGoods = goodsLines.reduce((n, l) => n + (l.amount_subtotal ?? l.amount_total), 0);
+  const rate = priceDiscount && paidGoods > 0 ? priceDiscount / (paidGoods + priceDiscount) : 0;
   const officeLines: OfficeLine[] = goodsLines.map((l, i) => {
     const qty = l.quantity ?? 0;
     const title = s(l.description) || "Artikel";
@@ -201,7 +208,8 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
     const unitPrice = l.price?.unit_amount ?? null;
     let variant = product?.variants.length === 1 ? product.variants[0] : undefined;
     if (!variant && product && unitPrice !== null) {
-      const same = product.variants.filter((v) => v.price === unitPrice);
+      // Rabatt im Positionspreis (Korrektur A): Listenpreis × (1 − Rabattquote), auf ±1 Cent genau
+      const same = product.variants.filter((v) => (rate ? Math.abs(Math.round(v.price * (1 - rate)) - unitPrice) <= 1 : v.price === unitPrice));
       if (same.length === 1) variant = same[0];
     }
     if (!variant) warnings.push(`Verpackungseinheit von „${title}“ nicht eindeutig`);
@@ -224,11 +232,6 @@ export function fromStripe(session: StripeSessionLike, lines: StripeLineLike[], 
   const depositUnits = depositLines.reduce((n, l) => n + (l.quantity ?? 0), 0);
   const subtotal = session.amount_subtotal ?? lines.reduce((n, l) => n + (l.amount_subtotal ?? l.amount_total), 0);
   const gross = session.amount_total ?? 0;
-  // Ab Pfand-Korrektur A steckt der Rabatt im Positionspreis (kein Stripe-Gutschein). Der Checkout schreibt ihn dann
-  // in metadata.discount; Ware wird vor Rabatt ausgewiesen, damit Ware − Rabatt + Pfand + Versand = Zahlung bleibt.
-  const stripeDiscount = session.total_details?.amount_discount ?? 0;
-  const metaDiscount = Number(session.metadata?.discount);
-  const priceDiscount = !stripeDiscount && Number.isInteger(metaDiscount) && metaDiscount > 0 ? metaDiscount : 0;
   const stripeTax = session.total_details?.amount_tax ?? 0;
   const vat = stripeTax > 0 ? stripeTax : Math.round(gross - gross / (1 + VAT_RATE / 100));
 

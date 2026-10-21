@@ -32,8 +32,8 @@ export async function POST(request: Request) {
   let cans = 0;
   const mixLines: MixLine[] = [];
   const goodsLines: GoodsLine[] = [];
-  // Stripe-Produktdaten je Handle (Name, Bild, Metadaten) – die Positionen werden erst nach der Rabattberechnung gebaut
-  const productData = new Map<string, Stripe.Checkout.SessionCreateParams.LineItem.PriceData.ProductData>();
+  // Stripe-Produktdaten je Warenkorb-Zeile (Name, Variante, Bild) – die Positionen werden erst nach der Rabattberechnung gebaut
+  const productData: Stripe.Checkout.SessionCreateParams.LineItem.PriceData.ProductData[] = [];
 
   // Preise werden ausschließlich serverseitig aus dem Katalog gelesen – nie vom Client übernommen.
   for (const line of body.lines ?? []) {
@@ -57,7 +57,7 @@ export async function POST(request: Request) {
     cans += cansOf(variant) * quantity;
     goodsLines.push({ handle: product.handle, title: product.title, unitAmount: variant.price, quantity, cansPerUnit: cansOf(variant) });
     const image = product.images[0]?.src;
-    productData.set(product.handle, {
+    productData.push({
       name: product.title,
       ...(product.variants.length > 1 ? { description: variant.title } : {}),
       ...(image?.startsWith("https://") ? { images: [image] } : {}),
@@ -89,7 +89,7 @@ export async function POST(request: Request) {
   const plan = discountedGoodsLines(goodsLines, discount, DEPOSIT_PER_CAN);
   const metaParts: string[] = [];
   for (const line of plan.lines) {
-    const data = productData.get(line.handle);
+    const data = productData[line.source];
     if (!data) continue;
     metaParts.push(`${line.handle}:${line.quantity}`);
     lineItems.push({
