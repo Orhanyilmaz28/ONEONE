@@ -118,6 +118,14 @@ describe("Anmeldung mit Passwort", () => {
     advance(15 * 60 + 1);
     assert.ok((await flow.passwordStep(PW, O)).ok);
   });
+  test("Begrenzung: richtige Anmeldungen zählen nicht – nur Fehlversuche sperren", async () => {
+    for (let i = 0; i < 25; i++) assert.ok((await flow.passwordStep(PW, O)).ok, `Anmeldung ${i + 1}`);
+    for (let i = 0; i < 9; i++) await flow.passwordStep("falsch", O);
+    assert.ok((await flow.passwordStep(PW, O)).ok, "9 Fehlversuche + richtiges Passwort → noch erlaubt");
+    await flow.passwordStep("falsch", O);
+    const r = await flow.passwordStep(PW, O);
+    assert.equal(!r.ok && r.error, "rate_limited", "nach 10 Fehlversuchen gesperrt");
+  });
   test("gesamte Begrenzung greift auch bei wechselnden IPs (verteilter Angriff)", async () => {
     for (let i = 0; i < 50; i++) await flow.passwordStep("falsch", { ...O, ip: `10.0.${Math.floor(i / 9)}.${i % 9}` });
     const r = await flow.passwordStep(PW, { ...O, ip: "10.9.9.9" });

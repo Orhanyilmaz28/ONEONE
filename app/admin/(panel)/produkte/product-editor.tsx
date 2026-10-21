@@ -296,8 +296,8 @@ export function ProductEditor({ product, featuredCount }: Props) {
               />
               <SwitchRow
                 checked={values.featured}
-                description={`Erscheint im Bereich „Bestseller“ auf der Startseite (bis zu 8 Produkte, gerade ${featuredCount === 1 ? "1 ausgewählt" : `${featuredCount} ausgewählt`}).`}
-                label="Als Bestseller auf der Startseite"
+                description={`Steht in der Produktliste bei „Beliebt“ ganz oben und erscheint im Vorschaubild, wenn jemand den Shop teilt (gerade ${featuredCount === 1 ? "1 ausgewählt" : `${featuredCount} ausgewählt`}, am besten 6–8).`}
+                label="Als Bestseller markieren"
                 name="featured"
                 onChange={(featured) => edit((v) => ({ ...v, featured }))}
               />

@@ -7,6 +7,7 @@ import { Badge, Card, Notice, PageHeader, btnSecondary, formatDateTime } from "@
 import { requireAdmin } from "@/lib/admin-auth";
 import { formatPrice } from "@/lib/format";
 import { ORDER_STATUS_LABEL, type Order, getOrder, orderNumber } from "@/lib/orders";
+import { officeUrl } from "@/lib/office/model";
 import { getSettings } from "@/lib/settings";
 import { CopyButton } from "../client-buttons";
 import { productImage, productLookup, readableItems, stripeLinks } from "../data";
@@ -53,6 +54,15 @@ export default async function OrderDetailPage({ params }: { params: Params }) {
       <PageHeader
         actions={
           <>
+            {/* Dieselbe Bestellung in der Büroverwaltung (Freigabe, Lieferschein-Nummer, Kundenfall) */}
+            {/^cs_[A-Za-z0-9_]{6,200}$/.test(order.id) ? (
+              <Link className={btnSecondary} href={officeUrl({ key: `s:${order.id}` })}>
+                <svg aria-hidden className="size-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
+                  <path d="M4 4h10l6 6v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1Zm10 0v6h6M7 13h10M7 17h7" />
+                </svg>
+                Im Büro öffnen
+              </Link>
+            ) : null}
             <Link className={btnSecondary} href={`${base}/lieferschein`}>
               <svg aria-hidden className="size-4" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.7" viewBox="0 0 24 24">
                 <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />

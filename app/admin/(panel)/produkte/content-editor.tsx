@@ -908,7 +908,7 @@ function SaleFields({ values, onChange, errors }: { values: SaleValues; onChange
       </div>
       <div className="flex flex-col gap-2">
         <Check checked={values.visible} description="Aus = erst einmal ausgeblendet, z. B. bis alle Bilder da sind." label="Gleich im Shop zeigen" onChange={(visible) => onChange({ visible })} />
-        <Check checked={values.featured} label="Als Bestseller auf der Startseite" onChange={(featured) => onChange({ featured })} />
+        <Check checked={values.featured} label="Als Bestseller markieren" onChange={(featured) => onChange({ featured })} />
       </div>
     </div>
   );
