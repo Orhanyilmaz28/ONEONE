@@ -1,7 +1,7 @@
 import { productLookup } from "@/app/admin/(panel)/bestellungen/data";
-import { getCommissions } from "../commissions";
-import { getDealers } from "../dealer-store";
-import { getInfluencers } from "../influencers";
+import type { Commission } from "../commissions";
+import type { Dealer } from "../dealer-store";
+import type { Influencer } from "../influencers";
 import type { DealerOrder } from "../dealer-orders";
 import { KEYS, getJSONStrict } from "../store";
 import type { Product } from "../types";
@@ -56,6 +56,12 @@ export type AnalyticsResult = {
   orderCount: number;
 };
 
+/** Liste strikt lesen: ein Speicherausfall wirft (statt still eine leere Liste zu liefern wie getJSON) */
+async function strictList<T>(key: string): Promise<T[]> {
+  const v = await getJSONStrict<T[]>(key, []);
+  return Array.isArray(v) ? v : [];
+}
+
 export async function loadAnalytics(req: AnalyticsRequest, now = Date.now(), deps: { products?: Map<string, Product>; load?: typeof loadOfficeOrders } = {}): Promise<AnalyticsResult> {
   const products = deps.products ?? (await productLookup());
   const load = deps.load ?? loadOfficeOrders;
@@ -63,15 +69,15 @@ export async function loadAnalytics(req: AnalyticsRequest, now = Date.now(), dep
   const loaded = await load(from, req.range.to, products);
   const errors = [...loaded.errors];
   const [dealers, influencers, commissions, dealerOrders] = await Promise.all([
-    getDealers().catch(() => {
+    strictList<Dealer>(KEYS.dealers).catch(() => {
       errors.push("Händlerliste nicht lesbar (Händler ohne aktuelle Bestellung fehlen).");
       return [];
     }),
-    getInfluencers().catch(() => {
+    strictList<Influencer>(KEYS.influencers).catch(() => {
       errors.push("Creator-Liste nicht lesbar (Creator-Namen bei Codes fehlen).");
       return [];
     }),
-    getCommissions().catch(() => {
+    strictList<Commission>(KEYS.commissions).catch(() => {
       errors.push("Provisionsbuch nicht lesbar (Provisionen fehlen).");
       return [];
     }),

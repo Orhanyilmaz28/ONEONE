@@ -310,7 +310,7 @@ describe("AP5: Rechte und Leistung", () => {
 });
 
 describe("AP5: unvollständige Zusatzdaten", () => {
-  test("Händler-Bestellliste nicht lesbar → Analyse als unvollständig markiert (Export gesperrt)", async () => {
+  test("Händler-, Creator-, Provisions- oder Bestellliste nicht lesbar → Analyse als unvollständig markiert (Export gesperrt)", async () => {
     const parsed = svc.parseAnalyticsRequest({ zeitraum: "monat-wahl", monat: "2026-10" }, NOW);
     assert.ok(parsed.ok);
     const load = (async () => ({ orders: [], complete: true, errors: [], source: "demo" as const })) as never;
@@ -318,7 +318,7 @@ describe("AP5: unvollständige Zusatzdaten", () => {
     try {
       const a = await svc.loadAnalytics((parsed as { req: import("../lib/office/analytics-service").AnalyticsRequest }).req, NOW, { products: PRODUCTS, load });
       assert.equal(a.complete, false);
-      assert.ok(a.errors.some((e) => e.includes("Händler-Bestellliste")), a.errors.join(" | "));
+      for (const k of ["Händler-Bestellliste", "Händlerliste", "Creator-Liste", "Provisionsbuch"]) assert.ok(a.errors.some((e) => e.includes(k)), `${k} fehlt: ${a.errors.join(" | ")}`);
     } finally {
       delete process.env.VERCEL;
     }
