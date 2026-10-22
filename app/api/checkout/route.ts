@@ -1,6 +1,6 @@
 import type Stripe from "stripe";
 import { findVariant } from "@/lib/catalog";
-import { DEPOSIT_PER_CAN, SITE_URL, cansOf } from "@/lib/format";
+import { DEPOSIT_PER_CAN, SHIPPING_COUNTRIES, SITE_URL, cansOf } from "@/lib/format";
 import { DEFAULT_SETTINGS, getSettings } from "@/lib/settings";
 import { getStripe } from "@/lib/stripe";
 import { getCurrentCustomer } from "@/lib/customer-auth";
@@ -168,8 +168,8 @@ export async function POST(request: Request) {
       // Stripe-Aktionscodes nur ohne eigenen Rabatt und ohne Influencer-Code (sonst gälte doppelter Rabatt)
       ...(discount > 0 || influencer ? {} : { allow_promotion_codes: true }),
       billing_address_collection: "auto",
-      shipping_address_collection: { // EU-Länder ohne Zollabwicklung (Schweiz bewusst nicht: Zoll + Schweizer MwSt.)
-      allowed_countries: ["DE", "AT", "NL", "BE", "LU", "FR", "IT", "DK"] },
+      // Lieferländer zentral in lib/format.ts (zum Start nur Deutschland)
+      shipping_address_collection: { allowed_countries: [...SHIPPING_COUNTRIES] },
       phone_number_collection: { enabled: false },
       shipping_options: shippingOptions,
       consent_collection: { terms_of_service: "required" },

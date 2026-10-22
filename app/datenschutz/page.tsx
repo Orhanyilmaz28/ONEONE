@@ -6,7 +6,7 @@ import { getAccountsConfig } from "@/lib/customers";
 import { mailProvider } from "@/lib/mail";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "Datenschutz" };
+export const metadata: Metadata = { title: "Datenschutz", alternates: { canonical: "/datenschutz" } };
 
 /** Externer Link im Rechtstext */
 function Ext({ href }: { href: string }) {
@@ -128,14 +128,15 @@ export default async function Page() {
         Geräteinformationen. Auf der Bezahlseite setzt Stripe dafür notwendige Cookies.
       </p>
       <p>
-        Alle Zahlungsarten – Kreditkarte, PayPal, Klarna, Apple Pay, Google Pay und SEPA-Lastschrift – werden über Stripe abgewickelt. Wählst du eine davon, gibt
-        Stripe die dafür nötigen Daten an den jeweiligen Anbieter weiter:
+        Alle Zahlungsarten, die auf der Bezahlseite angeboten werden (z. B. Kreditkarte, PayPal, Apple Pay, Google Pay, Amazon Pay, Klarna oder
+        SEPA-Lastschrift), werden über Stripe abgewickelt. Wählst du eine davon, gibt Stripe die dafür nötigen Daten an den jeweiligen Anbieter weiter:
       </p>
       <ul>
         <li>PayPal: PayPal (Europe) S.à r.l. et Cie, S.C.A., 22–24 Boulevard Royal, L-2449 Luxemburg</li>
         <li>Klarna: Klarna Bank AB (publ), Sveavägen 46, 111 34 Stockholm, Schweden – Klarna kann dabei eine Identitäts- und Bonitätsprüfung durchführen</li>
         <li>Apple Pay: Apple Distribution International Ltd., Hollyhill Industrial Estate, Hollyhill, Cork, Irland</li>
         <li>Google Pay: Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland</li>
+        <li>Amazon Pay: Amazon Payments Europe S.C.A., 38 Avenue John F. Kennedy, L-1855 Luxemburg</li>
       </ul>
       <p>
         Für diese Anbieter gelten zusätzlich deren eigene Datenschutzhinweise. Rechtsgrundlage ist die Erfüllung des Kaufvertrags (<Basis>Art. 6 Abs. 1 lit. b DSGVO</Basis>),

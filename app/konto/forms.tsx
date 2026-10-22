@@ -176,16 +176,8 @@ export function RegisterForm() {
 
 export type ProfileValues = { name: string; email: string; line1: string; line2: string; postalCode: string; city: string; country: string };
 
-const COUNTRIES: [string, string][] = [
-  ["DE", "Deutschland"],
-  ["AT", "Österreich"],
-  ["NL", "Niederlande"],
-  ["BE", "Belgien"],
-  ["LU", "Luxemburg"],
-  ["FR", "Frankreich"],
-  ["IT", "Italien"],
-  ["DK", "Dänemark"],
-];
+// Nur Länder, in die wir liefern (siehe SHIPPING_COUNTRIES in lib/format.ts)
+const COUNTRIES: [string, string][] = [["DE", "Deutschland"]];
 
 export function ProfileForm({ initial }: { initial: ProfileValues }) {
   const [state, action, pending] = useActionState<FormState, FormData>(saveProfile, {});

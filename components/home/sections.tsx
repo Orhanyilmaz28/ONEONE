@@ -106,7 +106,7 @@ export function Promises() {
   const items = [
     { icon: "versand" as IconName, title: "Versand aus Deutschland", text: "Direkt aus Straelen (NRW), in 1–3 Werktagen bei dir – sicher verpackt." },
     { icon: "nachhaltig" as IconName, title: "Fair beim Pfand", text: "0,25 € Einwegpfand je Dose/Flasche – separat ausgewiesen, damit du immer weißt, was du zahlst." },
-    { icon: "antibakteriell" as IconName, title: "Sicher bezahlen", text: "PayPal, Klarna, Kreditkarte, Apple Pay & Google Pay – SSL-verschlüsselt über Stripe." },
+    { icon: "antibakteriell" as IconName, title: "Sicher bezahlen", text: "PayPal, Kreditkarte, Apple Pay & Google Pay – SSL-verschlüsselt über Stripe." },
   ];
   return (
     <Section className="py-16! lg:py-16!">
@@ -135,7 +135,7 @@ const FAQ = [
   ["Wie funktioniert der Mix-Rabatt?", `Sobald mindestens 2 verschiedene Sorten im Warenkorb sind, gibt es Rabatt auf alle Trays – je mehr Trays, desto mehr: ${MIX_TIERS.map((t) => `ab ${t.min} Trays ${t.pct} %`).join(", ").replace(/, ([^,]*)$/, " und $1")}.`],
   ["Gibt es Pfand?", "Ja. Auf jede Dose und Flasche kommen 0,25 € Einwegpfand. Es wird an der Kasse separat berechnet."],
   ["Wie lange dauert der Versand?", "In Deutschland in der Regel 1–3 Werktage. Ab dem im Warenkorb angezeigten Warenwert ist der Versand kostenlos."],
-  ["Kann ich Dosen zurückgeben?", "Ungeöffnete Ware kannst du innerhalb der gesetzlichen Widerrufsfrist zurücksenden. Details stehen in der Widerrufsbelehrung."],
+  ["Kann ich Dosen zurückgeben?", "Ja. Du kannst deine Bestellung innerhalb von 14 Tagen nach Erhalt ohne Angabe von Gründen widerrufen und die Ware zurücksenden – Details stehen in der Widerrufsbelehrung. Leere Dosen gibst du wie gewohnt im Handel gegen Pfand zurück."],
 ];
 
 export function Faq() {

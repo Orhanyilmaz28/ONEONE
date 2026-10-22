@@ -5,7 +5,7 @@ import { Rolling, RollingInt } from "@/components/rolling";
 import { MinusIcon, PlusIcon } from "@/components/icons";
 import { ProductImage } from "@/components/product-image";
 import { useCart } from "@/lib/cart";
-import { depositFor, formatPrice } from "@/lib/format";
+import { basePricePerLiter, cansOf, depositFor, formatPrice, volumeMlOf } from "@/lib/format";
 import { MIX_TIERS, mixDiscount } from "@/lib/mix";
 import { SORT_COLORS } from "@/lib/pack-contents";
 import type { Product } from "@/lib/types";
@@ -51,6 +51,7 @@ export function MixConfigurator({ products, groups }: { products: Product[]; gro
                       <span className="block truncate font-medium">{p.title}</span>
                       <span className="block text-muted text-sm">
                         {formatPrice(v.price)} je {v.title.replace(" Tray", "-Tray")}
+                        {basePricePerLiter(v.price, cansOf(v), volumeMlOf(p)) ? ` · ${basePricePerLiter(v.price, cansOf(v), volumeMlOf(p))}` : ""}
                       </span>
                     </span>
                     {v.available ? (

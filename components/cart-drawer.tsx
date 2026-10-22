@@ -368,7 +368,7 @@ export function CartDrawer() {
                   {loading ? null : <ArrowIcon />}
                 </button>
                 <p className="text-center text-muted text-xs">
-                  Kreditkarte · PayPal · Apple Pay · Google Pay · Klarna · SEPA
+                  Kreditkarte · PayPal · Apple Pay · Google Pay
                 </p>
               </footer>
             ) : null}

@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useMemo, useState } from "react";
 import { useCart } from "@/lib/cart";
-import { cansOf, depositFor, formatPrice } from "@/lib/format";
+import { basePricePerLiter, cansOf, depositFor, formatPrice, volumeMlOf } from "@/lib/format";
 import { useShopData } from "@/lib/shop-data";
 import type { Product } from "@/lib/types";
 import { CheckIcon, MinusIcon, PlusIcon } from "./icons";
@@ -26,6 +26,8 @@ export function AddToCart({ product }: { product: Product }) {
       (product.options.length === 0 ? product.variants[0] : undefined),
     [product, selected]
   );
+  // Grundpreis je Liter (Pflichtangabe nach PAngV)
+  const basePrice = variant ? basePricePerLiter(variant.price, cansOf(variant), volumeMlOf(product)) : null;
 
   function isValueAvailable(optionName: string, value: string) {
     return product.variants.some(
@@ -57,6 +59,7 @@ export function AddToCart({ product }: { product: Product }) {
           <span className="rounded-full bg-accent px-3 py-1 font-medium text-black text-xs">{cansOf(variant)} Dosen</span>
           <span className="font-medium">{formatPrice(Math.round(variant.price / cansOf(variant)))} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"}</span>
           <span className="text-muted">+ {formatPrice(depositFor(variant, 1))} Pfand</span>
+          {basePrice ? <span className="text-muted">Grundpreis {basePrice}</span> : null}
         </p>
       ) : null}
       <p className="t-small -mt-6 text-muted">

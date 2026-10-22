@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { useCart } from "@/lib/cart";
-import { cansOf } from "@/lib/format";
+import { basePricePerLiter, cansOf, volumeMlOf } from "@/lib/format";
 import { getSold } from "@/lib/reviews";
 import { useRating } from "@/lib/shop-data";
 import { formatAverage, Stars } from "./stars";
@@ -54,6 +54,8 @@ export function ProductCard({
   const single = simple && product.variants.length === 1 ? product.variants[0] : undefined;
   // Preis pro Dose: aus der günstigsten Variante (Packungsgröße), sonst aus der Paketgröße des Produkts
   const perUnit = cheapest ? cansOf(cheapest) : pack;
+  // Grundpreis je Liter (Pflichtangabe nach PAngV), gerechnet vom angezeigten Preis
+  const basePrice = basePricePerLiter(min, perUnit, volumeMlOf(product));
   const saving = cheapest?.compareAtPrice ? Math.round((1 - cheapest.price / cheapest.compareAtPrice) * 100) : 0;
   // KI-Kennzeichnung: Startbild unten links; beim Darüberfahren (Video bzw. zweites Foto) oben rechts – unten liegt dann „Schnell hinzufügen“
   const firstMedia = product.images[0];
@@ -167,6 +169,7 @@ export function ProductCard({
         {perUnit > 1 && !product.onRequest ? (
           <p className="mt-1 font-medium text-[13px] leading-snug sm:text-sm">
             {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"} · zzgl. Pfand
+            {basePrice ? <span className="font-normal text-muted"> · {basePrice}</span> : null}
           </p>
         ) : null}
         <div aria-hidden className="min-h-3 flex-1" />

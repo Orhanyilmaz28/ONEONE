@@ -77,7 +77,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
               © {new Date().getFullYear()} {company.brand || brand} – eine Marke der {company.name}
             </span>
           </p>
-          <p>Alle Preise inkl. MwSt., zzgl. Pfand · PayPal, Klarna, Karte, Apple Pay</p>
+          <p>Alle Preise inkl. MwSt., zzgl. Pfand · Karte, PayPal, Apple Pay, Google Pay</p>
         </div>
         {hasAiMedia ? (
           <p className="t-small mt-3 text-muted" id="ki-hinweis">

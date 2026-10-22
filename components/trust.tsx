@@ -60,7 +60,7 @@ export const TRUST: TrustItem[] = [
   { icon: "de", title: "Händler aus Deutschland", text: "Aus Deutschland · NRW" },
   { icon: "versand", title: "Versand aus Deutschland", text: "In 1–3 Werktagen bei dir" },
   { icon: "nachhaltig", title: "Fairer Pfandpreis", text: "0,25 € je Dose/Flasche, separat ausgewiesen" },
-  { icon: "antibakteriell", title: "Sicher bezahlen", text: "PayPal, Klarna, Karte – SSL-verschlüsselt" },
+  { icon: "antibakteriell", title: "Sicher bezahlen", text: "PayPal, Karte, Apple Pay – SSL-verschlüsselt" },
 ];
 
 export function TrustIcon({ icon, className = "size-5" }: { icon: TrustItem["icon"]; className?: string }) {

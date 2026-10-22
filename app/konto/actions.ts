@@ -2,6 +2,7 @@
 
 import { redirect } from "next/navigation";
 import { accountAccess, endCustomerSession, getCurrentCustomer, safeNext, startCustomerSession } from "@/lib/customer-auth";
+import { SHIPPING_COUNTRIES } from "@/lib/format";
 import {
   EMAIL,
   EmailTakenError,
@@ -139,7 +140,7 @@ export async function saveProfile(_prev: FormState, form: FormData): Promise<For
     if (address.country === "DE" && !/^\d{5}$/.test(address.postalCode)) fieldErrors.postalCode = "Bitte eine 5-stellige Postleitzahl angeben.";
     else if (!address.postalCode) fieldErrors.postalCode = "Bitte die Postleitzahl angeben.";
     if (!address.city) fieldErrors.city = "Bitte den Ort angeben.";
-    if (!["DE", "AT", "NL", "BE", "LU", "FR", "IT", "DK"].includes(address.country)) fieldErrors.country = "Dieses Land beliefern wir leider nicht.";
+    if (!(SHIPPING_COUNTRIES as readonly string[]).includes(address.country)) fieldErrors.country = "Dieses Land beliefern wir leider nicht.";
   }
   // Eingaben zurückgeben, damit das Formular sie nach dem Absenden wieder zeigt
   const values = { name, ...address };

@@ -32,6 +32,33 @@ export function cansOf(variant: { cans?: number; title: string }) {
   return m ? Math.max(1, Number(m[1])) : 1;
 }
 
+/**
+ * Füllmenge je Dose/Flasche in ml, gelesen aus Untertitel oder Titel (z. B. „Der Klassiker · 250 ml“, „0,5 l“).
+ * Unbekannt → undefined (dann wird kein Grundpreis angezeigt).
+ */
+export function volumeMlOf(product: { subtitle?: string; title: string }): number | undefined {
+  const text = `${product.subtitle ?? ""} ${product.title}`;
+  const ml = text.match(/(\d+(?:[.,]\d+)?)\s*ml\b/i);
+  if (ml) return Number(ml[1].replace(",", ".")) || undefined;
+  const l = text.match(/(\d+(?:[.,]\d+)?)\s*l\b/i);
+  return l ? Number(l[1].replace(",", ".")) * 1000 || undefined : undefined;
+}
+
+/**
+ * Grundpreis nach Preisangabenverordnung (§ 4 PAngV): Preis je Liter, ohne Pfand – z. B. „3,00 €/l“.
+ * `units` = Dosen/Flaschen in der Packung. Ohne bekannte Füllmenge: null.
+ */
+export function basePricePerLiter(priceCents: number, units: number, ml: number | undefined) {
+  if (!ml || ml <= 0 || units <= 0 || priceCents <= 0) return null;
+  return `${formatPrice(Math.round((priceCents * 1000) / (units * ml)))}/l`;
+}
+
+/**
+ * Lieferländer (Kasse und Kundenkonto). Zum Start nur Deutschland: andere Länder haben eigene Pfandsysteme,
+ * Etiketten in Landessprache und eigene Verpackungsregister. Weitere Länder hier ergänzen (und AGB/Versandseite anpassen).
+ */
+export const SHIPPING_COUNTRIES = ["DE"] as const;
+
 /** Pfand in Cent für eine Warenkorb-Position: Dosen je Packung × Menge × 0,25 € */
 export function depositFor(variant: { cans?: number; title: string }, quantity: number) {
   return cansOf(variant) * quantity * DEPOSIT_PER_CAN;
