@@ -24,11 +24,11 @@ export default async function Page() {
       </ul>
       <h2>Lieferzeit</h2>
       <p>
-        Bestellungen werden innerhalb von 1–2 Werktagen versendet. Die Lieferzeit beträgt in Deutschland in der
-        Regel 1–3 Werktage, ins EU-Ausland 3–7 Werktage.
+        Bestellungen werden innerhalb von 1–2 Werktagen versendet. Die Lieferzeit beträgt in der Regel 1–3
+        Werktage.
       </p>
       <h2>Liefergebiete</h2>
-      <p>Deutschland, Österreich, Niederlande, Belgien, Luxemburg, Frankreich, Italien, Dänemark.</p>
+      <p>Wir liefern derzeit nur innerhalb Deutschlands.</p>
       <h2>Zahlungsarten</h2>
       <p>Es stehen die Zahlungsarten zur Verfügung, die auf der Bezahlseite angezeigt werden (z. B. Kreditkarte, PayPal, Apple Pay, Google Pay) – sicher abgewickelt über Stripe.</p>
     </LegalPage>

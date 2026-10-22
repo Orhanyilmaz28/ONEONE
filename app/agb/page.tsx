@@ -98,7 +98,7 @@ export default async function Page() {
 
       <h2>§ 6 Lieferung</h2>
       <p>
-        (1) Wir liefern nach Deutschland, Österreich, in die Niederlande, nach Belgien, Luxemburg, Frankreich, Italien und Dänemark. Die Lieferzeit ist auf der
+        (1) Wir liefern nur innerhalb Deutschlands. Die Lieferzeit ist auf der
         Seite <Link href="/versand">Versand & Lieferung</Link> angegeben und beginnt am Tag nach Vertragsschluss.
       </p>
       <p>
