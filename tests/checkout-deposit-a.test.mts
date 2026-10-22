@@ -47,15 +47,18 @@ const depositOf = (p: Params) => p.line_items.find((l) => l.price_data.product_d
 const sum = (ls: Params["line_items"]) => ls.reduce((n, l) => n + l.quantity * l.price_data.unit_amount, 0);
 
 describe("Checkout mit Pfand-Korrektur A", () => {
-  test("Testkauf von Orhan (1 × Tropical + 1 × Classic, Mix 3 %): Ware 34,92 €, Pfand voll 12,00 €", async () => {
+  test("Testkauf von Orhan (1 × Tropical + 1 × Classic, Mix 3 %): Ware nach Rabatt, Pfand voll 12,00 €", async () => {
+    // Rabatt-Rechnung wie beim Testkauf am 21.10.2026 (damals 2 × 18,00 € → 1,08 € Rabatt), Preise aus dem Katalog
+    assert.equal(mixDiscount([{ handle: "tropical", quantity: 1, price: 1800 }, { handle: "classic", quantity: 1, price: 1800 }]).discount, 108);
     const p = await checkout([["tropical", 1], ["classic", 1]]);
-    const mix = mixDiscount([{ handle: "tropical", quantity: 1, price: 1800 }, { handle: "classic", quantity: 1, price: 1800 }]);
-    assert.equal(mix.discount, 108);
-    assert.equal(sum(goodsOf(p)), 3600 - 108);
-    assert.deepEqual(goodsOf(p).map((l) => l.price_data.unit_amount), [1746, 1746]);
+    const list = variant("tropical").price + variant("classic").price;
+    const mix = mixDiscount([{ handle: "tropical", quantity: 1, price: variant("tropical").price }, { handle: "classic", quantity: 1, price: variant("classic").price }]);
+    assert.equal(mix.pct, 3);
+    assert.equal(sum(goodsOf(p)), list - mix.discount);
+    goodsOf(p).forEach((l) => assert.ok(l.price_data.unit_amount < variant(l.price_data.product_data.metadata.handle).price));
     assert.equal(depositOf(p)?.price_data.unit_amount, 25);
     assert.equal(depositOf(p)?.quantity, 48);
-    assert.equal(p.metadata.discount, "108");
+    assert.equal(p.metadata.discount, String(mix.discount));
     assert.equal(p.metadata.discountLabel, "Mix-Rabatt 3 %");
     assert.equal(p.metadata.items, "tropical:1,classic:1");
     assert.match(goodsOf(p)[0].price_data.product_data.description ?? "", /inkl\. Mix-Rabatt 3 %/);
@@ -66,7 +69,10 @@ describe("Checkout mit Pfand-Korrektur A", () => {
 
   test("Geteilte Position (2 × Classic + 1 × Tropical, 4 %): Cent-genau, Metadaten je Stripe-Position", async () => {
     const p = await checkout([["classic", 2], ["tropical", 1]]);
-    assert.equal(sum(goodsOf(p)), 5400 - 216);
+    const list = 2 * variant("classic").price + variant("tropical").price;
+    const mix = mixDiscount([{ handle: "classic", quantity: 2, price: variant("classic").price }, { handle: "tropical", quantity: 1, price: variant("tropical").price }]);
+    assert.equal(mix.pct, 4);
+    assert.equal(sum(goodsOf(p)), list - mix.discount);
     assert.equal(sum([depositOf(p)!]), 72 * 25);
     const qty: Record<string, number> = {};
     for (const part of p.metadata.items.split(",")) {
@@ -83,6 +89,8 @@ describe("Checkout mit Pfand-Korrektur A", () => {
     assert.deepEqual(goodsOf(p).map((l) => [l.quantity, l.price_data.unit_amount]), [[4, variant("classic").price]]);
     assert.equal(p.metadata.discount, undefined);
     assert.equal(p.allow_promotion_codes, true);
-    assert.equal(goodsOf(p)[0].price_data.product_data.description, undefined);
+    // ohne Rabatt nur der Packungsinhalt, kein Rabatt-Hinweis; Steuerart für Stripe Tax gesetzt
+    assert.equal(goodsOf(p)[0].price_data.product_data.description, "24 × 250 ml");
+    assert.equal(goodsOf(p)[0].price_data.product_data.tax_code, "txcd_99999999");
   });
 });
