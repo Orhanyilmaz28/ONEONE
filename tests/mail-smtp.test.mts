@@ -92,3 +92,13 @@ test("SMTP: falsches Passwort gibt verständliche Meldung", async () => {
   assert.equal(res.ok, false);
   assert.match(!res.ok ? res.error : "", /SMTP-Anmeldung abgelehnt/);
 });
+
+test("Brevo ohne MAIL_FROM nimmt nicht still das SMTP-Postfach als Absender", async () => {
+  env(PASSWORD);
+  process.env.BREVO_API_KEY = "xkeysib-test";
+  const { mailProvider, mailReady, parseFrom } = await import("../lib/mail.ts");
+  assert.equal(mailProvider(), "brevo");
+  assert.equal(parseFrom(), null);
+  assert.equal(mailReady(), false);
+  delete process.env.BREVO_API_KEY;
+});

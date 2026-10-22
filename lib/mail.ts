@@ -48,7 +48,8 @@ export function mailReady() {
 }
 
 /** "EXSTASE <hello@exstase.com>" → { name, email } */
-export function parseFrom(raw = process.env.MAIL_FROM || smtpConfig()?.user || ""): { name: string; email: string } | null {
+// Ohne MAIL_FROM gilt nur beim SMTP-Versand das Postfach (SMTP_USER) als Absender – Brevo/Resend brauchen MAIL_FROM
+export function parseFrom(raw = process.env.MAIL_FROM || (mailProvider() === "smtp" ? smtpConfig()?.user : "") || ""): { name: string; email: string } | null {
   const s = raw.trim().replace(/^'|'$/g, "");
   const m = /^(.*)<\s*([^<>\s]+@[^<>\s]+)\s*>$/.exec(s);
   if (m) return { name: m[1].trim().replace(/^"|"$/g, "") || "EXSTASE", email: m[2] };
