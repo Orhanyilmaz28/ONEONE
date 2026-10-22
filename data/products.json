@@ -53,6 +53,10 @@
         {
           "src": "/dosen-foto/classic-trio.webp",
           "alt": "Classic – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/classic-x.webp",
+          "alt": "Classic – 24 Dosen als X"
         }
       ],
       "options": [
@@ -106,6 +110,10 @@
         {
           "src": "/dosen-foto/tropical-trio.webp",
           "alt": "Tropical – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/tropical-x.webp",
+          "alt": "Tropical – 24 Dosen als X"
         }
       ],
       "options": [
@@ -159,6 +167,10 @@
         {
           "src": "/dosen-foto/kiwi-lemon-trio.webp",
           "alt": "Kiwi & Lemon – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/kiwi-lemon-x.webp",
+          "alt": "Kiwi & Lemon – 24 Dosen als X"
         }
       ],
       "options": [
@@ -212,6 +224,10 @@
         {
           "src": "/dosen-foto/watermelon-trio.webp",
           "alt": "Watermelon – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/watermelon-x.webp",
+          "alt": "Watermelon – 24 Dosen als X"
         }
       ],
       "options": [
@@ -265,6 +281,10 @@
         {
           "src": "/dosen-foto/white-peach-trio.webp",
           "alt": "White Peach – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/white-peach-x.webp",
+          "alt": "White Peach – 24 Dosen als X"
         }
       ],
       "options": [
@@ -318,6 +338,10 @@
         {
           "src": "/dosen-foto/ice-bonbon-trio.webp",
           "alt": "Ice Bonbon – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/ice-bonbon-x.webp",
+          "alt": "Ice Bonbon – 24 Dosen als X"
         }
       ],
       "options": [
@@ -371,6 +395,10 @@
         {
           "src": "/dosen-foto/lime-trio.webp",
           "alt": "Lime – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/lime-x.webp",
+          "alt": "Lime – 24 Dosen als X"
         }
       ],
       "options": [
@@ -424,6 +452,10 @@
         {
           "src": "/dosen-foto/blueberry-coconut-trio.webp",
           "alt": "Blueberry Coconut – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/blueberry-coconut-x.webp",
+          "alt": "Blueberry Coconut – 24 Dosen als X"
         }
       ],
       "options": [
@@ -477,6 +509,10 @@
         {
           "src": "/dosen-foto/dragonfruit-lychee-trio.webp",
           "alt": "Dragonfruit Lychee – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/dragonfruit-lychee-x.webp",
+          "alt": "Dragonfruit Lychee – 24 Dosen als X"
         }
       ],
       "options": [
@@ -529,6 +565,10 @@
         {
           "src": "/dosen-foto/cactus-trio.webp",
           "alt": "Cactus – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/cactus-x.webp",
+          "alt": "Cactus – 24 Dosen als X"
         }
       ],
       "options": [
@@ -581,6 +621,10 @@
         {
           "src": "/dosen-foto/ice-coffee-latte-trio.webp",
           "alt": "Ice Coffee Latte – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/ice-coffee-latte-x.webp",
+          "alt": "Ice Coffee Latte – 24 Dosen als X"
         },
         {
           "src": "/dosen-foto/ice-coffee-latte-ansichten.webp",
@@ -640,6 +684,10 @@
           "alt": "Ice Coffee Cappuccino – drei Dosen"
         },
         {
+          "src": "/dosen-foto/ice-coffee-cappuccino-x.webp",
+          "alt": "Ice Coffee Cappuccino – 24 Dosen als X"
+        },
+        {
           "src": "/dosen-foto/ice-coffee-cappuccino-ansichten.webp",
           "alt": "Ice Coffee Cappuccino – Vorderseite, Rückseite mit Zutaten und Nährwerten, Seite"
         }
@@ -695,6 +743,10 @@
         {
           "src": "/dosen-foto/ice-coffee-caramel-trio.webp",
           "alt": "Ice Coffee Caramel – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/ice-coffee-caramel-x.webp",
+          "alt": "Ice Coffee Caramel – 24 Dosen als X"
         }
       ],
       "options": [
@@ -747,6 +799,10 @@
         {
           "src": "/dosen-foto/ice-coffee-espresso-trio.webp",
           "alt": "Ice Coffee Espresso – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/ice-coffee-espresso-x.webp",
+          "alt": "Ice Coffee Espresso – 24 Dosen als X"
         }
       ],
       "options": [
@@ -799,6 +855,10 @@
         {
           "src": "/dosen-foto/ice-coffee-vanille-trio.webp",
           "alt": "Ice Coffee Vanille – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/ice-coffee-vanille-x.webp",
+          "alt": "Ice Coffee Vanille – 24 Dosen als X"
         }
       ],
       "options": [
@@ -851,6 +911,10 @@
         {
           "src": "/dosen-foto/xtea-watermelon-trio.webp",
           "alt": "X-Tea Watermelon – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/xtea-watermelon-x.webp",
+          "alt": "X-Tea Watermelon – 24 Dosen als X"
         }
       ],
       "options": [
@@ -902,6 +966,10 @@
         {
           "src": "/dosen-foto/xtea-peach-trio.webp",
           "alt": "X-Tea Peach – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/xtea-peach-x.webp",
+          "alt": "X-Tea Peach – 24 Dosen als X"
         }
       ],
       "options": [
@@ -953,6 +1021,10 @@
         {
           "src": "/dosen-foto/xtea-lemon-trio.webp",
           "alt": "X-Tea Lemon – drei Dosen"
+        },
+        {
+          "src": "/dosen-foto/xtea-lemon-x.webp",
+          "alt": "X-Tea Lemon – 24 Dosen als X"
         }
       ],
       "options": [
@@ -1004,6 +1076,10 @@
         {
           "src": "/dosen-foto/wasser-still-trio.webp",
           "alt": "Aqua x Still – drei Flaschen"
+        },
+        {
+          "src": "/dosen-foto/wasser-still-x.webp",
+          "alt": "Aqua x Still – 24 Flaschen als X"
         }
       ],
       "options": [
@@ -1056,6 +1132,10 @@
         {
           "src": "/dosen-foto/wasser-medium-trio.webp",
           "alt": "Aqua x Medium – drei Flaschen"
+        },
+        {
+          "src": "/dosen-foto/wasser-medium-x.webp",
+          "alt": "Aqua x Medium – 24 Flaschen als X"
         }
       ],
       "options": [
@@ -1108,6 +1188,10 @@
         {
           "src": "/dosen-foto/wasser-classic-trio.webp",
           "alt": "Aqua x Classic – drei Flaschen"
+        },
+        {
+          "src": "/dosen-foto/wasser-classic-x.webp",
+          "alt": "Aqua x Classic – 24 Flaschen als X"
         }
       ],
       "options": [
