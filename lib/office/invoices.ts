@@ -63,7 +63,12 @@ export function invoiceBlockers(o: OfficeOrder, company: { name?: string; street
   if (!o.billing && !o.delivery && !o.customerName) out.push("Name und Anschrift des Kunden fehlen.");
   const sum = o.lines.reduce((n, l) => n + l.total, 0) + o.deposit + (o.shipping ?? 0);
   if (o.lines.length && sum !== o.gross) out.push(`Die Positionen (${(sum / 100).toFixed(2)} €) passen nicht zum bezahlten Betrag (${(o.gross / 100).toFixed(2)} €).`);
-  const missing = [!company.name?.trim() && "Firmenname", !company.street?.trim() && "Straße", !company.city?.trim() && "PLZ und Ort", !company.vatId?.trim() && "USt-IdNr."].filter(Boolean);
+  // Leer oder Platzhalter wie „[USt-IdNr.]“ zählt als fehlend (das PDF druckt Platzhalter nicht)
+  const has = (v?: string) => {
+    const t = v?.trim() ?? "";
+    return Boolean(t) && !/^\[.*\]$/.test(t);
+  };
+  const missing = [!has(company.name) && "Firmenname", !has(company.street) && "Straße", !has(company.city) && "PLZ und Ort", !has(company.vatId) && "USt-IdNr."].filter(Boolean);
   if (missing.length) out.push(`Firmendaten unvollständig: ${missing.join(", ")} (Einstellungen → Firmendaten).`);
   return out;
 }

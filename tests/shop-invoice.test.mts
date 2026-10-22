@@ -111,6 +111,7 @@ describe("Eigene Rechnung (Privatbestellung)", () => {
     assert.ok(inv.invoiceBlockers(order({ gross: 3000 }), SELLER).some((x) => x.includes("passen nicht")));
     assert.ok(inv.invoiceBlockers(order({ channel: "haendler" }), SELLER).length);
     assert.ok(inv.invoiceBlockers(order(), { ...SELLER, vatId: "" }).some((x) => x.includes("USt-IdNr.")));
+    assert.ok(inv.invoiceBlockers(order(), { ...SELLER, vatId: "[USt-IdNr.]", street: "[Straße]" }).some((x) => x.includes("USt-IdNr.") && x.includes("Straße")));
   });
 
   test("Nummer fortlaufend, Fassung festgeschrieben, PDF wird erzeugt", async () => {
