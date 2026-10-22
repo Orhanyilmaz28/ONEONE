@@ -110,7 +110,7 @@ export const COMPANY_FIELDS: CompanyField[] = [
     key: "email",
     label: "E-Mail-Adresse",
     help: "Für Fragen von Kund:innen. Pflicht im Impressum – steht auch auf der Kontaktseite.",
-    placeholder: "z. B. hello@exstase.com",
+    placeholder: "z. B. hello@exstaseshop.com",
     type: "email",
     autoComplete: "email",
   },
@@ -133,7 +133,7 @@ export const COMPANY_FIELDS: CompanyField[] = [
     key: "website",
     label: "Unternehmenswebsite (freiwillig)",
     help: "Mit https:// davor. Steht im Impressum, wenn ausgefüllt.",
-    placeholder: "z. B. https://exstase.com",
+    placeholder: "z. B. https://exstaseshop.com",
   },
   {
     key: "vatId",
@@ -183,7 +183,7 @@ function checkCompany(field: CompanyField, raw: string, country: string): { valu
 
   switch (field.key) {
     case "email":
-      if (!EMAIL.test(value)) return { value, error: "Das sieht nicht wie eine E-Mail-Adresse aus – Beispiel: hello@exstase.com." };
+      if (!EMAIL.test(value)) return { value, error: "Das sieht nicht wie eine E-Mail-Adresse aus – Beispiel: hello@exstaseshop.com." };
       break;
     case "phone":
     case "fax": {
@@ -193,7 +193,7 @@ function checkCompany(field: CompanyField, raw: string, country: string): { valu
       break;
     }
     case "website":
-      if (!/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(value)) return { value, error: "Bitte die vollständige Adresse mit https:// eingeben – Beispiel: https://exstase.com." };
+      if (!/^https:\/\/[a-z0-9.-]+\.[a-z]{2,}(\/\S*)?$/i.test(value)) return { value, error: "Bitte die vollständige Adresse mit https:// eingeben – Beispiel: https://exstaseshop.com." };
       break;
     case "register":
       if (!/HR[AB]\s*\d+/i.test(value)) return { value, error: "Bitte Registergericht und Nummer angeben – Beispiel: Amtsgericht Düsseldorf, HRB 90042." };

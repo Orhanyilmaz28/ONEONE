@@ -28,12 +28,23 @@ export function generateStaticParams() {
 
 const plain = (html: string) => html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 
+// Für Google: Anfang der Produktbeschreibung (Absätze/Listenpunkte als Sätze), an einer Wortgrenze auf ca. 155 Zeichen gekürzt
+function metaDescription(html: string, max = 155) {
+  const intro = html.split(/<h\d/)[0].replace(/<\/?(strong|em|b|i|span)\b[^>]*>/g, "");
+  const text = plain(intro.replace(/<\/(p|li)>/g, ". "))
+    .replace(/\s+\./g, ".")
+    .replace(/([.!?])\.+/g, "$1");
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  return `${cut.slice(0, cut.lastIndexOf(" ")).replace(/[\s,;:–-]+$/, "")} …`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProduct((await params).handle);
   if (!product) {
     return {};
   }
-  const description = product.subtitle ?? plain(product.descriptionHtml).slice(0, 160);
+  const description = metaDescription(product.descriptionHtml) || product.subtitle || product.title;
   return {
     title: product.title,
     description,

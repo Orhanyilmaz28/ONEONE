@@ -35,8 +35,8 @@ test("Sortennamen führen zur Produktseite", () => {
   assert.equal(findProduct("deutschland", list), undefined);
 });
 
-test("Unbekannte Fragen verweisen auf hello@exstase.com", () => {
+test("Unbekannte Fragen verweisen auf hello@exstaseshop.com", () => {
   const a = ask("Wie ist das Wetter?");
   assert.equal(a.topic, "unbekannt");
-  assert.match(a.text, /hello@exstase\.com/);
+  assert.match(a.text, /hello@exstaseshop\.com/);
 });

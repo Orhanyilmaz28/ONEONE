@@ -32,7 +32,7 @@ export function CompanySyncCard({ diff, canSave }: { diff: CompanyDiff[]; canSav
       ) : (
         <>
           <p className="text-[13px] text-ink/75">
-            Die gespeicherten Firmendaten weichen von den Betreiberangaben vom 21.10.2026 ab. Bitte prüfen und dann übernehmen. Bereits ausgestellte Rechnungen
+            Die gespeicherten Firmendaten weichen von den aktuellen Betreiberangaben ab. Bitte prüfen und dann übernehmen. Bereits ausgestellte Rechnungen
             und Lieferscheine bleiben unverändert.
           </p>
           <div className="mt-4 overflow-x-auto">
