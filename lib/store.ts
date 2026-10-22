@@ -35,7 +35,7 @@ export const KEYS = {
   accounts: "tt:accounts",
   /** KI-Kennzeichnung je Medium (Dashboard „KI-Kennzeichnung“) */
   aiMedia: "tt:ai-media",
-  /** E-Mail-Einstellungen (Dashboard → Einstellungen → E-Mails) */
+  /** E-Mail-Einstellungen (Dashboard → E-Mails) */
   mail: "tt:mail",
   /** Passwortschutz für den ganzen Shop (Dashboard → Einstellungen) */
   siteLock: "tt:site-lock",
@@ -397,6 +397,60 @@ export async function deleteBinary(ids: string[]): Promise<void> {
     return;
   }
   if (kind === "file") await Promise.all(ids.map((id) => fs.unlink(path.join(MEDIA_DIR, id)).catch(() => undefined)));
+}
+
+/* ───────────── Kurzlebige Werte ─────────────
+ * Für Betriebsdaten, die von selbst verschwinden sollen (z. B. Inhalt einer fehlgeschlagenen E-Mail für „nochmal senden“).
+ * Ohne Versionszähler; online mit Ablaufzeit (SET … EX), lokal mit Ablaufdatum in der Datei.
+ */
+type TempEntry = { v: unknown; exp: number };
+
+export async function setTemp<T>(key: string, value: T, ttlSeconds: number): Promise<void> {
+  const kind = storeKind();
+  if (kind === "none") throw new StoreUnavailableError();
+  if (kind === "redis") {
+    await redis(["SET", key, JSON.stringify(value), "EX", String(Math.max(1, Math.round(ttlSeconds)))]);
+    return;
+  }
+  await withFile(async () => {
+    const all = await readFileStore();
+    const now = Date.now();
+    const temp = Object.fromEntries(Object.entries((all["tt:temp"] ?? {}) as Record<string, TempEntry>).filter(([, e]) => e.exp > now));
+    temp[key] = { v: value, exp: now + ttlSeconds * 1000 };
+    all["tt:temp"] = temp;
+    await writeFileStore(all);
+  });
+}
+
+export async function getTemp<T>(key: string): Promise<T | null> {
+  const kind = storeKind();
+  if (kind === "redis") {
+    const raw = await redis<string | null>(["GET", key]);
+    return raw === null ? null : parse<T>(key, raw);
+  }
+  if (kind === "file") {
+    const all = await withFile(readFileStore);
+    const e = ((all["tt:temp"] ?? {}) as Record<string, TempEntry>)[key];
+    return e && e.exp > Date.now() ? (e.v as T) : null;
+  }
+  return null;
+}
+
+export async function deleteTemp(key: string): Promise<void> {
+  const kind = storeKind();
+  if (kind === "redis") {
+    await redis(["DEL", key]).catch(() => undefined);
+    return;
+  }
+  if (kind === "file") {
+    await withFile(async () => {
+      const all = await readFileStore();
+      const temp = (all["tt:temp"] ?? {}) as Record<string, TempEntry>;
+      delete temp[key];
+      all["tt:temp"] = temp;
+      await writeFileStore(all);
+    }).catch(() => undefined);
+  }
 }
 
 /* ───────────── Einmal-Sperre ─────────────

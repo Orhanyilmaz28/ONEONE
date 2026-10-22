@@ -1,10 +1,10 @@
 import { InfluencerLimitError, addInfluencer, getInfluencers } from "@/lib/influencers";
 import { CODE_RE, FOLLOWERS, INFLUENCER_MARKETING_TEXT, PLATFORMS, normalizeCode } from "@/lib/influencer-rules";
 import { mailReady, sendMail } from "@/lib/mail";
+import { adminInfluencerApplicationMail, influencerApplicationReceivedMail } from "@/lib/mail-templates";
 import { getSettings } from "@/lib/settings";
 import { StoreUnavailableError } from "@/lib/store";
 
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max) : "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const bad = (error: string, fields: string[] = [], status = 400) => Response.json({ error, fields }, { status });
@@ -70,22 +70,9 @@ export async function POST(request: Request) {
     ];
     const to = settings.company.email;
     if (to && !to.startsWith("[")) {
-      await sendMail({
-        to: { email: to },
-        replyTo: d.email,
-        subject: `Neue Influencer-Bewerbung: ${d.alias}`,
-        html: `<h2>Neue Influencer-Bewerbung</h2><table cellpadding="6">${rows.map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join("")}</table><p>Freischalten im Dashboard unter „Influencer“.</p>`,
-        text: `Neue Influencer-Bewerbung\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\nFreischalten im Dashboard unter „Influencer“.`,
-        tag: "influencer-anfrage",
-      }).catch((e) => console.error("[influencer] Benachrichtigung fehlgeschlagen", e));
+      await sendMail({ to: { email: to }, ...adminInfluencerApplicationMail(rows, d.alias, settings), replyTo: d.email, tag: "influencer-anfrage" }).catch((e) => console.error("[influencer] Benachrichtigung fehlgeschlagen", e));
     }
-    await sendMail({
-      to: { email: d.email, name: d.name },
-      subject: "Deine Bewerbung als EXSTASE-Partner",
-      html: `<p>Hallo ${esc(d.name)},</p><p>danke für deine Bewerbung mit <b>${esc(d.alias)}</b>. Wir schauen uns deinen Kanal an und melden uns – sobald du freigeschaltet bist, bekommst du den Link zu deinem Dashboard.</p><p>Dein EXSTASE-Team</p>`,
-      text: `Hallo ${d.name},\n\ndanke für deine Bewerbung mit ${d.alias}. Wir schauen uns deinen Kanal an und melden uns – sobald du freigeschaltet bist, bekommst du den Link zu deinem Dashboard.\n\nDein EXSTASE-Team`,
-      tag: "influencer-bestaetigung",
-    }).catch((e) => console.error("[influencer] Bestätigung fehlgeschlagen", e));
+    await sendMail({ to: { email: d.email, name: d.name }, ...influencerApplicationReceivedMail(d, settings), replyTo: to && !to.startsWith("[") ? to : undefined, tag: "influencer-bestaetigung" }).catch((e) => console.error("[influencer] Bestätigung fehlgeschlagen", e));
   }
   return Response.json({ ok: true });
 }

@@ -7,12 +7,17 @@ import { SITE_URL } from "@/lib/format";
 import { MAX_PCT } from "@/lib/influencer-rules";
 import { CodeTakenError, type InfluencerStatus, deleteInfluencer, getInfluencer, renewInfluencerActivation, setInfluencerStatus, setInfluencerTerms } from "@/lib/influencers";
 import { mailReady, sendMail } from "@/lib/mail";
+import { influencerApprovedMail, influencerStatementMail } from "@/lib/mail-templates";
+import { getSettings } from "@/lib/settings";
 
 const ID = /^[a-f0-9]{16}$/;
 const STATUS: InfluencerStatus[] = ["neu", "freigegeben", "abgelehnt"];
 export type TermsState = { error?: string; ok?: string; values?: { code: string; discountPct: string; commissionPct: string } } | undefined;
 
-const esc = (s: string) => s.replace(/[<>&"]/g, "");
+const replyToOf = (settings: Awaited<ReturnType<typeof getSettings>>) => {
+  const e = settings.company.email.trim();
+  return e && !/^\[.*\]$/.test(e) ? e : undefined;
+};
 
 /** Freischalt-Mail mit Aktivierungs-Link (ohne E-Mail-Versand kopierst du den Link im Dashboard) */
 async function mailActivation(id: string) {
@@ -20,13 +25,8 @@ async function mailActivation(id: string) {
   const i = await getInfluencer(id);
   if (!i?.activationToken) return;
   const link = `${SITE_URL}/influencer/aktivieren?id=${i.id}&t=${i.activationToken}`;
-  await sendMail({
-    to: { email: i.email, name: i.name },
-    subject: "Du bist EXSTASE-Partner – dein Code ist freigeschaltet",
-    html: `<p>Hallo ${esc(i.name)},</p><p>willkommen im Team! Dein Code ist <b>${esc(i.code ?? "")}</b> – deine Community spart damit ${i.discountPct} %, du bekommst ${i.commissionPct} % Provision.</p><p>Lege jetzt dein Passwort fest und öffne dein Dashboard:</p><p><a href="${link}">Zugang einrichten</a></p><p>Der Link ist 14 Tage gültig.</p><p>Dein EXSTASE-Team</p>`,
-    text: `Hallo ${i.name},\n\nwillkommen im Team! Dein Code ist ${i.code ?? ""} – deine Community spart damit ${i.discountPct} %, du bekommst ${i.commissionPct} % Provision.\n\nLege jetzt dein Passwort fest und öffne dein Dashboard:\n${link}\n\nDer Link ist 14 Tage gültig.\n\nDein EXSTASE-Team`,
-    tag: "influencer-freischaltung",
-  }).catch((e) => console.error("[influencer] Freischalt-Mail fehlgeschlagen", e));
+  const settings = await getSettings();
+  await sendMail({ to: { email: i.email, name: i.name }, ...influencerApprovedMail(i, link, settings), replyTo: replyToOf(settings), tag: "influencer-freischaltung" }).catch((e) => console.error("[influencer] Freischalt-Mail fehlgeschlagen", e));
 }
 
 function pct(v: FormDataEntryValue | null) {
@@ -104,13 +104,8 @@ export async function createStatementAction(_prev: StatementState, form: FormDat
     const i = await getInfluencer(id);
     if (i && mailReady()) {
       const link = `${SITE_URL}/influencer/portal/gutschriften/${s.id}`;
-      await sendMail({
-        to: { email: i.email, name: i.name },
-        subject: `Deine Provisionsgutschrift ${s.number}`,
-        html: `<p>Hallo ${esc(i.name)},</p><p>deine Gutschrift <b>${s.number}</b> über <b>${(s.gross / 100).toFixed(2).replace(".", ",")} €</b> liegt in deinem Dashboard bereit:</p><p><a href="${link}">Gutschrift ansehen</a></p><p>Dein EXSTASE-Team</p>`,
-        text: `Hallo ${i.name},\n\ndeine Gutschrift ${s.number} über ${(s.gross / 100).toFixed(2).replace(".", ",")} € liegt in deinem Dashboard bereit:\n${link}\n\nDein EXSTASE-Team`,
-        tag: "influencer-gutschrift",
-      }).catch((e) => console.error("[influencer] Gutschrift-Mail fehlgeschlagen", e));
+      const settings = await getSettings();
+      await sendMail({ to: { email: i.email, name: i.name }, ...influencerStatementMail(i, s, link, settings), replyTo: replyToOf(settings), tag: "influencer-gutschrift" }).catch((e) => console.error("[influencer] Gutschrift-Mail fehlgeschlagen", e));
     }
     revalidatePath("/admin/influencer", "layout");
     return { ok: `Gutschrift ${s.number} erstellt.` };

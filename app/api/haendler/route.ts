@@ -2,10 +2,10 @@ import { randomBytes } from "node:crypto";
 import { MARKETING_TEXT } from "@/lib/dealer-consent";
 import { BRANCHES, DealerLimitError, VOLUMES, addDealer } from "@/lib/dealer-store";
 import { mailReady, sendMail } from "@/lib/mail";
+import { adminDealerApplicationMail, dealerApplicationReceivedMail } from "@/lib/mail-templates";
 import { getSettings } from "@/lib/settings";
 import { StoreUnavailableError, deleteBinary, putBinary } from "@/lib/store";
 
-const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c] as string);
 const text = (v: unknown, max: number) => (typeof v === "string" ? v.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, "").trim().slice(0, max) : "");
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
@@ -104,22 +104,9 @@ export async function POST(request: Request) {
     ];
     const to = settings.company.email;
     if (to && !to.startsWith("[")) {
-      await sendMail({
-        to: { email: to },
-        replyTo: d.email,
-        subject: `Neue Händler-Anfrage: ${d.company}`,
-        html: `<h2>Neue Händler-Anfrage</h2><table cellpadding="6">${rows.map(([k, v]) => `<tr><td><b>${esc(k)}</b></td><td>${esc(v)}</td></tr>`).join("")}</table><p>Freigeben oder ablehnen im Dashboard unter „Händler“.</p>`,
-        text: `Neue Händler-Anfrage\n\n${rows.map(([k, v]) => `${k}: ${v}`).join("\n")}\n\nFreigeben oder ablehnen im Dashboard unter „Händler“.`,
-        tag: "haendler-anfrage",
-      }).catch((e) => console.error("[haendler] Benachrichtigung fehlgeschlagen", e));
+      await sendMail({ to: { email: to }, ...adminDealerApplicationMail(rows, d.company, settings), replyTo: d.email, tag: "haendler-anfrage" }).catch((e) => console.error("[haendler] Benachrichtigung fehlgeschlagen", e));
     }
-    await sendMail({
-      to: { email: d.email, name: d.contact },
-      subject: "Deine Händler-Anfrage bei EXSTASE",
-      html: `<p>Hallo ${esc(d.contact)},</p><p>danke für deine Anfrage für <b>${esc(d.company)}</b>. Wir prüfen sie und melden uns mit deinem Händlerzugang und den Preisen.</p><p>Dein EXSTASE-Team</p>`,
-      text: `Hallo ${d.contact},\n\ndanke für deine Anfrage für ${d.company}. Wir prüfen sie und melden uns mit deinem Händlerzugang und den Preisen.\n\nDein EXSTASE-Team`,
-      tag: "haendler-bestaetigung",
-    }).catch((e) => console.error("[haendler] Bestätigung fehlgeschlagen", e));
+    await sendMail({ to: { email: d.email, name: d.contact }, ...dealerApplicationReceivedMail(d, settings), replyTo: to && !to.startsWith("[") ? to : undefined, tag: "haendler-bestaetigung" }).catch((e) => console.error("[haendler] Bestätigung fehlgeschlagen", e));
   }
   return Response.json({ ok: true });
 }

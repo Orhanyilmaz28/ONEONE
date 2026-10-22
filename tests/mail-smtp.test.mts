@@ -1,6 +1,12 @@
 import assert from "node:assert/strict";
 import net from "node:net";
+import { promises as fs } from "node:fs";
+import os from "node:os";
+import path from "node:path";
 import { after, before, test } from "node:test";
+
+// Eigener Arbeitsordner: das Versandprotokoll schreibt sonst in .data/ des Projekts
+process.chdir(await fs.mkdtemp(path.join(os.tmpdir(), "exstase-mail-smtp-")));
 
 /** Mini-SMTP-Server für den Test: nimmt eine Mail an und merkt sich Anmeldung und Inhalt */
 type Received = { auth: string; from: string; to: string[]; data: string };

@@ -1,6 +1,8 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import nodemailer from "nodemailer";
+import { logMail, retryAttachments } from "./mail-log";
+import { isMailEnabled } from "./mail-settings";
 
 /**
  * E-Mail-Versand über Brevo, Resend oder ein eigenes Postfach per SMTP (z. B. Strato) – je nachdem, was in Vercel eingetragen ist.
@@ -69,11 +71,28 @@ export type Mail = {
   attachments?: { filename: string; content: Buffer; contentType?: string }[];
 };
 
-export type MailResult = { ok: true; provider: MailProvider } | { ok: false; error: string };
+export type MailResult = { ok: true; provider: MailProvider } | { ok: false; error: string; skipped?: boolean };
 
 const OUTBOX = path.join(process.cwd(), ".data", "outbox");
 
+/**
+ * E-Mail verschicken. Vorher wird geprüft, ob diese Art E-Mail im Dashboard ausgeschaltet ist;
+ * danach landet das Ergebnis im Versandprotokoll (Dashboard → E-Mails → Protokoll).
+ */
 export async function sendMail(mail: Mail): Promise<MailResult> {
+  if (!(await isMailEnabled(mail.tag))) {
+    await logMail({ tag: mail.tag ?? "mail", to: mail.to.email, subject: mail.subject, status: "aus" });
+    return { ok: false, error: "Diese E-Mail ist im Dashboard unter „E-Mails“ ausgeschaltet.", skipped: true };
+  }
+  const res = await deliver(mail);
+  await logMail(
+    { tag: mail.tag ?? "mail", to: mail.to.email, subject: mail.subject, status: res.ok ? "ok" : "fehler", ...(res.ok ? { provider: res.provider } : { error: res.error }) },
+    res.ok ? undefined : { to: mail.to, subject: mail.subject, html: mail.html, text: mail.text, replyTo: mail.replyTo, tag: mail.tag, attachments: retryAttachments(mail.attachments) },
+  );
+  return res;
+}
+
+async function deliver(mail: Mail): Promise<MailResult> {
   const provider = mailProvider();
   const from = parseFrom() ?? { name: "EXSTASE", email: "shop@localhost" };
   const replyTo = (mail.replyTo ?? process.env.MAIL_REPLY_TO ?? "").trim() || undefined;
