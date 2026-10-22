@@ -9,6 +9,7 @@ import { CHANNEL_LABEL, type OfficeAddress, PROCESSING_LABEL, SHIPPING_LABEL, or
 import { MAX_REMARK, type StoredNote, readNotesFor } from "@/lib/office/delivery-notes";
 import { deliveryNoteIssues, missingCompanyFields } from "@/lib/office/documents";
 import { companyInfo } from "@/lib/office/documents-service";
+import { type StoredInvoice, invoiceBlockers, readInvoice } from "@/lib/office/invoices";
 import { can } from "@/lib/office/roles";
 import { loadOfficeOrder } from "@/lib/office/source";
 import { PaymentBadge, ProcessingBadge, ShippingBadge } from "../../shared";
@@ -82,7 +83,17 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
       tickets = null;
     }
   }
+  let invoice: StoredInvoice | null = null;
+  let invoiceOk = true;
+  if (o.channel === "privat") {
+    try {
+      invoice = await readInvoice(o.key);
+    } catch {
+      invoiceOk = false;
+    }
+  }
   const company = await companyInfo();
+  const invoiceProblems = o.channel === "privat" && !invoice ? invoiceBlockers(o, company) : [];
   const companyMissing = missingCompanyFields(company);
   const issues = deliveryNoteIssues(o);
   const changed = changedSinceRelease(o, o.office, products);
@@ -146,10 +157,11 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
         ) : null}
         {o.paymentMethod ? <Badge>{o.paymentMethod}</Badge> : null}
         {o.invoiceNumber ? <Badge tone="blue">Rechnung {o.invoiceNumber}</Badge> : null}
+        {invoice ? <Badge tone="blue">Rechnung {invoice.number}</Badge> : null}
       </div>
       {fehler ? (
         <div className="mb-6">
-          <Notice title="Lieferschein nicht erstellt" tone="red">
+          <Notice title="Dokument nicht erstellt" tone="red">
             {fehler}
           </Notice>
         </div>
@@ -339,6 +351,65 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
           </div>
         )}
       </Card>
+
+      {o.channel === "privat" ? (
+        <Card className="mt-6" title="Rechnung">
+          <div className="grid gap-6 lg:grid-cols-2">
+            <div className="space-y-3 text-[14px]">
+              {!invoiceOk ? (
+                <Notice title="Rechnung nicht lesbar" tone="red">
+                  Der Datenspeicher ist gerade nicht erreichbar.
+                </Notice>
+              ) : invoice ? (
+                <>
+                  <p>
+                    <span className="text-muted">Nummer: </span>
+                    <b className="font-medium tabular-nums">{invoice.number}</b>
+                    <span className="text-muted"> · {formatPrice(invoice.basis.gross)}</span>
+                  </p>
+                  <p className="text-muted">
+                    Erstellt {formatDateTime(invoice.createdAt)} von {invoice.createdBy}
+                  </p>
+                  <p className="text-[13px] text-muted">Die Rechnung ist festgeschrieben: Jeder Abruf zeigt genau diese Fassung.</p>
+                  {o.refunded > 0 || o.processing === "storniert" ? (
+                    <Notice title="Bitte prüfen">Die Bestellung wurde nach der Rechnung storniert oder erstattet. Dafür ist eine Rechnungskorrektur (Storno) nötig – bitte mit der Buchhaltung klären.</Notice>
+                  ) : null}
+                </>
+              ) : (
+                <p className="text-muted">Noch keine Rechnung. Die Nummer wird beim ersten Herunterladen oder Drucken vergeben – die Vorschau vergibt keine.</p>
+              )}
+              {invoiceProblems.length ? (
+                <Notice title="Rechnung noch nicht möglich">
+                  <ul className="list-disc pl-5">
+                    {invoiceProblems.map((x) => (
+                      <li key={x}>{x}</li>
+                    ))}
+                  </ul>
+                </Notice>
+              ) : null}
+            </div>
+            {write && invoiceOk && !invoiceProblems.length ? (
+              <form action="/api/admin/buero/dokument" className="space-y-3" method="post">
+                <input name="art" type="hidden" value="rechnung" />
+                <input name="auswahl" type="hidden" value={o.key} />
+                <input name="zurueck" type="hidden" value={back} />
+                <div className="flex flex-wrap gap-2">
+                  <button className={btnSecondary} formTarget="_blank" name="modus" type="submit" value="vorschau">
+                    Ansehen (Vorschau)
+                  </button>
+                  <button className={btnSecondary} name="modus" type="submit" value="download">
+                    PDF herunterladen
+                  </button>
+                  <button className={btn} formTarget="_blank" name="modus" type="submit" value="druck">
+                    Drucken
+                  </button>
+                </div>
+                <p className="text-[12px] text-muted">Preise inkl. MwSt., MwSt. je Position und Steuersatz ausgewiesen. Die Zahlung lief über Stripe.</p>
+              </form>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
     </>
   );
 }

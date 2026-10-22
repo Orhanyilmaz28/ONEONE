@@ -38,6 +38,7 @@ const LABELS: Record<string, string> = {
   [KEYS.officeUsers]: "Büroverwaltung",
   [KEYS.officeExported]: "Büroverwaltung",
   [KEYS.officeDeliveryNotes]: "Büroverwaltung",
+  [KEYS.officeInvoiceSeq]: "Rechnungen (Shop)",
 };
 
 /** Alle festen Geschäftsdaten-Schlüssel (JSON) – werden immer abgefragt, auch wenn SCAN sie nicht liefert */
@@ -71,6 +72,7 @@ export function classifyKey(key: string): KeyClass {
   if (key.startsWith("tt:media:pass-")) return { include: true, category: "Artikelpässe (Uploads)" };
   if (key.startsWith("tt:media:")) return { include: true, category: "Produktbilder & Medien" };
   if (key.startsWith("tt:office-ticket")) return { include: true, category: "Kundenservice" };
+  if (key.startsWith("tt:office-re:")) return { include: true, category: "Rechnungen (Shop)" };
   if (key.startsWith("tt:office-reports:")) return { include: true, category: "Büroberichte (Historie)" };
   if (key === "tt:office-auto:config") return { include: true, category: "Büroautomatisierung" };
   if (key.startsWith("tt:office-auto:")) return { include: false, category: "Büroautomatisierung (Betrieb)", reason: "Laufsperren, Versuchszähler und Meldemarker (laufen von selbst ab)" };

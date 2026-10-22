@@ -4,7 +4,7 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
-import { cartVat, packContentLabel } from "@/lib/cart-tax";
+import { allocate, orderTax, packContentLabel, vatRateFor } from "@/lib/cart-tax";
 import { cansOf, depositFor, formatPrice } from "@/lib/format";
 import { mixDiscount } from "@/lib/mix";
 import { SORT_COLORS } from "@/lib/pack-contents";
@@ -40,8 +40,16 @@ export function CartDrawer() {
   const shippingCost = shipping.alwaysFree || (freeFrom && net >= freeFrom) ? 0 : shipping.cost;
   // Voraussichtliche Endsumme: Ware nach Rabatt + Pfand + Standardversand (alles inkl. MwSt.)
   const total = net + deposit + shippingCost;
-  // Enthaltene MwSt. (19 %), je Position gerundet wie auf der Rechnung (Ware, Pfand, Versand)
-  const vat = cartVat({ goods: net, deposit, shipping: shippingCost });
+  // Enthaltene MwSt., je Position gerundet wie auf der Rechnung (Ware, Pfand, Versand; Satz je Produkt, Rabatt anteilig)
+  const lineGross = lines.map((l) => l.variant.price * l.quantity);
+  const lineDiscount = allocate(discount, lineGross);
+  const tax = orderTax(
+    lines.map((l, i) => ({ gross: lineGross[i] - lineDiscount[i], rate: vatRateFor(l.product), cans: cansOf(l.variant) * l.quantity })),
+    deposit,
+    shippingCost,
+  );
+  const vat = tax.vat;
+  const vatLabel = tax.byRate.map((r) => `${r.rate} %`).join(" / ") || "19 %";
   // Handy: Einzelposten eingeklappt, damit die Artikel sichtbar bleiben (ab Tablet immer offen)
   const [details, setDetails] = useState(false);
   const progress = freeFrom ? Math.min(1, net / freeFrom) : 1;
@@ -353,7 +361,7 @@ export function CartDrawer() {
                   </span>
                 </div>
                 <div className="-mt-2 flex items-baseline justify-between gap-3 text-muted text-xs">
-                  <span>Enthaltene MwSt. (19 %)</span>
+                  <span>Enthaltene MwSt. ({vatLabel})</span>
                   <span className="tabular-nums">{formatPrice(vat)}</span>
                 </div>
                 <button

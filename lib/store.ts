@@ -73,6 +73,8 @@ export const KEYS = {
   officeNoteSeq: "tt:office-ls-seq",
   /** Kundenservice (Phase 3E): Nummernzähler je Jahr + Liste aller Fallnummern (die Fälle selbst liegen unter tt:office-ticket:<Nummer>) */
   officeTickets: "tt:office-tickets",
+  /** Rechnungen für Privatbestellungen: Nummernzähler je Jahr (die Rechnungen selbst liegen unter tt:office-re:<Bestellung>) */
+  officeInvoiceSeq: "tt:office-re-seq",
 } as const;
 
 export function storeKind(): StoreKind {
