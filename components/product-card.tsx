@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { useCart } from "@/lib/cart";
+import { unitPriceLabel } from "@/lib/pack-contents";
 import { cansOf } from "@/lib/format";
 import { getSold } from "@/lib/reviews";
 import { useRating } from "@/lib/shop-data";
@@ -166,7 +167,8 @@ export function ProductCard({
         {product.subtitle ? <p className="t-small mt-0.5 text-muted">{product.subtitle}</p> : null}
         {perUnit > 1 && !product.onRequest ? (
           <p className="mt-1 font-medium text-[13px] leading-snug sm:text-sm">
-            {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"} · zzgl. Pfand
+            {(min / perUnit / 100).toLocaleString("de-DE", { style: "currency", currency: "EUR" })} pro {product.productType === "Mineralwasser" ? "Flasche" : "Dose"}
+            {cheapest && unitPriceLabel(product, cheapest) ? ` (${unitPriceLabel(product, cheapest)})` : ""} · zzgl. Pfand
           </p>
         ) : null}
         <div aria-hidden className="min-h-3 flex-1" />

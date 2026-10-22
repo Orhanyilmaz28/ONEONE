@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useCart } from "@/lib/cart";
 import { formatPrice } from "@/lib/format";
+import { unitPriceLabel } from "@/lib/pack-contents";
 import type { Product } from "@/lib/types";
 import { ArrowIcon } from "./icons";
 import { ProductImage } from "./product-image";
@@ -26,6 +27,9 @@ export function StickyBuy({ product }: { product: Product }) {
     else document.documentElement.removeAttribute("data-sticky-buy");
   }, [show]);
   const price = Math.min(...product.variants.map((v) => v.price));
+  const cheapest = product.variants.find((v) => v.price === price);
+  // Grundpreis (€/l) gehört direkt neben den Preis (§ 4 PAngV)
+  const perLitre = cheapest ? unitPriceLabel(product, cheapest) : null;
   // Ein einziges Angebot (z. B. 24er Tray): kein „Größe wählen“; ausverkauft: kein Kauf-Knopf
   const single = product.variants.length === 1;
   const available = product.variants.some((v) => v.available);
@@ -45,7 +49,8 @@ export function StickyBuy({ product }: { product: Product }) {
       </span>
       <span className="min-w-0 flex-1">
         <span className="block truncate font-medium">{product.title}</span>
-        <span className="t-small block text-muted">{formatPrice(price)} · inkl. MwSt., zzgl. Versand</span>
+        <span className="t-small block text-muted">{formatPrice(price)}
+          {perLitre ? ` (${perLitre})` : ""} · inkl. MwSt., zzgl. Pfand und Versand</span>
       </span>
       {available && single ? (
         // Ein einziges Angebot (z. B. 24er Tray): direkt in den Warenkorb
