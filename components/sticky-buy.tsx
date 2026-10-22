@@ -30,7 +30,7 @@ export function StickyBuy({ product }: { product: Product }) {
   const single = product.variants.length === 1;
   const available = product.variants.some((v) => v.available);
   const { add } = useCart();
-  const btn = "anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-accent px-5 font-medium text-black transition hover:bg-accent-dark";
+  const btn = "anim-shine relative inline-flex h-12 shrink-0 items-center gap-2 overflow-hidden rounded-full bg-accent px-4 font-medium text-black text-sm transition hover:bg-accent-dark sm:px-5 sm:text-base";
   return (
     <div
       className={`fixed inset-x-3 bottom-3 z-40 mx-auto flex max-w-3xl items-center gap-3 rounded-full border border-line bg-card p-2 pr-2 shadow-[0_20px_60px_-15px_rgba(20,20,20,0.35)] transition-all duration-500 sm:inset-x-6 ${
@@ -40,18 +40,24 @@ export function StickyBuy({ product }: { product: Product }) {
       // Unsichtbar = weder klick- noch per Tab erreichbar und für Screenreader ausgeblendet
       inert={!show}
     >
-      <span aria-hidden className="relative size-12 shrink-0 overflow-hidden rounded-full bg-cream">
+      {/* Auf schmalen Handys ohne Bild und Namen – sonst wird der Preis zerquetscht */}
+      <span aria-hidden className="relative hidden size-12 shrink-0 overflow-hidden rounded-full bg-cream sm:block">
         <ProductImage aiLabel="compact" product={product} sizes="48px" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate font-medium">{product.title}</span>
-        <span className="t-small block text-muted">{formatPrice(price)} · inkl. MwSt., zzgl. Versand</span>
+      <span className="min-w-0 flex-1 pl-2 sm:pl-0">
+        <span className="hidden truncate font-medium sm:block">{product.title}</span>
+        <span className="block font-bold text-sm sm:hidden">{formatPrice(price)}</span>
+        <span className="block text-[11px] text-muted leading-tight sm:text-sm sm:leading-normal">
+          <span className="hidden sm:inline">{formatPrice(price)} · </span>inkl. MwSt., zzgl. Pfand und Versand
+        </span>
       </span>
       {available && single ? (
         // Ein einziges Angebot (z. B. 24er Tray): direkt in den Warenkorb
         <button className={btn} onClick={() => add(product.handle, product.variants[0].id)} type="button">
-          In den Korb
-          <ArrowIcon />
+          In den Warenkorb
+          <span className="hidden sm:inline-flex">
+            <ArrowIcon />
+          </span>
         </button>
       ) : available ? (
         <a className={btn} href="#kaufen">
