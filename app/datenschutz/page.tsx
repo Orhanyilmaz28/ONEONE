@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 import { ImportedLegalPage, LegalPage, companyView } from "@/components/legal-page";
 import { getImportedPage } from "@/lib/pages";
 import { getAccountsConfig } from "@/lib/customers";
-import { mailProvider } from "@/lib/mail";
+import { mailProvider, smtpConfig } from "@/lib/mail";
 import { getSettings } from "@/lib/settings";
 
 export const metadata: Metadata = { title: "Datenschutz", alternates: { canonical: "/datenschutz" } };
@@ -39,7 +39,11 @@ export default async function Page() {
       ? { name: "Brevo (Sendinblue SAS, Paris, Frankreich)", where: "in der EU", url: "https://www.brevo.com/de/legal/privacypolicy/" }
       : provider === "resend"
         ? { name: "Resend (USA)", where: "in den USA (auf Grundlage der EU-Standardvertragsklauseln)", url: "https://resend.com/legal/privacy-policy" }
-        : null;
+        : provider === "smtp"
+          ? /strato/i.test(smtpConfig()?.host ?? "")
+            ? { name: "unser E-Mail-Postfach bei der STRATO GmbH, Berlin", where: "in Deutschland", url: "https://www.strato.de/datenschutz/" }
+            : { name: "unser eigenes E-Mail-Postfach bei unserem Hosting-Anbieter", where: "beim Anbieter des Postfachs", url: null }
+          : null;
   return (
     <LegalPage title="Datenschutzerklärung">
 
@@ -202,7 +206,11 @@ export default async function Page() {
         löschen wir deine Adresse.
       </p>
       <p>
-        {mailService ? <>Newsletter-Dienstleister: {mailService.name}</> : "Einen externen Newsletter-Dienstleister setzen wir derzeit nicht ein; vor dem ersten Versand nennen wir ihn hier."}
+        {mailService && provider !== "smtp" ? (
+          <>Newsletter-Dienstleister: {mailService.name}</>
+        ) : (
+          "Einen externen Newsletter-Dienstleister setzen wir derzeit nicht ein; vor dem ersten Versand nennen wir ihn hier."
+        )}
       </p>
       {mailService ? (
         <>
@@ -211,7 +219,12 @@ export default async function Page() {
             Bestellbestätigungen, Versandbenachrichtigungen, Newsletter-Bestätigungen und – falls du ein Kundenkonto hast – E-Mails zum Zurücksetzen des Passworts
             verschicken wir über {mailService.name}. Dabei werden deine E-Mail-Adresse, dein Name und der Inhalt der jeweiligen E-Mail {mailService.where} verarbeitet.
             Mit dem Anbieter besteht ein Vertrag über Auftragsverarbeitung (<Basis>Art. 28 DSGVO</Basis>). Rechtsgrundlage ist die Erfüllung des Kaufvertrags (
-            <Basis>Art. 6 Abs. 1 lit. b DSGVO</Basis>) bzw. deine Einwilligung beim Newsletter. Datenschutzhinweise des Anbieters: <Ext href={mailService.url} />
+            <Basis>Art. 6 Abs. 1 lit. b DSGVO</Basis>) bzw. deine Einwilligung beim Newsletter.
+            {mailService.url ? (
+              <>
+                {" "}Datenschutzhinweise des Anbieters: <Ext href={mailService.url} />
+              </>
+            ) : null}
           </p>
         </>
       ) : null}
