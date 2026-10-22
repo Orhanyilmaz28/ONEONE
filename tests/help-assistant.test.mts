@@ -24,6 +24,8 @@ test("Typische Fragen landen beim richtigen Thema", () => {
   assert.equal(ask("Wo ist meine Bestellung?").topic, "bestellung");
   assert.equal(ask("Ich habe einen Kiosk und brauche eine Palette").topic, "haendler");
   assert.equal(ask("Gibt es Rabatt beim Mischen?").topic, "mix");
+  assert.equal(ask("Liefert ihr in die EU?").topic, "ausland");
+  assert.notEqual(ask("Wie viel Euro kostet euer Versand?").topic, "ausland");
 });
 
 test("Sortennamen führen zur Produktseite", () => {

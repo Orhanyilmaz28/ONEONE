@@ -151,6 +151,12 @@ export function normalize(text: string) {
     .trim()} `;
 }
 
+/** Stichwort in der (normalisierten) Frage? Am Wortanfang, mit Leerzeichen am Ende nur als ganzes Wort */
+function matches(q: string, keyword: string) {
+  const k = normalize(keyword);
+  return q.includes(keyword.endsWith(" ") ? k : k.trimEnd());
+}
+
 /** Wörter im Produktnamen, die allein nichts aussagen */
 const GENERIC_WORDS = new Set(["ice", "x", "tea", "energy", "drink", "coffee", "aqua", "wasser", "und", "the", "taste", "exstase"]);
 
@@ -197,8 +203,8 @@ export function answerTopic(id: string, shipping: PublicSettings["shipping"]): H
 export function answerQuestion(question: string, shipping: PublicSettings["shipping"], products: HelpProduct[]): HelpAnswer {
   const q = normalize(question);
   const product = findProduct(question, products);
-  // Stichwort muss am Wortanfang stehen („liefer“ passt zu „Lieferzeit“, „land“ nicht zu „Deutschland“)
-  const topicScores = HELP_TOPICS.map((t) => ({ t, score: t.keywords.filter((k) => q.includes(normalize(k).trimEnd())).length }))
+  // Stichwort muss am Wortanfang stehen; endet es mit Leerzeichen („eu “), zählt nur das ganze Wort („liefer“ passt zu „Lieferzeit“, „land“ nicht zu „Deutschland“)
+  const topicScores = HELP_TOPICS.map((t) => ({ t, score: t.keywords.filter((k) => matches(q, k)).length }))
     .map(({ t, score }) => ({ t, score: score && t.specific ? score + 0.5 : score }));
   // Bei Fragen wie „Zutaten von Watermelon?“ oder nur „Watermelon“ zuerst das Produkt
   const best = topicScores.reduce((a, b) => (b.score > a.score ? b : a), { t: HELP_TOPICS[0], score: 0 });
