@@ -8,7 +8,7 @@ import { StoreUnavailableError } from "@/lib/store";
 
 /**
  * Newsletter-Anmeldung.
- * - Mit E-Mail-Versand (BREVO_API_KEY/RESEND_API_KEY + MAIL_FROM): Double-Opt-In – erst nach Klick auf den Link in der
+ * - Mit E-Mail-Versand (SMTP-Zugang oder BREVO_API_KEY/RESEND_API_KEY + MAIL_FROM): Double-Opt-In – erst nach Klick auf den Link in der
  *   Bestätigungs-E-Mail gilt die Adresse als angemeldet (dann auch Weitergabe an Brevo-Liste / NEWSLETTER_WEBHOOK_URL).
  * - Ohne E-Mail-Versand: Adresse wird nur gesammelt (Dashboard → Newsletter, CSV-Export) und ggf. an NEWSLETTER_WEBHOOK_URL weitergeleitet.
  */

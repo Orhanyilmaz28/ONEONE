@@ -7,7 +7,7 @@ import { type MailFormState, saveMailSettings, sendTestMail } from "./mail-actio
 
 type Props = {
   settings: MailSettings;
-  status: { provider: "brevo" | "resend" | "outbox" | "none"; ready: boolean; from: string | null; webhook: boolean; listId: boolean };
+  status: { provider: "brevo" | "resend" | "smtp" | "outbox" | "none"; ready: boolean; from: string | null; webhook: boolean; listId: boolean };
   fallbackEmail: string;
 };
 
@@ -27,7 +27,7 @@ export function MailCard({ settings, status, fallbackEmail }: Props) {
   const [state, action, pending] = useActionState<MailFormState, FormData>(saveMailSettings, {});
   const [test, setTest] = useState<MailFormState>({});
   const [testing, startTest] = useTransition();
-  const providerName = { brevo: "Brevo", resend: "Resend", outbox: "Lokal (nur Test, landet in .data/outbox)", none: "–" }[status.provider];
+  const providerName = { brevo: "Brevo", resend: "Resend", smtp: "Eigenes Postfach (SMTP)", outbox: "Lokal (nur Test, landet in .data/outbox)", none: "–" }[status.provider];
 
   return (
     <div className="mt-8" id="emails">
@@ -49,8 +49,8 @@ export function MailCard({ settings, status, fallbackEmail }: Props) {
 
         {!status.ready ? (
           <p className="mb-5 rounded-2xl bg-amber-50 px-4 py-3 text-[14px] text-amber-900 leading-relaxed">
-            Damit der Shop selbst E-Mails verschickt, in Vercel <b>BREVO_API_KEY</b> und <b>MAIL_FROM</b> eintragen – Schritt für Schritt in der Anleitung „E-Mail-Versand
-            einrichten“. Bis dahin: Bestellbestätigung über Stripe, Versand-E-Mail über dein E-Mail-Programm.
+            Damit der Shop selbst E-Mails verschickt, in Vercel den Zugang zum Postfach eintragen: <b>SMTP_HOST</b>, <b>SMTP_USER</b> und <b>SMTP_PASS</b> (z. B. Strato) –
+            oder alternativ <b>BREVO_API_KEY</b> und <b>MAIL_FROM</b>. Bis dahin: Bestellbestätigung über Stripe, Versand-E-Mail über dein E-Mail-Programm.
           </p>
         ) : null}
 

@@ -275,7 +275,7 @@ export default async function AdminHome() {
         "Damit verschickt der Shop Bestellbestätigung, Versand-E-Mail, Newsletter-Bestätigung (Pflicht für Newsletter) und „Passwort vergessen“ selbst.",
       todo: (
         <>
-          Kostenloses Konto bei Brevo anlegen, deine Domain dort bestätigen und in Vercel <Env>BREVO_API_KEY</Env> und <Env>MAIL_FROM</Env> eintragen – dann neu bereitstellen.
+          In Vercel den Zugang zum Shop-Postfach eintragen (<Env>SMTP_HOST</Env>, <Env>SMTP_USER</Env>, <Env>SMTP_PASS</Env>, z. B. Strato) oder alternativ <Env>BREVO_API_KEY</Env> und <Env>MAIL_FROM</Env> – dann neu bereitstellen.
         </>
       ),
       link: { href: "/admin/einstellungen#emails", label: mailOk ? "E-Mail-Einstellungen" : "Zu den E-Mail-Einstellungen" },
