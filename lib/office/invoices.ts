@@ -46,7 +46,8 @@ export type InvoiceBasis = {
   seller: SellerSnapshot;
 };
 
-export type InvoiceEvent = { at: string; by: string; action: "erstellt" | "heruntergeladen" | "gedruckt" };
+export type InvoiceAction = "heruntergeladen" | "gedruckt" | "per E-Mail";
+export type InvoiceEvent = { at: string; by: string; action: "erstellt" | InvoiceAction };
 export type StoredInvoice = { number: string; order: string; createdAt: string; createdBy: string; basis: InvoiceBasis; events: InvoiceEvent[] };
 
 export const invoiceKey = (orderKey: string) => `tt:office-re:${orderKey}`;
@@ -152,7 +153,7 @@ async function reserveNumber(year: number): Promise<number> {
  * Erstellen zwei Personen im selben Augenblick die erste Rechnung derselben Bestellung, bleibt höchstens eine Nummer
  * ungenutzt – doppelt vergeben wird keine, und die Bestellung behält die zuerst gespeicherte Rechnung.
  */
-export async function issueInvoice(o: OfficeOrder, products: Map<string, Product>, seller: SellerSnapshot, by: string, action: "heruntergeladen" | "gedruckt", now = Date.now()): Promise<StoredInvoice> {
+export async function issueInvoice(o: OfficeOrder, products: Map<string, Product>, seller: SellerSnapshot, by: string, action: InvoiceAction, now = Date.now()): Promise<StoredInvoice> {
   const existing = await readInvoice(o.key);
   const at = new Date(now).toISOString();
   const number = existing ? null : formatInvoiceNumber(berlinParts(now).y, await reserveNumber(berlinParts(now).y));

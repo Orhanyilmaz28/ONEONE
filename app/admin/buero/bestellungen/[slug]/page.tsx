@@ -370,6 +370,9 @@ export default async function OfficeOrderPage({ params, searchParams }: { params
                   <p className="text-muted">
                     Erstellt {formatDateTime(invoice.createdAt)} von {invoice.createdBy}
                   </p>
+                  {invoice.events.some((e) => e.action === "per E-Mail") ? (
+                    <p>Mit der Bestellbestätigung per E-Mail an den Kunden geschickt.</p>
+                  ) : null}
                   <p className="text-[13px] text-muted">Die Rechnung ist festgeschrieben: Jeder Abruf zeigt genau diese Fassung.</p>
                   {o.refunded > 0 || o.processing === "storniert" ? (
                     <Notice title="Bitte prüfen">Die Bestellung wurde nach der Rechnung storniert oder erstattet. Dafür ist eine Rechnungskorrektur (Storno) nötig – bitte mit der Buchhaltung klären.</Notice>

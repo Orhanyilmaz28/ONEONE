@@ -1,3 +1,4 @@
+import { invoiceAttachment } from "./invoice-mail";
 import { sendMail } from "./mail";
 import { getMailSettings } from "./mail-settings";
 import { adminNewOrderMail, orderConfirmationMail } from "./mail-templates";
@@ -18,8 +19,10 @@ export async function sendOrderMails(sessionId: string): Promise<{ customer: boo
   const [settings, mail] = await Promise.all([getSettings(), getMailSettings()]);
 
   if (mail.orderConfirmation && order.customer.email && (await claimOnce(`order-mail:customer:${order.id}`))) {
-    const m = orderConfirmationMail(order, settings);
-    const res = await sendMail({ to: { email: order.customer.email, name: order.customer.name }, ...m, replyTo: replyTo(settings.company.email), tag: "bestellung" });
+    // Rechnung als PDF anhängen (eigene Rechnung des Shops). Klappt das nicht, geht die Bestätigung ohne Anhang raus.
+    const invoice = await invoiceAttachment(order.id);
+    const m = orderConfirmationMail(order, settings, invoice?.number);
+    const res = await sendMail({ to: { email: order.customer.email, name: order.customer.name }, ...m, replyTo: replyTo(settings.company.email), tag: "bestellung", ...(invoice ? { attachments: [{ filename: invoice.filename, content: invoice.content, contentType: "application/pdf" }] } : {}) });
     if (res.ok) result.customer = true;
     else {
       console.error("[order-mails] Bestellbestätigung fehlgeschlagen", order.number, res.error);

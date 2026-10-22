@@ -102,3 +102,15 @@ test("Brevo ohne MAIL_FROM nimmt nicht still das SMTP-Postfach als Absender", as
   assert.equal(mailReady(), false);
   delete process.env.BREVO_API_KEY;
 });
+
+test("SMTP: Rechnung als PDF-Anhang", async () => {
+  env(PASSWORD);
+  const { sendMail } = await import("../lib/mail.ts");
+  const pdf = Buffer.from("%PDF-1.4 Testrechnung");
+  const res = await sendMail({ to: { email: "kunde@example.com" }, subject: "Bestellung", html: "<p>x</p>", text: "x", attachments: [{ filename: "Rechnung-RE-2026-00001.pdf", content: pdf, contentType: "application/pdf" }] });
+  assert.deepEqual(res, { ok: true, provider: "smtp" });
+  const mail = received.at(-1);
+  assert.ok(mail);
+  assert.match(mail.data, /Content-Type: application\/pdf; name=Rechnung-RE-2026-00001\.pdf/);
+  assert.match(mail.data.replace(/\n/g, ""), new RegExp(pdf.toString("base64").replace(/[+/=]/g, ".")));
+});
