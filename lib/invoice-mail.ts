@@ -21,7 +21,8 @@ export async function invoiceAttachment(sessionId: string): Promise<{ number: st
       console.warn("[rechnung] keine Rechnung an die Bestellbestätigung", order.number, blockers.join(" "));
       return null;
     }
-    const stored = await issueInvoice(order, products, company, "Shop (automatisch)", "per E-Mail");
+    // Nur ausstellen – „per E-Mail“ wird erst nach erfolgreichem Versand vermerkt (lib/order-mails.ts)
+    const stored = await issueInvoice(order, products, company, "Shop (automatisch)", null);
     const content = invoicePdf(stored, await logoImage().catch(() => null));
     return { number: stored.number, filename: `Rechnung-${stored.number}.pdf`, content };
   } catch (e) {

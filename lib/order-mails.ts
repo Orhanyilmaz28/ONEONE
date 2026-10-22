@@ -1,4 +1,5 @@
 import { invoiceAttachment } from "./invoice-mail";
+import { noteInvoiceEvent } from "./office/invoices";
 import { sendMail } from "./mail";
 import { getMailSettings } from "./mail-settings";
 import { adminNewOrderMail, orderConfirmationMail } from "./mail-templates";
@@ -23,8 +24,10 @@ export async function sendOrderMails(sessionId: string): Promise<{ customer: boo
     const invoice = await invoiceAttachment(order.id);
     const m = orderConfirmationMail(order, settings, invoice?.number);
     const res = await sendMail({ to: { email: order.customer.email, name: order.customer.name }, ...m, replyTo: replyTo(settings.company.email), tag: "bestellung", ...(invoice ? { attachments: [{ filename: invoice.filename, content: invoice.content, contentType: "application/pdf" }] } : {}) });
-    if (res.ok) result.customer = true;
-    else {
+    if (res.ok) {
+      result.customer = true;
+      if (invoice) await noteInvoiceEvent(`s:${order.id}`, "per E-Mail", "Shop (automatisch)").catch(() => console.error("[order-mails] Rechnungsversand nicht vermerkt", invoice.number));
+    } else {
       console.error("[order-mails] Bestellbestätigung fehlgeschlagen", order.number, res.error);
       // beim nächsten Versuch (z. B. Stripe wiederholt den Webhook) erneut probieren
       await releaseOnce(`order-mail:customer:${order.id}`);

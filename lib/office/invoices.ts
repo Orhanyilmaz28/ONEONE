@@ -132,6 +132,11 @@ export function invoiceBasis(o: OfficeOrder, products: Map<string, Product>, sel
   };
 }
 
+const withEvent = (inv: StoredInvoice, e: InvoiceEvent): StoredInvoice => {
+  const events = [...inv.events, e];
+  return { ...inv, events: events.length > MAX_EVENTS ? [events[0], ...events.slice(-(MAX_EVENTS - 1))] : events };
+};
+
 /* ───────────── Speicher ───────────── */
 
 export async function readInvoice(orderKey: string): Promise<StoredInvoice | null> {
@@ -153,21 +158,25 @@ async function reserveNumber(year: number): Promise<number> {
  * Erstellen zwei Personen im selben Augenblick die erste Rechnung derselben Bestellung, bleibt höchstens eine Nummer
  * ungenutzt – doppelt vergeben wird keine, und die Bestellung behält die zuerst gespeicherte Rechnung.
  */
-export async function issueInvoice(o: OfficeOrder, products: Map<string, Product>, seller: SellerSnapshot, by: string, action: InvoiceAction, now = Date.now()): Promise<StoredInvoice> {
+export async function issueInvoice(o: OfficeOrder, products: Map<string, Product>, seller: SellerSnapshot, by: string, action: InvoiceAction | null, now = Date.now()): Promise<StoredInvoice> {
   const existing = await readInvoice(o.key);
   const at = new Date(now).toISOString();
   const number = existing ? null : formatInvoiceNumber(berlinParts(now).y, await reserveNumber(berlinParts(now).y));
   let result: StoredInvoice | null = null;
   await updateJSON<StoredInvoice | null>(invoiceKey(o.key), null, (cur) => {
     if (cur) {
-      const events = [...cur.events, { at, by, action }];
-      result = { ...cur, events: events.length > MAX_EVENTS ? [events[0], ...events.slice(-(MAX_EVENTS - 1))] : events };
+      result = action ? withEvent(cur, { at, by, action }) : cur;
     } else {
       if (!number) throw new Error("Keine Rechnungsnummer vergeben");
-      result = { number, order: o.number, createdAt: at, createdBy: by, basis: invoiceBasis(o, products, seller), events: [{ at, by, action: "erstellt" }, { at, by, action }] };
+      result = { number, order: o.number, createdAt: at, createdBy: by, basis: invoiceBasis(o, products, seller), events: [{ at, by, action: "erstellt" }, ...(action ? [{ at, by, action }] : [])] };
     }
     return result;
   });
   if (!result) throw new Error("Rechnung konnte nicht gespeichert werden");
   return result;
+}
+
+/** Einen Vorgang an einer schon ausgestellten Rechnung vermerken (z. B. erst nach erfolgreichem E-Mail-Versand) */
+export async function noteInvoiceEvent(orderKey: string, action: InvoiceAction, by: string, now = Date.now()): Promise<void> {
+  await updateJSON<StoredInvoice | null>(invoiceKey(orderKey), null, (cur) => (cur ? withEvent(cur, { at: new Date(now).toISOString(), by, action }) : cur));
 }
