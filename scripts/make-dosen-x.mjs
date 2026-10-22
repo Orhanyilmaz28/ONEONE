@@ -37,72 +37,86 @@ const items = {
   "wasser-classic": ["wasser-classic", "#42a5f5"],
 };
 
-// Kamera: Bodenpunkt (u, z) → Bildpunkt. Je größer z, desto weiter hinten.
-const F = 2700; // Brennweite in px (Tele: wenig Verzerrung)
-const HORIZON = -590; // Horizont liegt oberhalb des Bildes (Blick schräg von oben)
-const CAM_H = 6.2; // Kamerahöhe über dem Boden (in Dosenhöhen)
-const CAN_H = 1; // Dosenhöhe
-const project = (u, z) => ({ x: SIZE / 2 + (u * F) / z, y: HORIZON + (CAM_H * F) / z, scale: F / z });
+// Kamera: Bodenpunkt (u, z) → Bildpunkt. Je größer z, desto weiter hinten. Blick schräg von oben.
+const F = 3000; // Brennweite in px (Tele: wenig Verzerrung)
+const HORIZON = -760; // Horizont liegt oberhalb des Bildes
+const CAM_H = 6.4; // Kamerahöhe über dem Boden (in Dosenhöhen)
+const project = (u, z) => ({ x: SIZE / 2 + (u * F) / z, y: HORIZON + (CAM_H * F) / z, scale: F / z, tilt: CAM_H / Math.hypot(CAM_H, z) });
 
 function background(color) {
   if (HELL) {
+    // weißes Fotostudio: nahtloser Hintergrund, leicht grauer Boden
     return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}"><defs>
-      <radialGradient id="g" cx="50%" cy="45%" r="70%"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#e4e4e4"/></radialGradient>
-      <linearGradient id="f" x1="0" y1="0" x2="0" y2="1"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.06"/></linearGradient></defs>
-      <rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" fill="url(#f)"/></svg>`);
+      <linearGradient id="g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="0.5" stop-color="#f7f7f7"/><stop offset="1" stop-color="#ececec"/></linearGradient>
+      <radialGradient id="v" cx="50%" cy="45%" r="75%"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.07"/></radialGradient></defs>
+      <rect width="100%" height="100%" fill="url(#g)"/><rect width="100%" height="100%" fill="url(#v)"/></svg>`);
   }
-  // Dunkle Bühne: Lichtkegel von oben in der Sortenfarbe, heller Boden, Vignette
+  // dunkles Studio: Licht von oben in der Sortenfarbe, glänzender schwarzer Boden, Vignette
   return Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${SIZE}"><defs>
-    <radialGradient id="spot" cx="50%" cy="30%" r="55%"><stop offset="0" stop-color="${color}" stop-opacity="0.42"/><stop offset="0.55" stop-color="${color}" stop-opacity="0.1"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>
-    <radialGradient id="floor" cx="50%" cy="78%" r="60%" fy="78%"><stop offset="0" stop-color="${color}" stop-opacity="0.22"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>
-    <linearGradient id="beam" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.10"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
-    <radialGradient id="vig" cx="50%" cy="50%" r="72%"><stop offset="0.6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.75"/></radialGradient>
-    <filter id="soft" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="60"/></filter></defs>
-    <rect width="100%" height="100%" fill="#07080a"/>
-    <rect width="100%" height="100%" fill="url(#spot)"/>
-    <rect width="100%" height="100%" fill="url(#floor)"/>
-    <rect width="100%" height="100%" fill="url(#vig)"/></svg>`);
+    <radialGradient id="spot" cx="50%" cy="28%" r="60%"><stop offset="0" stop-color="${color}" stop-opacity="0.32"/><stop offset="0.6" stop-color="${color}" stop-opacity="0.07"/><stop offset="1" stop-color="${color}" stop-opacity="0"/></radialGradient>
+    <radialGradient id="vig" cx="50%" cy="48%" r="75%"><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.8"/></radialGradient></defs>
+    <rect width="100%" height="100%" fill="#08090b"/><rect width="100%" height="100%" fill="url(#spot)"/><rect width="100%" height="100%" fill="url(#vig)"/></svg>`);
 }
 
-// Glanz hinter der großen Dose
-function halo(w, h, color) {
-  const W = w * 3, H = h * 1.5;
+// Weicher Bodenschatten (Kontaktschatten + breiter Halbschatten)
+function shadow(w, ry) {
+  const pad = Math.round(w * 0.6);
+  const W = w + pad * 2, H = Math.round(ry * 2 + pad * 2);
+  const a = HELL ? 0.28 : 0.7;
   return {
-    svg: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><filter id="b"><feGaussianBlur stdDeviation="${w * 0.35}"/></filter></defs>
-      <ellipse cx="${W / 2}" cy="${H / 2}" rx="${w * 0.75}" ry="${h * 0.48}" fill="${HELL ? "#ffffff" : color}" fill-opacity="${HELL ? 0.9 : 0.45}" filter="url(#b)"/></svg>`),
+    svg: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs>
+      <filter id="b1" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${w * 0.14}"/></filter>
+      <filter id="b2" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${w * 0.03}"/></filter></defs>
+      <ellipse cx="${W / 2 + w * 0.08}" cy="${H / 2 + ry * 0.2}" rx="${w * 0.7}" ry="${ry * 1.5}" fill="#000" fill-opacity="${a * 0.6}" filter="url(#b1)"/>
+      <ellipse cx="${W / 2}" cy="${H / 2}" rx="${w * 0.5}" ry="${ry}" fill="#000" fill-opacity="${a}" filter="url(#b2)"/></svg>`),
     W, H,
   };
 }
 
-// Spiegelung auf dem Boden: Dose gespiegelt, nach unten ausgeblendet
+// Aus der flachen Dosen-Ansicht eine Dose „von schräg oben“ machen:
+// Ober- und Unterkante werden zu Ellipsen, oben kommt ein Aludeckel mit Lasche dazu.
+async function cylinder(srcPath, h, tilt, blur = 0) {
+  const raw = await sharp(srcPath).resize({ height: h, kernel: "lanczos3" }).toBuffer({ resolveWithObject: true });
+  const w = raw.info.width;
+  const ry = Math.max(2, (w / 2) * tilt);
+  const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}">
+    <rect x="0" y="${ry}" width="${w}" height="${h - 2 * ry}" fill="#fff"/>
+    <ellipse cx="${w / 2}" cy="${ry}" rx="${w / 2}" ry="${ry}" fill="#fff"/>
+    <ellipse cx="${w / 2}" cy="${h - ry}" rx="${w / 2}" ry="${ry}" fill="#fff"/></svg>`);
+  const rx = w * 0.415, rr = ry * 0.83, cy = ry * 1.04, cx = w / 2;
+  const lid = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}"><defs>
+    <linearGradient id="rim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f4f6f8"/><stop offset="0.45" stop-color="#b9bec4"/><stop offset="1" stop-color="#7d838a"/></linearGradient>
+    <linearGradient id="pan" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c9cdd2"/><stop offset="0.6" stop-color="#a3a9b0"/><stop offset="1" stop-color="#d7dbdf"/></linearGradient>
+    <linearGradient id="tab" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#9aa0a7"/><stop offset="0.5" stop-color="#eef0f2"/><stop offset="1" stop-color="#9aa0a7"/></linearGradient>
+    <linearGradient id="sh" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#6f757c"/><stop offset="0.3" stop-color="#d5d9dd"/><stop offset="0.7" stop-color="#9ba1a8"/><stop offset="1" stop-color="#60666d"/></linearGradient></defs>
+    <ellipse cx="${cx}" cy="${ry}" rx="${w * 0.5}" ry="${ry}" fill="url(#sh)"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx * 1.03}" ry="${rr * 1.05}" fill="#575c62"/>
+    <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rr}" fill="url(#rim)"/>
+    <ellipse cx="${cx}" cy="${cy + rr * 0.06}" rx="${rx * 0.86}" ry="${rr * 0.84}" fill="url(#pan)" stroke="#7d838a" stroke-width="${Math.max(0.4, w * 0.006)}"/>
+    <ellipse cx="${cx}" cy="${cy + rr * 0.08}" rx="${rx * 0.34}" ry="${rr * 0.3}" fill="url(#tab)" stroke="#80868d" stroke-width="${Math.max(0.3, w * 0.004)}"/>
+    <ellipse cx="${cx}" cy="${cy - rr * 0.38}" rx="${rx * 0.2}" ry="${rr * 0.17}" fill="#5c6168"/>
+    <ellipse cx="${cx - rx * 0.25}" cy="${cy - rr * 0.45}" rx="${rx * 0.5}" ry="${rr * 0.18}" fill="#fff" fill-opacity="0.35"/></svg>`);
+  let img = sharp(raw.data).composite([{ input: mask, blend: "dest-in" }, { input: lid, blend: "over" }]);
+  let buf = await img.png().toBuffer();
+  if (blur > 0.3) buf = await sharp(buf).blur(blur).png().toBuffer();
+  return { buf, w, h, ry };
+}
+
+// Spiegelung auf glänzendem Boden (nur dunkle Variante)
 async function reflection(buf, w, h, opacity) {
-  const rh = Math.round(h * 0.45);
+  const rh = Math.round(h * 0.35);
   const mask = Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${rh}"><defs><linearGradient id="m" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="${opacity}"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient></defs><rect width="100%" height="100%" fill="url(#m)"/></svg>`);
-  return sharp(buf).flip().extract({ left: 0, top: 0, width: w, height: rh }).blur(1.2)
+  return sharp(buf).flip().extract({ left: 0, top: 0, width: w, height: rh }).blur(2)
     .composite([{ input: mask, blend: "dest-in" }]).png().toBuffer();
 }
 
-// Weicher Bodenschatten unter einer Dose
-function shadow(w, strength) {
-  const h = Math.max(8, Math.round(w * 0.32));
-  const pad = Math.round(w * 0.5);
-  const W = w + pad * 2, H = h + pad * 2;
-  const a = HELL ? 0.35 * strength : 0.75 * strength;
-  return {
-    svg: Buffer.from(`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}"><defs><filter id="b"><feGaussianBlur stdDeviation="${w * 0.09}"/></filter></defs>
-      <ellipse cx="${W / 2}" cy="${H / 2}" rx="${w * 0.62}" ry="${h / 2}" fill="#000" fill-opacity="${a}" filter="url(#b)"/></svg>`),
-    W, H,
-  };
-}
-
-// 24 Dosen als X: zwei Diagonalen mit je 12 Dosen (die Mitte bleibt frei, dort steht vorne die große Dose)
+// 24 Dosen als X: zwei Diagonalen mit je 12 Dosen, dicht an dicht wie echt aufgestellt
 function xPositions() {
   const pts = [];
-  const W = 2.15, ZC = 16.5, D = 3.9;
-  // je Diagonale 6 Dosen links und 6 rechts der Mitte, gleichmäßiger Abstand
+  const W = 1.55, ZC = 15.5, D = 2.6;
   for (let i = 0; i < 6; i++) {
     for (const sign of [-1, 1]) {
-      const t = sign * (0.1 + i * 0.18);
+      const t = sign * (0.09 + i * 0.182);
       pts.push({ u: t * W, z: ZC + t * D });
       pts.push({ u: t * W, z: ZC - t * D });
     }
@@ -113,39 +127,33 @@ function xPositions() {
 async function render(handle) {
   const [file, color] = items[handle];
   const srcPath = path.join(SRC, `${file}.webp`);
-  const meta = await sharp(srcPath).metadata();
-  const ratio = meta.width / meta.height;
   const layers = [];
   const cans = xPositions().sort((a, b) => b.z - a.z); // hinten zuerst
   const zMin = Math.min(...cans.map((c) => c.z));
   const zMax = Math.max(...cans.map((c) => c.z));
   for (const c of cans) {
     const p = project(c.u, c.z);
-    const h = Math.round(CAN_H * p.scale * 0.95);
-    const w = Math.round(h * ratio);
     const depth = (c.z - zMin) / (zMax - zMin); // 0 = vorne, 1 = hinten
-    const s = shadow(w, 0.8);
+    // Tiefenschärfe: hinten deutlich unscharf, wie bei offener Blende fotografiert
+    const can = await cylinder(srcPath, Math.round(p.scale * 0.95), p.tilt, 1.6 + depth * 3.2);
+    const dim = HELL ? 1 - depth * 0.06 : 0.78 - depth * 0.28;
+    const buf = await sharp(can.buf).modulate({ brightness: dim }).png().toBuffer();
+    const s = shadow(can.w, can.ry);
+    const top = Math.round(p.y - can.h + can.ry);
     layers.push({ input: s.svg, left: Math.round(p.x - s.W / 2), top: Math.round(p.y - s.H / 2) });
-    // hintere Dosen etwas dunkler und unschärfer (Tiefe), damit die vordere Dose heraussticht
-    const img = await sharp(srcPath).resize({ height: h })
-      .modulate({ brightness: HELL ? 1 - depth * 0.08 : 0.82 - depth * 0.3 })
-      .blur(0.5 + depth * 2.2).png().toBuffer();
-    layers.push({ input: await reflection(img, w, h, HELL ? 0.18 : 0.22), left: Math.round(p.x - w / 2), top: Math.round(p.y) });
-    layers.push({ input: img, left: Math.round(p.x - w / 2), top: Math.round(p.y - h) });
+    if (!HELL) layers.push({ input: await reflection(buf, can.w, can.h, 0.16), left: Math.round(p.x - can.w / 2), top: Math.round(p.y - can.ry) });
+    layers.push({ input: buf, left: Math.round(p.x - can.w / 2), top });
   }
-  // große Dose vorne mit Glanz und Spiegelung
-  const heroH = Math.round(SIZE * 0.5);
-  const heroW = Math.round(heroH * ratio);
-  const heroBase = Math.round(SIZE * 0.88);
-  const hero = await sharp(srcPath).resize({ height: heroH }).sharpen({ sigma: 0.8 }).png().toBuffer();
-  const hl = halo(heroW, heroH, color);
-  layers.push({ input: hl.svg, left: Math.round(SIZE / 2 - hl.W / 2), top: Math.round(heroBase - heroH / 2 - hl.H / 2) });
-  const hs = shadow(heroW, 1);
-  layers.push({ input: hs.svg, left: Math.round(SIZE / 2 - hs.W / 2), top: Math.round(heroBase - hs.H / 2) });
-  layers.push({ input: await reflection(hero, heroW, heroH, HELL ? 0.25 : 0.3), left: Math.round(SIZE / 2 - heroW / 2), top: heroBase });
-  layers.push({ input: hero, left: Math.round(SIZE / 2 - heroW / 2), top: heroBase - heroH });
+  // große Dose vorne, gestochen scharf
+  const hero = await cylinder(srcPath, Math.round(SIZE * 0.6), 0.2);
+  const heroBuf = await sharp(hero.buf).sharpen({ sigma: 0.7 }).png().toBuffer();
+  const base = Math.round(SIZE * 0.93);
+  const hs = shadow(hero.w, hero.ry);
+  layers.push({ input: hs.svg, left: Math.round(SIZE / 2 - hs.W / 2), top: Math.round(base - hs.H / 2) });
+  if (!HELL) layers.push({ input: await reflection(heroBuf, hero.w, hero.h, 0.22), left: Math.round(SIZE / 2 - hero.w / 2), top: Math.round(base - hero.ry) });
+  layers.push({ input: heroBuf, left: Math.round(SIZE / 2 - hero.w / 2), top: Math.round(base - hero.h + hero.ry) });
   const out = path.join(OUT, `${handle}-x.webp`);
-  await sharp(background(color)).composite(layers).webp({ quality: 88 }).toFile(out);
+  await sharp(background(color)).composite(layers).webp({ quality: 90 }).toFile(out);
   console.log("ok", out);
 }
 
