@@ -2,7 +2,11 @@ import { Hero } from "@/components/home/hero";
 import { DropDivider } from "@/components/logo";
 import { Bestsellers, Faq, HomeReviews, MixTeaser, NewsletterCta, Promises } from "@/components/home/sections";
 import { TrustStrip } from "@/components/trust";
+import type { Metadata } from "next";
 import { getProducts } from "@/lib/catalog";
+
+// Eigene Adresse nur für die Startseite (stand früher im Layout und galt dadurch fälschlich für alle Unterseiten)
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   const products = await getProducts();

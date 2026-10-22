@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/format";
 import { getImportedPage } from "@/lib/pages";
 import { getSettings } from "@/lib/settings";
 
-export const metadata: Metadata = { title: "AGB" };
+export const metadata: Metadata = { title: "AGB", alternates: { canonical: "/agb" } };
 
 /**
  * Allgemeine Geschäftsbedingungen für Bestellungen im Online-Shop (Verbraucher und Unternehmer).
@@ -92,7 +92,7 @@ export default async function Page() {
       <h2>§ 5 Zahlung</h2>
       <p>
         (1) Die Zahlung wird über Stripe Payments Europe, Ltd. (Irland) abgewickelt. Es stehen die Zahlungsarten zur Verfügung, die auf der Bezahlseite angezeigt
-        werden (z. B. Kreditkarte, PayPal, Apple Pay, Google Pay, Klarna). Bei einzelnen Zahlungsarten gelten ergänzend die Bedingungen des jeweiligen Anbieters.
+        werden (z. B. Kreditkarte, PayPal, Apple Pay, Google Pay). Bei einzelnen Zahlungsarten gelten ergänzend die Bedingungen des jeweiligen Anbieters.
       </p>
       <p>(2) Der Kaufpreis ist mit Vertragsschluss sofort fällig. Bei Klarna gelten die von Klarna mitgeteilten Zahlungsfristen.</p>
 

@@ -12,7 +12,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const collection = getCollection((await params).handle);
-  return collection ? { title: collection.title, description: collection.description } : {};
+  return collection ? { title: collection.title, description: collection.description, alternates: { canonical: `/collections/${collection.handle}` } } : {};
 }
 
 export default async function CollectionPage({ params }: Props) {
