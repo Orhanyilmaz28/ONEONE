@@ -37,7 +37,7 @@ export async function Footer({ brand, collections }: { brand: string; logo?: str
             <p className="t-small mt-5 flex items-center gap-2 font-medium">
               <FlagDE /> Händler aus Deutschland{town ? ` · Versand aus ${town}${region}` : ""}
             </p>
-            <p className="t-small mt-8 mb-3 font-medium">Newsletter · 10 % auf deine erste Bestellung</p>
+            <p className="t-small mt-8 mb-3 font-medium">Newsletter · Neue Sorten und Aktionen</p>
             <Newsletter />
           </div>
           <FooterCol

@@ -176,7 +176,7 @@ export function NewsletterCta() {
         </div>
         <Drop className="anim-float mx-auto size-8 text-ink" />
         <h2 className="t-h1 mx-auto mt-6 max-w-2xl">
-          10 % auf deine erste Bestellung
+          Nichts mehr verpassen
         </h2>
         <p className="t-lead mx-auto mt-4 max-w-md">Neue Sorten, Aktionen und exklusive Angebote – ein- bis zweimal im Monat.</p>
         <div className="mx-auto mt-8 flex justify-center">
