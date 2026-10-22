@@ -65,6 +65,8 @@ export type Mail = {
   replyTo?: string;
   /** Kurzer Name für das Protokoll, z. B. "bestellung" */
   tag?: string;
+  /** Dateianhänge (z. B. Rechnung als PDF) */
+  attachments?: { filename: string; content: Buffer; contentType?: string }[];
 };
 
 export type MailResult = { ok: true; provider: MailProvider } | { ok: false; error: string };
@@ -92,6 +94,7 @@ export async function sendMail(mail: Mail): Promise<MailResult> {
           textContent: mail.text,
           ...(replyTo ? { replyTo: { email: replyTo } } : {}),
           ...(mail.tag ? { tags: [mail.tag] } : {}),
+          ...(mail.attachments?.length ? { attachment: mail.attachments.map((a) => ({ name: a.filename, content: a.content.toString("base64") })) } : {}),
         }),
         signal: AbortSignal.timeout(15_000),
       });
@@ -110,6 +113,7 @@ export async function sendMail(mail: Mail): Promise<MailResult> {
           html: mail.html,
           text: mail.text,
           ...(replyTo ? { reply_to: replyTo } : {}),
+          ...(mail.attachments?.length ? { attachments: mail.attachments.map((a) => ({ filename: a.filename, content: a.content.toString("base64") })) } : {}),
         }),
         signal: AbortSignal.timeout(15_000),
       });
@@ -136,6 +140,7 @@ export async function sendMail(mail: Mail): Promise<MailResult> {
           html: mail.html,
           text: mail.text,
           ...(replyTo ? { replyTo } : {}),
+          ...(mail.attachments?.length ? { attachments: mail.attachments.map((a) => ({ filename: a.filename, content: a.content, contentType: a.contentType ?? "application/pdf" })) } : {}),
         });
       } catch (error) {
         return { ok: false, error: smtpError(error) };
@@ -150,6 +155,7 @@ export async function sendMail(mail: Mail): Promise<MailResult> {
       const head = `<!-- An: ${mail.to.email} | Betreff: ${mail.subject.replace(/--/g, "–")} -->\n`;
       await fs.writeFile(path.join(OUTBOX, `${name}.html`), head + mail.html);
       await fs.writeFile(path.join(OUTBOX, `${name}.txt`), `An: ${mail.to.email}\nBetreff: ${mail.subject}\n\n${mail.text}`);
+      for (const a of mail.attachments ?? []) await fs.writeFile(path.join(OUTBOX, `${name}-${a.filename.replace(/[^A-Za-z0-9.-]/g, "")}`), a.content);
       return { ok: true, provider };
     }
     return { ok: false, error: "E-Mail-Versand ist noch nicht eingerichtet (SMTP-Zugang oder BREVO_API_KEY fehlt)." };

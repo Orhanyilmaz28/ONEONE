@@ -149,7 +149,7 @@ function withdrawalText(c: Company, paidBy: Settings["returns"]["paidBy"]) {
 
 export type Rendered = { subject: string; html: string; text: string };
 
-export function orderConfirmationMail(o: Order, settings: Settings): Rendered {
+export function orderConfirmationMail(o: Order, settings: Settings, invoiceNumber?: string): Rendered {
   const c = settings.company;
   const name = firstName(o.customer.name);
   const subject = `Deine Bestellung ${o.number} bei ${c.brand || "EXSTASE"}`;
@@ -162,6 +162,7 @@ export function orderConfirmationMail(o: Order, settings: Settings): Rendered {
       ${p(`Wir haben deine Bestellung <b>${esc(o.number)}</b> erhalten und die Zahlung ist eingegangen. Wir verpacken sie sorgfältig und schicken sie in der Regel innerhalb von 1–3 Werktagen los. Sobald das Paket unterwegs ist, bekommst du eine weitere E-Mail.`)}
       ${itemsTable(o)}
       ${address ? `<p style="margin:0 0 4px;font-size:13px;color:${C.muted}">Lieferadresse</p><p style="margin:0 0 14px">${address}</p>` : ""}
+      ${invoiceNumber ? p(`Deine Rechnung <b>${esc(invoiceNumber)}</b> findest du als PDF im Anhang.`) : ""}
       ${p("Hast du Fragen zu deiner Bestellung? Antworte einfach auf diese E-Mail – wir helfen dir persönlich.")}
       ${signature(c)}
       ${withdrawalHtml(c, settings.returns.paidBy)}`,
@@ -175,6 +176,7 @@ export function orderConfirmationMail(o: Order, settings: Settings): Rendered {
     "",
     o.shipping?.address ? `Lieferadresse:\n${addressBlock(o).replace(/<br>/g, "\n").replace(/&amp;/g, "&")}` : "",
     "",
+    ...(invoiceNumber ? [`Deine Rechnung ${invoiceNumber} findest du als PDF im Anhang.`, ""] : []),
     "Fragen? Antworte einfach auf diese E-Mail.",
     "",
     `Herzliche Grüße\nDein ${c.brand || "EXSTASE"}-Team`,

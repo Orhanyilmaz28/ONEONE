@@ -130,3 +130,13 @@ describe("Eigene Rechnung (Privatbestellung)", () => {
     assert.ok(preview.length > 500);
   });
 });
+
+test("„per E-Mail“ wird erst nach dem Versand vermerkt", async () => {
+  const o = order({ key: "s:cs_test_RE0003", number: "EX-RE0003" });
+  const a = await inv.issueInvoice(o, PRODUCTS, SELLER, "Shop (automatisch)", null, NOW);
+  assert.deepEqual(a.events.map((e) => e.action), ["erstellt"]);
+  await inv.noteInvoiceEvent(o.key, "per E-Mail", "Shop (automatisch)", NOW + 1);
+  const b = await inv.readInvoice(o.key);
+  assert.deepEqual(b?.events.map((e) => e.action), ["erstellt", "per E-Mail"]);
+  assert.equal(b?.number, a.number);
+});
