@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { useCart } from "@/lib/cart";
-import { basePricePerLiter, cansOf, volumeMlOf } from "@/lib/format";
+import { basePricePerLiter, cansOf, packSizeOf, volumeMlOf } from "@/lib/format";
 import { getSold } from "@/lib/reviews";
 import { useRating } from "@/lib/shop-data";
 import { formatAverage, Stars } from "./stars";
@@ -49,7 +49,7 @@ export function ProductCard({
   // Schnell hinzufügen nur bei einfachen Produkten (Farbe + Größe); sonst zur Produktseite
   const simple = product.options.every((o) => o.name === "Packung" || o.name === "Farbe" || o.name === "Größe");
   const quickVariants = !simple ? [] : colorOption ? product.variants.filter((v) => v.options.Farbe === colorOption.values[0]) : product.variants;
-  const pack = product.packSize ?? 1;
+  const pack = packSizeOf(product);
   // Ein einziges Angebot (z. B. 24er Tray): direkt „In den Warenkorb“ auf der Karte
   const single = simple && product.variants.length === 1 ? product.variants[0] : undefined;
   // Preis pro Dose: aus der günstigsten Variante (Packungsgröße), sonst aus der Paketgröße des Produkts

@@ -4,6 +4,7 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Image from "next/image";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Product } from "@/lib/types";
+import { packSizeOf } from "@/lib/format";
 import { AiMediaLabel } from "./ai-media";
 import { ArrowIcon } from "./icons";
 import { ProductImage } from "./product-image";
@@ -30,7 +31,7 @@ export function ProductGallery({ product }: { product: Product }) {
   const images = product.images.map((_, i) => ({ kind: "image" as const, index: i }));
   // Pakete: Paketbild zuerst; Einzelteile: Video zuerst
   const media: Media[] =
-    (product.packSize ?? 1) > 1
+    packSizeOf(product) > 1
       ? [images[0], ...videos.slice(0, 1), ...images.slice(1), ...videos.slice(1)].filter(Boolean)
       : [...videos.slice(0, 1), ...images, ...videos.slice(1)];
   const [active, setActive] = useState(0);
