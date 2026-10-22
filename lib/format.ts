@@ -32,6 +32,12 @@ export function cansOf(variant: { cans?: number; title: string }) {
   return m ? Math.max(1, Number(m[1])) : 1;
 }
 
+/** Dosen im Paket: gepflegter Wert, sonst aus der ersten Packungsgröße (z. B. „24er Tray“ → 24) */
+export function packSizeOf(product: { packSize?: number; variants: { cans?: number; title: string }[] }) {
+  if (product.packSize && product.packSize > 0) return product.packSize;
+  return product.variants[0] ? cansOf(product.variants[0]) : 1;
+}
+
 /**
  * Füllmenge je Dose/Flasche in ml, gelesen aus Untertitel oder Titel (z. B. „Der Klassiker · 250 ml“, „0,5 l“).
  * Unbekannt → undefined (dann wird kein Grundpreis angezeigt).

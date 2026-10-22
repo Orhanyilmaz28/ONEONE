@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/admin-auth";
 import { aiMediaType } from "@/lib/ai-media";
 import { getAiOverrides } from "@/lib/ai-media-store";
 import { applyOverride, catalog, getBaseProducts, getOverrides } from "@/lib/catalog";
+import { packSizeOf } from "@/lib/format";
 import { strictReads } from "@/lib/store";
 import { skuInfo } from "../checks";
 import { htmlToText } from "../content";
@@ -127,7 +128,7 @@ export default async function EditProductPage({ params, searchParams }: Props) {
             highlights: (base.highlights ?? []).join("\n"),
             capacity: base.capacity ?? "",
             absorbency: base.absorbency ? String(base.absorbency) : "",
-            packSize: base.packSize ? String(base.packSize) : "",
+            packSize: String(packSizeOf(base)),
             options: base.options.map((o) => ({ name: o.name, values: o.values.join(", ") })),
           },
         }}
