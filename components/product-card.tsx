@@ -172,6 +172,17 @@ export function ProductCard({
             {basePrice ? <span className="font-normal text-muted"> · {basePrice}</span> : null}
           </p>
         ) : null}
+        {/* Sterne immer an derselben Stelle über dem Knopf; Zeile bleibt auch ohne Bewertungen reserviert, damit alle Knöpfe auf einer Linie stehen */}
+        <p className="mt-2 flex min-h-4 flex-wrap items-center gap-1.5 text-xs">
+          {rating.count ? (
+            <>
+              <Stars className="size-3.5" value={rating.average} />
+              <span className="font-medium">{formatAverage(rating.average)}</span>
+              <span className="text-muted">({rating.count})</span>
+            </>
+          ) : null}
+          {sold ? <span className="text-muted">{rating.count ? "· " : ""}{sold.toLocaleString("de-DE")}× verkauft</span> : null}
+        </p>
         <div aria-hidden className="min-h-3 flex-1" />
         {product.onRequest ? (
           <Link className="anim-shine relative inline-flex h-11 w-full items-center justify-center gap-2 overflow-hidden rounded-full border border-accent font-bold text-accent text-sm transition hover:bg-accent hover:text-black" href={`/palette?produkt=${product.handle}`}>
@@ -192,18 +203,6 @@ export function ProductCard({
             Auswählen
           </Link>
         )}
-        {rating.count || sold ? (
-          <p className="mt-2 flex flex-wrap items-center gap-1.5 text-xs">
-            {rating.count ? (
-              <>
-                <Stars className="size-3.5" value={rating.average} />
-                <span className="font-medium">{formatAverage(rating.average)}</span>
-                <span className="text-muted">({rating.count})</span>
-              </>
-            ) : null}
-            {sold ? <span className="text-muted">· {sold.toLocaleString("de-DE")}× verkauft</span> : null}
-          </p>
-        ) : null}
       </div>
     </article>
   );
