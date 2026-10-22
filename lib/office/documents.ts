@@ -519,3 +519,91 @@ export function dailyReportPdf(orders: OfficeOrder[], ctx: ListContext, company:
   }
   return doc.build(new Date(ctx.now));
 }
+
+/* ───────────── Rechnung (Privatbestellung) ───────────── */
+
+/**
+ * Rechnung zu einer Privatbestellung aus der gespeicherten Fassung (lib/office/invoices.ts).
+ * Pflichtangaben nach § 14 UStG: Absender mit USt-IdNr., Empfänger, Datum, fortlaufende Nummer, Menge und Bezeichnung,
+ * Liefer- bzw. Leistungszeitraum, Entgelt und MwSt. je Steuersatz. Preise brutto, MwSt. je Position gerundet.
+ */
+export function invoicePdf(inv: { number: string | null; createdAt: string; basis: import("./invoices").InvoiceBasis }, logo: PdfImage | null, now = Date.now()): Buffer {
+  const b = inv.basis;
+  const company = b.seller;
+  const preview = inv.number === null;
+  const doc = new PdfDoc(preview ? `Rechnung (Vorschau) zu Bestellung ${b.orderNumber}` : `Rechnung ${inv.number}`);
+  doc.footer = (page, pages) => ({ left: companyFooter(company), right: `${preview ? "Vorschau" : `Rechnung ${inv.number}`} · Seite ${page} von ${pages}` });
+  doc.newGroup();
+  const L = mm(20);
+  const R = doc.w - mm(15);
+  const head = letterhead(doc, company, logo);
+  const senderLine = [real(company.name), real(company.street), real(company.city)].filter(Boolean).join(" · ");
+  const addrTop = Math.max(head + mm(6), mm(45));
+  if (senderLine) {
+    doc.text(L, addrTop + 6, senderLine, { size: 6.5, gray: 0.35 });
+    doc.line(L, addrTop + 8.5, L + mm(85), addrTop + 8.5, 0.3, 0.75);
+  }
+  const block = b.recipient.flatMap((t) => wrapText(t, mm(85), 10.5));
+  block.forEach((l, i) => doc.text(L, addrTop + 22 + i * 13, l, { size: 10.5 }));
+
+  const issued = Date.parse(inv.createdAt) || now;
+  const month = (ms: number) => new Intl.DateTimeFormat("de-DE", { month: "long", year: "numeric", timeZone: "Europe/Berlin" }).format(ms);
+  const info: [string, string][] = [
+    ["Rechnungs-Nr.", preview ? "VORSCHAU" : (inv.number as string)],
+    ["Rechnungsdatum", berlin(issued)],
+    ["Bestellnummer", b.orderNumber],
+    ["Bestelldatum", berlin(b.orderDate)],
+    b.shippedAt ? ["Lieferdatum", berlin(b.shippedAt)] : ["Leistungszeitraum", month(b.orderDate)],
+    ...(b.vatId ? ([["Ihre USt-IdNr.", b.vatId]] as [string, string][]) : []),
+  ];
+  const ix = doc.w - mm(82);
+  info.forEach(([k, v], i) => {
+    doc.text(ix, addrTop + 22 + i * 12.5, k, { size: 8.5, gray: 0.35 });
+    doc.text(R, addrTop + 22 + i * 12.5, v, { size: 8.5, font: "bold", align: "right" });
+  });
+
+  const titleY = Math.max(addrTop + 22 + block.length * 13, addrTop + 22 + info.length * 12.5) + mm(12);
+  doc.text(L, titleY, "Rechnung", { size: 20, font: "bold" });
+  if (preview) doc.text(R, titleY, "Vorschau – noch keine Rechnungsnummer vergeben", { size: 8.5, gray: 0.45, align: "right" });
+  doc.line(L, titleY + 8, R, titleY + 8, 0.6, 0.2);
+
+  const flow = new Flow(doc, titleY + 14, () => mm(18), mm(20), mm(15));
+  const multi = b.byRate.length > 1;
+  flow.table(
+    [
+      { header: "Pos.", width: 6 },
+      { header: "Art.-Nr.", width: 12 },
+      { header: "Bezeichnung", width: 38 },
+      { header: "Menge", width: 8, align: "right" },
+      { header: "Einzelpreis", width: 13, align: "right" },
+      { header: "MwSt.", width: 8, align: "right" },
+      { header: "Gesamt", width: 13, align: "right", bold: true },
+    ],
+    b.positions.map((p) => [String(p.pos), p.sku || "", p.detail ? `${p.text}\n${p.detail}` : p.text, int(p.quantity), p.unitGross === null ? "—" : formatPrice(p.unitGross), `${p.rate} %`, formatPrice(p.gross)]),
+    { size: 9 },
+  );
+
+  // Summen: Gesamtbetrag brutto, darin Netto und MwSt. je Steuersatz
+  flow.y += 8;
+  const rows: [string, string, boolean][] = [];
+  for (const r of b.byRate) {
+    rows.push([`Nettobetrag${multi ? ` ${r.rate} %` : ""}`, formatPrice(r.net), false]);
+    rows.push([`zzgl. ${r.rate} % MwSt.`, formatPrice(r.vat), false]);
+  }
+  rows.push(["Gesamtbetrag", formatPrice(b.gross), true]);
+  flow.ensure(rows.length * 14 + 10);
+  const kx = flow.right - mm(75);
+  for (const [k, v, bold] of rows) {
+    if (bold) {
+      doc.line(kx, flow.y + 2, flow.right, flow.y + 2, 0.6, 0.2);
+      flow.y += 4;
+    }
+    doc.text(kx, flow.y + 10, k, { size: bold ? 10.5 : 9, font: bold ? "bold" : "regular", gray: bold ? 0 : 0.3 });
+    doc.text(flow.right, flow.y + 10, v, { size: bold ? 10.5 : 9, font: bold ? "bold" : "regular", align: "right" });
+    flow.y += bold ? 16 : 13;
+  }
+  flow.y += 10;
+  flow.paragraph(`Der Betrag wurde bei der Bestellung ${b.paymentMethod ? `per ${b.paymentMethod} ` : ""}bezahlt. Vielen Dank für deinen Einkauf!`, { size: 9, gap: 4 });
+  flow.paragraph("Alle Preise inkl. gesetzlicher MwSt. Das Einwegpfand erhältst du bei der Rückgabe der leeren Dosen und Flaschen im Handel zurück.", { size: 8, gray: 0.4 });
+  return doc.build(new Date(now));
+}

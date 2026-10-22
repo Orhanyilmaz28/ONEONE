@@ -12,7 +12,7 @@ import { berlinParts } from "./time";
  * Ältere Vorgänge (vor Phase 3C) stehen nur im Sicherheitsprotokoll und werden als „eingeschränkte historische
  * Informationen“ angezeigt. Nur auf dem Server verwenden.
  */
-export const ACTIVITY_KINDS = ["excel", "versandliste", "sammelliste", "tagesbericht", "lieferschein", "sammeldruck", "analyse"] as const;
+export const ACTIVITY_KINDS = ["excel", "versandliste", "sammelliste", "tagesbericht", "lieferschein", "sammeldruck", "analyse", "rechnung"] as const;
 export type ActivityKind = (typeof ACTIVITY_KINDS)[number];
 export const ACTIVITY_LABEL: Record<ActivityKind, string> = {
   excel: "Excel-Export",
@@ -22,6 +22,7 @@ export const ACTIVITY_LABEL: Record<ActivityKind, string> = {
   lieferschein: "Lieferschein",
   sammeldruck: "Sammeldruck (Lieferscheine)",
   analyse: "Verkaufsanalyse (Excel/PDF)",
+  rechnung: "Rechnung",
 };
 
 export type Activity = {

@@ -5,7 +5,8 @@ import { getSettings } from "../settings";
 import type { Product } from "../types";
 import { logActivity } from "./activity";
 import { MAX_NOTES_PER_PDF, MAX_REMARK, type StoredNote, issueNotes, orderFromBasis, readNotesFor } from "./delivery-notes";
-import { type CompanyInfo, collectListPdf, dailyReportPdf, deliveryNotesPdf, shippingListPdf } from "./documents";
+import { type CompanyInfo, collectListPdf, dailyReportPdf, deliveryNotesPdf, invoicePdf, shippingListPdf } from "./documents";
+import { invoiceBasis, invoiceBlockers, issueInvoice, readInvoice } from "./invoices";
 import { type Filters, applyFilters, describeFilters, filterSummaryForLog, lineFilter, parseFilters } from "./filters";
 import { logoImage } from "./logo";
 import type { OfficeOrder } from "./model";
@@ -20,13 +21,13 @@ import { changedSinceRelease } from "./workflow";
  * (nie ein unvollständiges Dokument) → Lieferscheinnummern festschreiben (nicht bei der Vorschau) → PDF erzeugen → protokollieren.
  * Bestellungen, Zahlungen und Rechnungen werden nie verändert.
  */
-export const DOC_TYPES = ["lieferschein", "versandliste", "sammelliste", "tagesbericht"] as const;
+export const DOC_TYPES = ["lieferschein", "versandliste", "sammelliste", "tagesbericht", "rechnung"] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 /** vorschau: ansehen ohne Nummernvergabe · druck: im Browser öffnen (zum Drucken) · download: als Datei speichern ·
  * archiv: unveränderte Kopie einer früheren Lieferschein-Version (keine neue Nummer, keine neue Version) */
 export type DocMode = "vorschau" | "druck" | "download" | "archiv";
 
-const TITLES: Record<DocType, string> = { lieferschein: "Lieferschein", versandliste: "Versandliste", sammelliste: "Artikel-Sammelliste", tagesbericht: "Tagesbericht" };
+const TITLES: Record<DocType, string> = { lieferschein: "Lieferschein", versandliste: "Versandliste", sammelliste: "Artikel-Sammelliste", tagesbericht: "Tagesbericht", rechnung: "Rechnung" };
 
 export type DocRequest = {
   type: DocType;
@@ -52,7 +53,7 @@ export function parseDocRequest(p: Input, now: number): { ok: true; req: DocRequ
   if (!type) return { ok: false, error: "Unbekannte Dokumentart." };
   const modeRaw = one(p.modus);
   const mode: DocMode = modeRaw === "vorschau" || modeRaw === "druck" || modeRaw === "archiv" ? modeRaw : "download";
-  if (mode === "vorschau" && type !== "lieferschein") return { ok: false, error: "Eine Vorschau gibt es nur für Lieferscheine." };
+  if (mode === "vorschau" && type !== "lieferschein" && type !== "rechnung") return { ok: false, error: "Eine Vorschau gibt es nur für Lieferscheine und Rechnungen." };
   const version = Number(one(p.version));
   if (mode === "archiv" && (type !== "lieferschein" || !Number.isInteger(version) || version < 1 || version > 10_000)) return { ok: false, error: "Ungültige Lieferschein-Version." };
   const flat = Object.fromEntries(Object.entries(p).map(([k, v]) => [k, one(v)]));
@@ -64,6 +65,12 @@ export function parseDocRequest(p: Input, now: number): { ok: true; req: DocRequ
   const hasRange = Boolean(one(p.zeitraum));
   let range: Range | null = null;
   let preset = "";
+  if (type === "rechnung") {
+    // Rechnung: immer genau eine Bestellung, ohne Zeitraum
+    if (all || keys.length !== 1 || !keys[0].startsWith("s:")) return { ok: false, error: "Eine Rechnung gibt es nur für genau eine Privatbestellung." };
+    if (mode === "archiv") return { ok: false, error: "Eine Rechnung wird immer in ihrer gespeicherten Fassung erzeugt." };
+    return { ok: true, req: { type, mode, range: null, preset: "", filters: parseFilters({}), keys, all: false } };
+  }
   if (hasRange || type !== "lieferschein") {
     const r = resolveRange({ preset: one(p.zeitraum) || "heute", day: one(p.tag), week: one(p.kw), month: one(p.monat), year: one(p.jahr), from: one(p.von), to: one(p.bis) }, now);
     if (!r.ok) return { ok: false, error: r.error };
@@ -176,7 +183,35 @@ async function buildDocument(req: DocRequest, who: Principal, origin: { ip: stri
   let filename: string;
   let detail = "";
 
-  if (req.type === "lieferschein" && req.mode === "archiv") {
+  if (req.type === "rechnung") {
+    const o = orders[0];
+    let stored: Awaited<ReturnType<typeof readInvoice>>;
+    try {
+      stored = await readInvoice(o.key);
+    } catch {
+      return { ok: false, status: 503, error: "Der Datenspeicher ist gerade nicht erreichbar. Bitte später erneut versuchen." };
+    }
+    // Bereits ausgestellt → immer die gespeicherte Fassung; neu → erst prüfen (fail closed)
+    if (!stored) {
+      const blockers = invoiceBlockers(o, company);
+      if (blockers.length) return { ok: false, status: 409, error: `Keine Rechnung erstellt: ${blockers.join(" ")}` };
+    }
+    if (req.mode === "vorschau") {
+      file = invoicePdf(stored ?? { number: null, createdAt: new Date(now).toISOString(), basis: invoiceBasis(o, products, company) }, logo, now);
+      detail = stored ? stored.number : "Vorschau";
+    } else {
+      try {
+        stored = await issueInvoice(o, products, company, by, req.mode === "druck" ? "gedruckt" : "heruntergeladen", now);
+      } catch {
+        console.error("[office] Rechnung konnte nicht gespeichert werden");
+        return { ok: false, status: 503, error: "Die Rechnung konnte nicht gespeichert werden (Datenspeicher nicht erreichbar). Es wurde keine Rechnung erstellt." };
+      }
+      file = invoicePdf(stored, logo, now);
+      log.notes = [stored.number];
+      detail = stored.number;
+    }
+    filename = `exstase-rechnung-${safeName(stored?.number ?? `vorschau-${o.number}`)}.pdf`;
+  } else if (req.type === "lieferschein" && req.mode === "archiv") {
     // Archivkopie einer früheren Version: unverändert aus der gespeicherten Datenbasis, keine neue Nummer oder Version
     const o = orders[0];
     let note: StoredNote | undefined;
