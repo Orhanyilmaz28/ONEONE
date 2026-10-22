@@ -9,6 +9,7 @@ import { findByCode } from "@/lib/influencers";
 import { SHOP_VAT } from "@/lib/influencer-rules";
 import { type MixLine, mixDiscount } from "@/lib/mix";
 import { type GoodsLine, discountedGoodsLines } from "@/lib/checkout-deposit-fix";
+import { STRIPE_TAX_CODE, packContentLabel } from "@/lib/cart-tax";
 
 type Body = { lines?: { variantId?: unknown; quantity?: unknown }[]; code?: unknown };
 
@@ -57,9 +58,13 @@ export async function POST(request: Request) {
     cans += cansOf(variant) * quantity;
     goodsLines.push({ handle: product.handle, title: product.title, unitAmount: variant.price, quantity, cansPerUnit: cansOf(variant) });
     const image = product.images[0]?.src;
+    // Beschreibung mit Packungsinhalt, z. B. „24 × 250 ml“ – steht so auch auf Bezahlseite und Stripe-Rechnung
+    const description = [product.variants.length > 1 ? variant.title : "", packContentLabel(product, cansOf(variant))].filter(Boolean).join(" · ");
     productData.push({
       name: product.title,
-      ...(product.variants.length > 1 ? { description: variant.title } : {}),
+      ...(description ? { description } : {}),
+      // Steuerart für Stripe Tax (nur aktiv mit STRIPE_AUTOMATIC_TAX=1): normale Ware → 19 % in Deutschland
+      tax_code: STRIPE_TAX_CODE,
       ...(image?.startsWith("https://") ? { images: [image] } : {}),
       metadata: { handle: product.handle, variantId: variant.id },
     });
@@ -111,7 +116,8 @@ export async function POST(request: Request) {
         currency: "eur",
         unit_amount: DEPOSIT_PER_CAN,
         tax_behavior: "inclusive",
-        product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", metadata: { handle: "pfand" } },
+        // Pfand ist wie die Ware mit 19 % steuerpflichtig (gleiche Steuerart wie die Getränke)
+        product_data: { name: "Einwegpfand", description: "0,25 € je Dose/Flasche", tax_code: STRIPE_TAX_CODE, metadata: { handle: "pfand" } },
       },
     });
   }

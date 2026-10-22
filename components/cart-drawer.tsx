@@ -4,7 +4,8 @@ import { AnimatePresence, MotionConfig, motion } from "motion/react";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/lib/cart";
-import { depositFor, formatPrice } from "@/lib/format";
+import { cartVat, packContentLabel } from "@/lib/cart-tax";
+import { cansOf, depositFor, formatPrice } from "@/lib/format";
 import { mixDiscount } from "@/lib/mix";
 import { SORT_COLORS } from "@/lib/pack-contents";
 import { useShopData } from "@/lib/shop-data";
@@ -39,9 +40,13 @@ export function CartDrawer() {
   const shippingCost = shipping.alwaysFree || (freeFrom && net >= freeFrom) ? 0 : shipping.cost;
   // Voraussichtliche Endsumme: Ware nach Rabatt + Pfand + Standardversand (alles inkl. MwSt.)
   const total = net + deposit + shippingCost;
+  // Enthaltene MwSt. (19 %), je Position gerundet wie auf der Rechnung (Ware, Pfand, Versand)
+  const vat = cartVat({ goods: net, deposit, shipping: shippingCost });
   // Handy: Einzelposten eingeklappt, damit die Artikel sichtbar bleiben (ab Tablet immer offen)
   const [details, setDetails] = useState(false);
   const progress = freeFrom ? Math.min(1, net / freeFrom) : 1;
+  // Grobe Hilfe: wie viele Trays (zum Durchschnittspreis im Warenkorb) bis zum kostenlosen Versand fehlen
+  const traysToFree = remaining > 0 && count > 0 && net > 0 ? Math.ceil(remaining / (net / count)) : 0;
 
   const closeRef = useRef<HTMLButtonElement>(null);
 
@@ -147,6 +152,7 @@ export function CartDrawer() {
                   {remaining > 0 ? (
                     <>
                       Noch <strong>{formatPrice(remaining)}</strong> bis zum kostenlosen Versand
+                      {traysToFree > 0 ? <span className="text-muted"> (ca. {traysToFree} {traysToFree === 1 ? "Tray" : "Trays"} mehr)</span> : null}
                     </>
                   ) : (
                     <>🎉 Du erhältst <strong>kostenlosen Versand</strong></>
@@ -204,9 +210,12 @@ export function CartDrawer() {
                             <div className="flex justify-between gap-2">
                               <div className="min-w-0">
                                 <p className="truncate font-medium">{line.product.title}</p>
-                                {line.product.variants.length > 1 ? (
-                                  <p className="text-muted text-sm">{line.variant.title}</p>
-                                ) : null}
+                                {(() => {
+                                  // Menge sofort erkennbar, z. B. „24 × 250 ml“ (bei mehreren Packungsgrößen mit Variante davor)
+                                  const pack = packContentLabel(line.product, cansOf(line.variant));
+                                  const text = [line.product.variants.length > 1 ? line.variant.title : "", pack].filter(Boolean).join(" · ");
+                                  return text ? <p className="text-muted text-sm">{text}</p> : null;
+                                })()}
                               </div>
                               <p className="shrink-0 text-sm tabular-nums">
                                 <Rolling cents={line.variant.price * line.quantity} />
@@ -343,6 +352,10 @@ export function CartDrawer() {
                     <Rolling cents={total} />
                   </span>
                 </div>
+                <div className="-mt-2 flex items-baseline justify-between gap-3 text-muted text-xs">
+                  <span>Enthaltene MwSt. (19 %)</span>
+                  <span className="tabular-nums">{formatPrice(vat)}</span>
+                </div>
                 <button
                   aria-controls="cart-details"
                   aria-expanded={details}
@@ -353,7 +366,7 @@ export function CartDrawer() {
                   {details ? "Details ausblenden ▴" : `Details: Ware, ${discount > 0 ? "Rabatt, " : ""}Pfand, Versand${promo ? "" : ", Rabattcode"} ▾`}
                 </button>
                 <p className="text-muted text-xs">
-                  {deposit > 0 ? "inkl. MwSt. und Pfand" : "inkl. MwSt."}{shipping.express ? ` · Express-Versand (${formatPrice(shipping.express)}) an der Kasse wählbar` : ""}
+                  {deposit > 0 ? "inkl. Pfand und Versand" : "inkl. Versand"}{shipping.express ? ` · Express-Versand (${formatPrice(shipping.express)}) an der Kasse wählbar` : ""}
                 </p>
                 {error ? (
                   <p className="rounded-xl bg-accent/10 px-3 py-2 text-accent-dark text-sm">{error}</p>

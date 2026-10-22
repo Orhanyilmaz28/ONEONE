@@ -71,7 +71,7 @@
         {
           "id": "classic-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2140,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -128,7 +128,7 @@
         {
           "id": "tropical-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -185,7 +185,7 @@
         {
           "id": "kiwi-lemon-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -242,7 +242,7 @@
         {
           "id": "watermelon-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -299,7 +299,7 @@
         {
           "id": "white-peach-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -356,7 +356,7 @@
         {
           "id": "ice-bonbon-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -413,7 +413,7 @@
         {
           "id": "lime-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -470,7 +470,7 @@
         {
           "id": "blueberry-coconut-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -527,7 +527,7 @@
         {
           "id": "dragonfruit-lychee-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -583,7 +583,7 @@
         {
           "id": "cactus-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -643,7 +643,7 @@
         {
           "id": "ice-coffee-latte-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -704,7 +704,7 @@
         {
           "id": "ice-coffee-cappuccino-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -761,7 +761,7 @@
         {
           "id": "ice-coffee-caramel-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -817,7 +817,7 @@
         {
           "id": "ice-coffee-espresso-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -873,7 +873,7 @@
         {
           "id": "ice-coffee-vanille-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": true,
           "options": {
             "Packung": "24er Tray"
@@ -929,7 +929,7 @@
         {
           "id": "xtea-watermelon-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": false,
           "options": {
             "Packung": "24er Tray"
@@ -984,7 +984,7 @@
         {
           "id": "xtea-peach-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": false,
           "options": {
             "Packung": "24er Tray"
@@ -1039,7 +1039,7 @@
         {
           "id": "xtea-lemon-24er",
           "title": "24er Tray",
-          "price": 1800,
+          "price": 2190,
           "available": false,
           "options": {
             "Packung": "24er Tray"
