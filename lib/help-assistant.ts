@@ -17,7 +17,7 @@ export type HelpProduct = { handle: string; title: string; subtitle?: string; ma
 
 type Topic = {
   id: string;
-  /** Text auf dem Themen-Knopf */
+  /** Frage auf dem Knopf (immer sichtbar im Fenster) */
   label: string;
   /** Wortstämme (klein, ohne Umlaute) – ein Treffer reicht */
   keywords: string[];
@@ -38,7 +38,7 @@ function shippingText(s: PublicSettings["shipping"]) {
 export const HELP_TOPICS: Topic[] = [
   {
     id: "versand",
-    label: "Versand & Lieferzeit",
+    label: "Was kostet der Versand?",
     keywords: ["versand", "liefer", "porto", "dhl", "paket", "wann kommt", "wie lange", "dauer", "express", "verschick", "senden", "zustell"],
     answer: (s) => ({
       text: `Wir versenden aus Straelen (NRW) innerhalb von 1–2 Werktagen, bei dir ist die Bestellung meist in 1–3 Werktagen. ${shippingText(s)}`,
@@ -47,7 +47,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "ausland",
-    label: "Lieferung ins Ausland",
+    label: "Liefert ihr ins Ausland?",
     specific: true,
     keywords: ["ausland", "oesterreich", "schweiz", "niederlande", "holland", "belgien", "frankreich", "italien", "europa", "eu ", "international", "land", "laender"],
     answer: () => ({
@@ -57,7 +57,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "pfand",
-    label: "Pfand",
+    label: "Wie funktioniert das Pfand?",
     keywords: ["pfand", "dose zurueck", "dosen zurueck", "leergut", "einweg"],
     answer: () => ({
       text: "Auf jede Dose und Flasche kommen 0,25 € Einwegpfand. Das Pfand steht im Warenkorb und an der Kasse als eigene Zeile, damit du immer siehst, was du zahlst. Leere Dosen gibst du wie gewohnt im Supermarkt am Automaten zurück.",
@@ -66,7 +66,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "mix",
-    label: "Mix-Rabatt",
+    label: "Wie funktioniert der Mix-Rabatt?",
     keywords: ["mix", "misch", "rabatt", "gemischt", "verschiedene sorten", "probier", "sparen", "angebot", "guenstiger"],
     answer: () => ({
       text: `Wenn du mindestens 2 verschiedene Sorten in den Warenkorb legst, gibt es Mix-Rabatt: ab ${MIX_TIERS[0].min} Trays ${MIX_TIERS[0].pct} %, bis zu ${MIX_MAX} % ab ${MIX_TIERS[MIX_TIERS.length - 1].min} Trays. Der Rabatt wird automatisch abgezogen.`,
@@ -75,7 +75,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "sorten",
-    label: "Sorten",
+    label: "Welche Sorten gibt es?",
     keywords: ["sorte", "geschmack", "welche gibt", "was gibt", "sortiment", "produkte", "energy", "ice tea", "eistee", "kaffee", "coffee", "wasser", "aqua"],
     answer: () => ({
       text: "Es gibt EXSTASE Energy in vielen Sorten (auch Zero ohne Zucker), X-Tea Ice Tea, Ice Coffee und Aqua x Wasser. Verkauft wird im Tray (24 Dosen, Wasser 12 Flaschen). Schreib mir einfach den Namen einer Sorte, dann zeige ich dir die Seite dazu.",
@@ -84,7 +84,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "zutaten",
-    label: "Zutaten & Koffein",
+    label: "Wo finde ich Zutaten & Koffein?",
     keywords: ["zutat", "koffein", "caffein", "naehrwert", "kalorie", "zucker", "allergen", "vegan", "inhaltsstoff", "taurin", "kcal", "gesund", "schwanger", "kinder", "zero"],
     answer: () => ({
       text: "Zutaten, Koffeingehalt und Nährwerte stehen auf jeder Produktseite unter „Zutaten & Nährwerte“ und auf der Dose. Zero ist die Variante ohne Zucker. Energy Drinks haben einen erhöhten Koffeingehalt und sind nicht für Kinder, Schwangere und Stillende empfohlen. Nenn mir eine Sorte, dann bringe ich dich direkt hin.",
@@ -93,7 +93,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "zahlung",
-    label: "Bezahlen",
+    label: "Wie kann ich bezahlen?",
     keywords: ["zahl", "bezahl", "paypal", "kreditkarte", "karte", "apple pay", "google pay", "klarna", "rechnung", "lastschrift", "sepa", "ueberweis", "sicher"],
     answer: () => ({
       text: "Du bezahlst sicher über Stripe, zum Beispiel mit Kreditkarte, PayPal, Apple Pay oder Google Pay. Welche Zahlungsarten genau gehen, siehst du auf der Bezahlseite.",
@@ -102,7 +102,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "rueckgabe",
-    label: "Rückgabe & Widerruf",
+    label: "Kann ich etwas zurückgeben?",
     keywords: ["rueckgabe", "zurueckgeb", "zuruecksend", "zurueckschick", "widerruf", "umtausch", "retour", "storn", "kaputt", "beschaedigt", "falsch geliefert", "reklamation"],
     answer: () => ({
       text: "Du kannst deine Bestellung innerhalb von 14 Tagen nach Erhalt ohne Angabe von Gründen widerrufen und die ungeöffnete Ware zurücksenden. Ist etwas beschädigt angekommen, schick uns bitte ein Foto per Mail, wir kümmern uns.",
@@ -111,7 +111,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "bestellung",
-    label: "Meine Bestellung",
+    label: "Wo ist meine Bestellung?",
     keywords: ["bestellung", "bestellt", "sendungsverfolgung", "tracking", "wo ist", "status", "bestellnummer", "bestaetigung", "aendern", "adresse"],
     answer: () => ({
       text: `Fragen zu einer Bestellung beantworten wir am schnellsten per Mail an ${HELP_EMAIL}. Schreib bitte deine Bestellnummer dazu. Wir melden uns meist innerhalb von 24 Stunden.`,
@@ -120,7 +120,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "haendler",
-    label: "Für Händler",
+    label: "Gibt es Händlerpreise?",
     keywords: ["haendler", "gewerbe", "grosshandel", "palette", "b2b", "wiederverkauf", "gastro", "kiosk", "laden", "einzelhandel", "event", "grosse menge", "firma"],
     answer: () => ({
       text: "Für Handel, Gastronomie und Events gibt es Händlerpreise, Paletten und Mischpaletten. Registrier dich kurz als Händler, wir melden uns mit deinen Konditionen.",
@@ -129,7 +129,7 @@ export const HELP_TOPICS: Topic[] = [
   },
   {
     id: "kontakt",
-    label: "Kontakt",
+    label: "Wie erreiche ich euch?",
     keywords: ["kontakt", "mensch", "mitarbeiter", "anruf", "telefon", "mail", "erreich", "sprechen", "hilfe"],
     answer: () => ({
       text: `Schreib uns an ${HELP_EMAIL}, wir antworten persönlich, meist innerhalb von 24 Stunden. Telefonisch erreichst du uns Mo–Fr von 9–17 Uhr.`,

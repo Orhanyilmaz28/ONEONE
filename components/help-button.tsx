@@ -10,7 +10,7 @@ type Entry = { from: "kunde"; text: string } | { from: "assistent"; answer: Help
 
 const WELCOME: HelpAnswer = {
   topic: "start",
-  text: "Hallo! Ich beantworte Fragen zu Versand, Pfand, Sorten, Zutaten und mehr. Wähl ein Thema oder schreib deine Frage.",
+  text: "Hallo! Tipp einfach auf eine Frage oder schreib unten deine eigene.",
   links: [],
 };
 
@@ -27,11 +27,14 @@ export function HelpButton() {
   const inputRef = useRef<HTMLInputElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
   const logRef = useRef<HTMLDivElement>(null);
+  const closeRef = useRef<HTMLButtonElement>(null);
 
   // Escape schließt, Fokus zurück auf den Knopf
   useEffect(() => {
     if (!open) return;
-    inputRef.current?.focus();
+    // Am Handy nicht ins Textfeld springen: die Tastatur würde die Fragen verdecken
+    if (window.matchMedia("(pointer: fine)").matches) inputRef.current?.focus();
+    else closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setOpen(false);
@@ -42,10 +45,11 @@ export function HelpButton() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Neueste Antwort sichtbar halten
+  // Neueste Frage mit Antwort oben im Fenster zeigen (die Fragen-Liste steht darunter)
   useEffect(() => {
     const log = logRef.current;
-    if (log) log.scrollTop = log.scrollHeight;
+    const last = log?.querySelector<HTMLElement>("[data-last-question]");
+    if (log && last) log.scrollTop = last.offsetTop - 12;
   }, [entries]);
 
   const ask = (question: string, answer: HelpAnswer) => {
@@ -70,7 +74,7 @@ export function HelpButton() {
       {open ? (
         <section
           aria-label="Fragen-Assistent"
-          className="fixed inset-x-3 bottom-3 z-50 flex max-h-[min(36rem,calc(100dvh-6rem))] flex-col overflow-hidden rounded-[1.75rem] border border-line bg-card text-ink shadow-[0_24px_60px_-16px_rgba(0,0,0,0.8)] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[23rem]"
+          className="fixed inset-x-3 bottom-3 z-50 flex max-h-[calc(100dvh-5rem)] sm:max-h-[min(44rem,calc(100dvh-6rem))] flex-col overflow-hidden rounded-[1.75rem] border border-line bg-card text-ink shadow-[0_24px_60px_-16px_rgba(0,0,0,0.8)] sm:inset-x-auto sm:right-6 sm:bottom-6 sm:w-[23rem]"
           data-print-hide
           id={panelId}
         >
@@ -84,6 +88,7 @@ export function HelpButton() {
             </div>
             <button
               aria-label="Assistent schließen"
+              ref={closeRef}
               className="flex size-9 items-center justify-center rounded-full transition hover:bg-line"
               onClick={() => {
                 setOpen(false);
@@ -95,10 +100,15 @@ export function HelpButton() {
             </button>
           </header>
 
-          <div aria-live="polite" className="flex-1 space-y-3 overflow-y-auto px-4 py-4 text-[15px]" ref={logRef}>
+          <div className="relative flex-1 space-y-3 overflow-y-auto px-4 py-4 text-[15px]" ref={logRef}>
+            <div aria-live="polite" className="space-y-3">
             {entries.map((entry, i) =>
               entry.from === "kunde" ? (
-                <p className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-black" key={i}>
+                <p
+                  className="ml-auto w-fit max-w-[85%] rounded-2xl rounded-br-md bg-accent px-3.5 py-2 text-black"
+                  data-last-question={i === entries.length - 2 ? "" : undefined}
+                  key={i}
+                >
                   {entry.text}
                 </p>
               ) : (
@@ -121,21 +131,28 @@ export function HelpButton() {
                 </div>
               ),
             )}
+            </div>
+
+            {/* Alle vorgegebenen Fragen, immer sichtbar unter dem Verlauf */}
+            <div className="pt-2">
+              <p className="mb-2 font-medium text-muted text-xs uppercase tracking-wider">{entries.length > 1 ? "Weitere Fragen" : "Häufige Fragen"}</p>
+              <ul className="flex flex-wrap gap-2">
+                {HELP_TOPICS.map((t) => (
+                  <li key={t.id}>
+                    <button
+                      className="rounded-full border border-accent/50 px-3 py-1.5 text-left text-accent text-sm transition hover:bg-accent hover:text-black"
+                      onClick={() => onTopic(t.id, t.label)}
+                      type="button"
+                    >
+                      {t.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           <div className="border-line border-t px-4 pt-3 pb-4">
-            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-3 [scrollbar-width:none]">
-              {HELP_TOPICS.map((t) => (
-                <button
-                  className="shrink-0 rounded-full border border-line px-3 py-1.5 text-sm transition hover:border-accent hover:text-accent"
-                  key={t.id}
-                  onClick={() => onTopic(t.id, t.label)}
-                  type="button"
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
             <form className="flex gap-2" onSubmit={onSubmit}>
               <label className="sr-only" htmlFor={`${panelId}-q`}>
                 Deine Frage
