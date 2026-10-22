@@ -40,8 +40,8 @@ export default async function AccountPage() {
         </dl>
         <p className="mt-6 text-muted text-sm">
           Daten ändern? Schreib uns kurz an{" "}
-          <a className="text-accent underline" href="mailto:hello@exstase.com?subject=Änderung%20meiner%20Händlerdaten">
-            hello@exstase.com
+          <a className="text-accent underline" href="mailto:hello@exstaseshop.com?subject=Änderung%20meiner%20Händlerdaten">
+            hello@exstaseshop.com
           </a>
           .
         </p>

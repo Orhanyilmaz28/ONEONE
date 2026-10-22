@@ -7,7 +7,7 @@ import { formatPrice } from "./format";
 import { MIX_MAX, MIX_TIERS } from "./mix";
 import type { PublicSettings } from "./settings-defaults";
 
-export const HELP_EMAIL = "hello@exstase.com";
+export const HELP_EMAIL = "hello@exstaseshop.com";
 
 export type HelpLink = { href: string; label: string };
 export type HelpAnswer = { topic: string; text: string; links: HelpLink[] };

@@ -21,10 +21,10 @@ export const company = {
   street: "Carl-Kühne-Str. 4",
   city: "47638 Straelen",
   country: "Deutschland",
-  email: "hello@exstase.com",
+  email: "hello@exstaseshop.com",
   phone: "0211 157 759-0",
   fax: "0211 157 759-29",
-  website: "https://exstase.com",
+  website: "https://exstaseshop.com",
   vatId: "DE311899184",
   register: "Amtsgericht Düsseldorf, HRB 90042",
 };

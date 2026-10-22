@@ -239,7 +239,7 @@ describe("AP5: Exporte", () => {
   assert.ok(req.ok);
   const list = [b2c({ ref: "ANNA10", discount: 100 }), b2c({ refunded: 500 }), b2b()];
   const a = svc.analyze(list, req.req, PRODUCTS, { now: NOW });
-  const COMPANY = { name: "Exstase Großhandel GmbH", brand: "EXSTASE", owner: "GF", street: "Carl-Kühne-Str. 4", city: "47638 Straelen", country: "Deutschland", email: "hello@exstase.com", phone: "0211", vatId: "DE311899184", register: "AG Düsseldorf HRB 90042" };
+  const COMPANY = { name: "Exstase Großhandel GmbH", brand: "EXSTASE", owner: "GF", street: "Carl-Kühne-Str. 4", city: "47638 Straelen", country: "Deutschland", email: "hello@exstaseshop.com", phone: "0211", vatId: "DE311899184", register: "AG Düsseldorf HRB 90042" };
 
   test("Excel: alle Blätter, Zahlen wie auf der Seite, keine Privatkunden-Daten", () => {
     const sheets = ex.analyticsSheets(a, { createdBy: "Test", now: NOW });

@@ -20,8 +20,8 @@ describe("Firmenstammdaten", () => {
     assert.equal(company.country, "Deutschland");
     assert.equal(company.phone, "0211 157 759-0");
     assert.equal(company.fax, "0211 157 759-29");
-    assert.equal(company.email, "hello@exstase.com");
-    assert.equal(company.website, "https://exstase.com");
+    assert.equal(company.email, "hello@exstaseshop.com");
+    assert.equal(company.website, "https://exstaseshop.com");
     assert.equal(company.vatId, "DE311899184");
     assert.equal(company.register, "Amtsgericht Düsseldorf, HRB 90042");
     assert.equal(COMPANY_DATA_SOURCE.registerVerified, false, "Registerstand nicht amtlich geprüft → freigabepflichtig");

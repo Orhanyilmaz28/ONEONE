@@ -24,7 +24,7 @@ type OfficeOrder = import("../lib/office/model").OfficeOrder;
 type Product = import("../lib/types").Product;
 
 const NOW = Date.parse("2026-10-22T10:00:00Z");
-const SELLER = { name: "Exstase Großhandel GmbH", brand: "EXSTASE", owner: "GF: Christopher Walich, Orhan Yilmaz", street: "Carl-Kühne-Str. 4", city: "47638 Straelen", country: "Deutschland", email: "hello@exstase.com", phone: "0211 157 759-0", vatId: "DE311899184", register: "AG Düsseldorf HRB 90042" };
+const SELLER = { name: "Exstase Großhandel GmbH", brand: "EXSTASE", owner: "GF: Christopher Walich, Orhan Yilmaz", street: "Carl-Kühne-Str. 4", city: "47638 Straelen", country: "Deutschland", email: "hello@exstaseshop.com", phone: "0211 157 759-0", vatId: "DE311899184", register: "AG Düsseldorf HRB 90042" };
 const product = (handle: string, productType: string): Product => ({ handle, title: handle, productType, descriptionHtml: "", tags: [], collections: [], images: [], options: [], variants: [{ id: `v-${handle}`, title: "24er Tray", price: 2190, available: true, options: {}, cans: 24 }], createdAt: "2026-01-01" });
 const PRODUCTS = new Map([["classic", product("classic", "Energy Drink")], ["ice-coffee-latte", product("ice-coffee-latte", "Ice Coffee")]]);
 
