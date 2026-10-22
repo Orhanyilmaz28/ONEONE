@@ -45,12 +45,13 @@ export function HelpButton() {
     return () => document.removeEventListener("keydown", onKey);
   }, [open]);
 
-  // Neueste Frage mit Antwort oben im Fenster zeigen (die Fragen-Liste steht darunter)
+  // Neueste Frage mit Antwort oben im Fenster zeigen (die Fragen-Liste steht darunter) – auch nach erneutem Öffnen
   useEffect(() => {
+    if (!open) return;
     const log = logRef.current;
     const last = log?.querySelector<HTMLElement>("[data-last-question]");
     if (log && last) log.scrollTop = last.offsetTop - 12;
-  }, [entries]);
+  }, [entries, open]);
 
   const ask = (question: string, answer: HelpAnswer) => {
     setEntries((list) => [...list, { from: "kunde", text: question }, { from: "assistent", answer }]);
