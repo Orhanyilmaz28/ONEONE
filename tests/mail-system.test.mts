@@ -82,6 +82,10 @@ test("Immer-an-Mails lassen sich nicht ausschalten", async () => {
   assert.equal(mailEnabledIn(s, "bestellung"), false);
   assert.equal(mailEnabledIn(s, "versand"), true, "Versand-Schalter setzt nur das Häkchen vor");
   assert.equal(mailEnabledIn(s, "monitor"), true);
+  // „Neue Bestellung“ aus heißt nicht „Neue Händler-Bestellung“ aus
+  assert.equal(mailEnabledIn(s, "neue-bestellung"), false);
+  assert.equal(mailEnabledIn(s, "neue-haendler-bestellung"), true);
+  assert.equal(mailEnabledIn({ ...s, off: ["neue-haendler-bestellung"] }, "neue-haendler-bestellung"), false);
 });
 
 test("Protokoll: Fehler merkt sich den Inhalt, „nochmal senden“ räumt auf", async () => {

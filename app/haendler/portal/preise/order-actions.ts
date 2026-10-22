@@ -103,7 +103,8 @@ export async function placeDealerOrderAction(input: PlaceOrderInput): Promise<Pl
       console.error("[haendler-bestellung] Bestätigung fehlgeschlagen", order.number, e),
     );
     const adminTo = mail.adminEmail.trim() || (replyTo ?? "");
-    if (mail.adminNotify && adminTo) {
+    // Eigener Schalter „Neue Händler-Bestellung“ – sendMail() prüft ihn
+    if (adminTo) {
       await sendMail({ to: { email: adminTo }, ...adminNewDealerOrderMail(order, settings), replyTo: dealer.email, tag: "neue-haendler-bestellung" }).catch((e) =>
         console.error("[haendler-bestellung] Shop-Info fehlgeschlagen", order.number, e),
       );
