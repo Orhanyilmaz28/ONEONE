@@ -278,7 +278,7 @@ export default async function AdminHome() {
           In Vercel den Zugang zum Shop-Postfach eintragen (<Env>SMTP_HOST</Env>, <Env>SMTP_USER</Env>, <Env>SMTP_PASS</Env>, z. B. Strato) oder alternativ <Env>BREVO_API_KEY</Env> und <Env>MAIL_FROM</Env> – dann neu bereitstellen.
         </>
       ),
-      link: { href: "/admin/einstellungen#emails", label: mailOk ? "E-Mail-Einstellungen" : "Zu den E-Mail-Einstellungen" },
+      link: { href: "/admin/emails", label: mailOk ? "E-Mails" : "Zu den E-Mails" },
     },
     {
       id: "webhook",

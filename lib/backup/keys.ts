@@ -59,6 +59,7 @@ export function classifyKey(key: string): KeyClass {
     return { include: false, category: "2FA-Geheimnis & Wiederherstellungscodes", reason: "darf nicht reaktiviert werden (verbrauchte Codes würden wieder gültig); nach einer Wiederherstellung 2FA neu einrichten" };
   if (key.startsWith("tt:backup:")) return { include: false, category: "Datensicherung (Betrieb)", reason: "Sperre und Protokoll der Sicherung selbst" };
   if (key.startsWith("tt:monitor:")) return { include: false, category: "Überwachung (Betrieb)", reason: "Fehlerzähler und Meldungen" };
+  if (key === "tt:mail-log" || key.startsWith("tt:mail-log:")) return { include: false, category: "E-Mail-Protokoll (Betrieb)", reason: "Versandprotokoll der letzten 30 Tage; läuft von selbst ab" };
   if (key.startsWith("tt:restore-test:")) return { include: false, category: "Testmarker", reason: "nur in Testdatenbanken" };
   if (key.startsWith("tt:test:")) return { include: false, category: "Testdaten", reason: "nur aus automatischen Tests" };
 

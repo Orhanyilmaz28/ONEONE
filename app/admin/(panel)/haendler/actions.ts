@@ -5,6 +5,8 @@ import { assertAdmin } from "@/lib/admin-auth";
 import { type DealerStatus, deleteDealer, getDealer, renewActivation, setDealerStatus } from "@/lib/dealer-store";
 import { SITE_URL } from "@/lib/format";
 import { mailReady, sendMail } from "@/lib/mail";
+import { dealerApprovedMail } from "@/lib/mail-templates";
+import { getSettings } from "@/lib/settings";
 import { deleteBinary } from "@/lib/store";
 
 const STATUS: DealerStatus[] = ["neu", "freigegeben", "abgelehnt"];
@@ -24,13 +26,9 @@ async function mailActivation(id: string) {
   const d = await getDealer(id);
   if (!d?.activationToken) return;
   const link = `${SITE_URL}/haendler/aktivieren?id=${d.id}&t=${d.activationToken}`;
-  await sendMail({
-    to: { email: d.email, name: d.contact },
-    subject: "Dein EXSTASE-Händlerzugang ist freigeschaltet",
-    html: `<p>Hallo ${d.contact.replace(/[<>&]/g, "")},</p><p>wir haben <b>${d.company.replace(/[<>&]/g, "")}</b> als Händler freigeschaltet. Lege jetzt dein Passwort fest und öffne deinen Händlerbereich mit Preisliste und Artikelpässen:</p><p><a href="${link}">Zugang einrichten</a></p><p>Der Link ist 14 Tage gültig.</p><p>Dein EXSTASE-Team</p>`,
-    text: `Hallo ${d.contact},\n\nwir haben ${d.company} als Händler freigeschaltet. Lege jetzt dein Passwort fest und öffne deinen Händlerbereich:\n${link}\n\nDer Link ist 14 Tage gültig.\n\nDein EXSTASE-Team`,
-    tag: "haendler-freischaltung",
-  }).catch((e) => console.error("[haendler] Freischaltungs-Mail fehlgeschlagen", e));
+  const settings = await getSettings();
+  const replyTo = /^\[.*\]$/.test(settings.company.email.trim()) ? undefined : settings.company.email.trim() || undefined;
+  await sendMail({ to: { email: d.email, name: d.contact }, ...dealerApprovedMail(d, link, settings), replyTo, tag: "haendler-freischaltung" }).catch((e) => console.error("[haendler] Freischaltungs-Mail fehlgeschlagen", e));
 }
 
 /** Neuen Zugangs-Link erzeugen (alter abgelaufen oder Passwort vergessen) */
